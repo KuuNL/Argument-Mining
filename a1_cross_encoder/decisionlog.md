@@ -207,3 +207,12 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - *Estimated cost:* about 65k candidate pairs per epoch × ~150 tokens ≈ 10M tokens, so roughly 10 min/epoch on ModernBERT-base, and 30–50 min for 3–5 epochs. No API spend.
 - *This is the project's first training run and first dev scoring*, both of which need the user's go-ahead under the working rules.
 - *Later ablations (Phase 9):* the whole map as context instead of ±2 turns, argmax instead of thresholds, no one-to-one decoding.
+
+### D026 — The repository is under git
+- **2026-09-30 · Setup · by user · Approved · Done** (baseline commit `7462dc3`)
+- *What:* `git init` on `main`, with a baseline commit of the Phase 0–2 state (26 files).
+  - `.gitignore` leaves out `data/` (the re-downloadable DialAM release; `data/evaluation/` holds the test gold and must never enter history), Python caches and venvs, model checkpoint files (`*.pt`, `*.safetensors`, …) and `.claude/settings.local.json`.
+  - `.gitattributes` stores text with LF line endings, so Windows git and WSL git see identical files, and treats PDFs as binary.
+- *Why:* every change becomes reviewable and reversible, and each result can be tied to the exact code that produced it.
+- *Deferred by the user:* whether to track `splits/`, and any change to the folder layout. Both wait for the project sweep and its proposals.
+- *Mechanics:* commits made from Claude Science pass the author per command (`git -c user.name=… -c user.email=… commit`), because its sandbox keeps `.git/config` read-only. Commits from a normal terminal use the user's global git identity.
