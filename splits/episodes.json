@@ -1,0 +1,594 @@
+{
+ "params": {
+  "id_gap": 20,
+  "core_min": 10,
+  "panel_min": 3,
+  "twin_shared": 3,
+  "dev_share": 0.15,
+  "seed": 13
+ },
+ "counts": {
+  "maps": 1478,
+  "episodes": 29,
+  "assigned": 1392,
+  "unassigned": 86,
+  "train": 1250,
+  "dev": 228,
+  "dev_share": 0.154,
+  "moved_by_leak_guard": 0,
+  "leaky_dev_train_pairs": 0
+ },
+ "leaky_pairs": [],
+ "dev_episodes": [
+  19,
+  3,
+  18,
+  10,
+  0
+ ],
+ "episodes": [
+  {
+   "episode": 0,
+   "maps": 33,
+   "ids": [
+    17918,
+    18994
+   ],
+   "panel": [
+    "Andy Burnham",
+    "Camilla Tominey",
+    "Chris Philp",
+    "Helle Thorning-Schmidt",
+    "James Graham"
+   ],
+   "split": "dev"
+  },
+  {
+   "episode": 1,
+   "maps": 47,
+   "ids": [
+    18265,
+    25413
+   ],
+   "panel": [
+    "Alex Massie",
+    "Helen Whately",
+    "Helen Whatley",
+    "Ian Murray",
+    "John Swinney",
+    "Layla McCay"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 2,
+   "maps": 45,
+   "ids": [
+    18453,
+    25421
+   ],
+   "panel": [
+    "Bernardine Evaristo",
+    "Liz SavilleRoberts",
+    "Robert Buckland",
+    "Rocco Forte",
+    "Vaughan Gething"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 3,
+   "maps": 49,
+   "ids": [
+    18751,
+    25566
+   ],
+   "panel": [
+    "George Mpanga",
+    "Iona Bain",
+    "Jess Phillips",
+    "Steve Barclay",
+    "Theo Paphitis"
+   ],
+   "split": "dev"
+  },
+  {
+   "episode": 4,
+   "maps": 50,
+   "ids": [
+    18841,
+    25553
+   ],
+   "panel": [
+    "James Cleverly",
+    "Jed Mercurio",
+    "Lisa Nandy",
+    "Munira Wilson",
+    "Steve Parish"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 5,
+   "maps": 35,
+   "ids": [
+    19054,
+    19102
+   ],
+   "panel": [
+    "David Ross",
+    "Douglas Ross",
+    "Ian Wood",
+    "Kate Forbes",
+    "Mark Walport",
+    "Miriam Brett"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 6,
+   "maps": 36,
+   "ids": [
+    19140,
+    22743
+   ],
+   "panel": [
+    "Anthony Scaramucci",
+    "Bonnie Greer",
+    "Chris Philp",
+    "Marie van-der-Zyl",
+    "Nick Thomas-Symonds"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 7,
+   "maps": 31,
+   "ids": [
+    19210,
+    25525
+   ],
+   "panel": [
+    "David Lammy",
+    "Matt Hancock",
+    "Robin Shattock",
+    "Rosie Jones"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 8,
+   "maps": 44,
+   "ids": [
+    19309,
+    25512
+   ],
+   "panel": [
+    "Liam Halligan",
+    "Michelle Donelan",
+    "Peter Openshaw",
+    "Sarah Jones",
+    "Tom Kerridge"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 9,
+   "maps": 36,
+   "ids": [
+    19738,
+    24807
+   ],
+   "panel": [
+    "Anneliese Dodds",
+    "Humphrey Cobbold",
+    "Mark Walport",
+    "Nadhim Zahawi",
+    "Rachel Clarke",
+    "Susan Desouza"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 10,
+   "maps": 43,
+   "ids": [
+    19878,
+    25501
+   ],
+   "panel": [
+    "Anand Menon",
+    "Arlene Foster",
+    "Brandon Lewis",
+    "Louise Haigh",
+    "Michelle O'Neill"
+   ],
+   "split": "dev"
+  },
+  {
+   "episode": 11,
+   "maps": 45,
+   "ids": [
+    20299,
+    25485
+   ],
+   "panel": [
+    "Angela Haggerty",
+    "Ian Murray",
+    "Jeane Freeman",
+    "Michael Forsyth",
+    "Stephen Fitzpatrick"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 12,
+   "maps": 52,
+   "ids": [
+    20480,
+    25442
+   ],
+   "panel": [
+    "Anneliese Dodds",
+    "Grant Shapps",
+    "Jeremy King",
+    "Jo Grady",
+    "Tony Danker"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 13,
+   "maps": 45,
+   "ids": [
+    20729,
+    25443
+   ],
+   "panel": [
+    "Bonnie Greer",
+    "Dan Hodges",
+    "Mims Davies",
+    "Steve Reed",
+    "Victor Adebowale"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 14,
+   "maps": 67,
+   "ids": [
+    20830,
+    25444
+   ],
+   "panel": [
+    "Adam Price",
+    "Andrew Davies",
+    "Claire Fox",
+    "Nigel Owens",
+    "Vaughan Gething"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 15,
+   "maps": 81,
+   "ids": [
+    20969,
+    25754
+   ],
+   "panel": [
+    "Anas Sarwar",
+    "Douglas Ross",
+    "Keith Brown",
+    "Lorna Slater",
+    "Willie Renner",
+    "Willie Rennie"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 16,
+   "maps": 56,
+   "ids": [
+    21268,
+    25476
+   ],
+   "panel": [
+    "Kate Forbes",
+    "Lisa Nandy",
+    "Michelle Dewberry",
+    "Paul Mason",
+    "Robert Buckland"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 17,
+   "maps": 50,
+   "ids": [
+    21363,
+    25515
+   ],
+   "panel": [
+    "Harriet Green",
+    "Nadhim Zahawi",
+    "Nick Thomas-Symonds",
+    "Richard Walker"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 18,
+   "maps": 56,
+   "ids": [
+    21425,
+    25461
+   ],
+   "panel": [
+    "Anthony Costello",
+    "Heather McGregor",
+    "Jenni Murray",
+    "Lucy Frazer",
+    "Peter Kyle"
+   ],
+   "split": "dev"
+  },
+  {
+   "episode": 19,
+   "maps": 47,
+   "ids": [
+    21567,
+    24905
+   ],
+   "panel": [
+    "Daniel Finkelstein",
+    "Ian Blackford",
+    "Mark Harper",
+    "Rosemary Squire",
+    "Sarah Jones"
+   ],
+   "split": "dev"
+  },
+  {
+   "episode": 20,
+   "maps": 37,
+   "ids": [
+    21638,
+    25462
+   ],
+   "panel": [
+    "Andy Burnham",
+    "Benjamin Zephaniah",
+    "Chika Russell",
+    "David Davis",
+    "Madeline Grant"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 21,
+   "maps": 38,
+   "ids": [
+    23460,
+    25691
+   ],
+   "panel": [
+    "Caroline Lucas",
+    "Emily Thornberry",
+    "Paul Polman",
+    "Paul Scully",
+    "Tim Stanley"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 22,
+   "maps": 60,
+   "ids": [
+    23521,
+    25474
+   ],
+   "panel": [
+    "Anas Sarwar",
+    "Andrew Bowie",
+    "Brian Cox",
+    "Heather McGregor",
+    "Kate Forbes",
+    "Kate Frobes"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 23,
+   "maps": 38,
+   "ids": [
+    23590,
+    25694
+   ],
+   "panel": [
+    "Boris Johnson",
+    "Lisa Nandy",
+    "Minette Batters",
+    "Nadhim Zahawi",
+    "Nick Ferrari",
+    "Rosie Jones"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 24,
+   "maps": 100,
+   "ids": [
+    23642,
+    25907
+   ],
+   "panel": [
+    "Anne-Marie Trevelyan",
+    "Boris Johnson",
+    "Daisy Cooper",
+    "Danny Sriskandarajah",
+    "David Lammy",
+    "Grant Shapps",
+    "John Ashworth",
+    "Kate Andrews",
+    "Munira Wilson",
+    "Richard Walker",
+    "Tim Stanley"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 25,
+   "maps": 43,
+   "ids": [
+    23796,
+    25468
+   ],
+   "panel": [
+    "James Cleverly",
+    "Lisa Nandy",
+    "Mehdi Hasan",
+    "Nelufar Hedayat",
+    "Rory Stewart"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 26,
+   "maps": 42,
+   "ids": [
+    23841,
+    25906
+   ],
+   "panel": [
+    "Deborah Frances-White",
+    "Hugh Osmond",
+    "John Bercow",
+    "Robert Jenrick",
+    "Thangam Debbonaire"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 27,
+   "maps": 44,
+   "ids": [
+    23883,
+    25904
+   ],
+   "panel": [
+    "Frank Luntz",
+    "Gillian Keegan",
+    "Kavita Oberoi",
+    "Lucy Powell",
+    "Yanis Varoufakis"
+   ],
+   "split": "train"
+  },
+  {
+   "episode": 28,
+   "maps": 42,
+   "ids": [
+    23928,
+    25463
+   ],
+   "panel": [
+    "Caroline Lucas",
+    "Jonathan Ashworth",
+    "Kate Andrews",
+    "Robert Buckland",
+    "Victor Adebowale"
+   ],
+   "split": "train"
+  }
+ ],
+ "unassigned": [
+  18673,
+  18817,
+  18985,
+  19044,
+  19103,
+  19244,
+  19737,
+  20478,
+  20479,
+  20728,
+  21082,
+  21083,
+  21084,
+  21334,
+  21335,
+  21336,
+  21337,
+  21338,
+  21362,
+  21566,
+  21756,
+  22744,
+  22745,
+  22853,
+  22924,
+  22950,
+  22954,
+  23106,
+  23126,
+  23137,
+  23154,
+  23156,
+  23266,
+  23275,
+  23380,
+  23384,
+  23388,
+  23391,
+  23396,
+  23398,
+  23440,
+  23451,
+  23589,
+  23686,
+  23690,
+  23695,
+  23696,
+  23700,
+  23795,
+  24042,
+  25409,
+  25416,
+  25424,
+  25429,
+  25433,
+  25491,
+  25516,
+  25517,
+  25518,
+  25519,
+  25526,
+  25527,
+  25528,
+  25529,
+  25536,
+  25537,
+  25538,
+  25539,
+  25540,
+  25690,
+  25692,
+  25695,
+  25726,
+  25729,
+  25730,
+  25901,
+  25902,
+  25903,
+  25936,
+  25937,
+  25938,
+  25940,
+  26066,
+  26067,
+  26068,
+  26087
+ ],
+ "moved_by_leak_guard": []
+}
