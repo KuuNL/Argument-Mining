@@ -1,0 +1,20 @@
+# Data: re-downloadable DialAM release (~35 MB, 1,500 files).
+# data/evaluation/ holds the gold for the 11 test maps and must never enter history.
+data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.venvs/
+
+# Model checkpoints and large run artefacts
+checkpoints/
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.ckpt
+
+# Local tool settings (machine-specific)
+.claude/settings.local.json

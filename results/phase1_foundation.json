@@ -1,0 +1,191 @@
+{
+ "ok": {
+  "majority_f1_equals_plan": true,
+  "majority_p_f1_near_paper": true,
+  "majority_focused_zero": true,
+  "parity_with_official": true,
+  "gold_vs_gold_is_100": true,
+  "strip_equals_test_input": true,
+  "stripped_maps_validate": true,
+  "no_anchor_from_a_copy": true,
+  "non_dialogue_anchors_under_1pct": true,
+  "split_disjoint_and_complete": true,
+  "split_dev_share_14_to_17pct": true,
+  "split_no_leaky_pairs": true
+ },
+ "majority_table": "| | General P / R / F1 | Focused P / R / F1 |\n|---|---|---|\n| ARI | 28.79 / 30.30 / 29.53 | 0.00 / 0.00 / 0.00 |\n| ILO | 34.71 / 35.91 / 35.30 | 0.00 / 0.00 / 0.00 |\n| GLOBAL | 31.75 / 33.11 / 32.41 | 0.00 / 0.00 / 0.00 |",
+ "majority_vs_paper": {
+  "ari": {
+   "ours": [
+    28.7942,
+    30.303,
+    29.5265
+   ],
+   "paper": [
+    28.79,
+    30.28,
+    29.52
+   ]
+  },
+  "ilo": {
+   "ours": [
+    34.713,
+    35.9091,
+    35.3003
+   ],
+   "paper": [
+    34.71,
+    35.9,
+    35.29
+   ]
+  },
+  "global": {
+   "ours": [
+    31.7536,
+    33.1061,
+    32.4134
+   ],
+   "paper": [
+    31.75,
+    33.09,
+    32.4
+   ]
+  }
+ },
+ "parity": {
+  "cases": 172,
+  "comparisons": 688,
+  "mismatches": [],
+  "n_mismatches": 0
+ },
+ "gold_validator": {
+  "maps_with_problems": 60,
+  "by_kind": {
+   "YA with 0 outgoing edges": 59,
+   "YA without a source": 56,
+   "MA without an incoming I-node": 50,
+   "MA needs exactly one outgoing edge, to an I-node; has []": 31,
+   "RA without an incoming I-node": 29,
+   "RA needs exactly one outgoing edge, to an I-node; has []": 24,
+   "CA without an incoming I-node": 10,
+   "MA needs exactly one outgoing edge, to an I-node; has ['I', 'L']": 7,
+   "RA needs exactly one outgoing edge, to an I-node; has ['I', 'L']": 6,
+   "MA needs exactly one outgoing edge, to an I-node; has ['MA']": 5,
+   "MA needs exactly one outgoing edge, to an I-node; has ['L']": 5,
+   "CA needs exactly one outgoing edge, to an I-node; has []": 5,
+   "CA needs exactly one outgoing edge, to an I-node; has ['L']": 4,
+   "YA with 2 outgoing edges": 2,
+   "RA needs exactly one outgoing edge, to an I-node; has ['L']": 2,
+   "CA needs exactly one outgoing edge, to an I-node; has ['CA']": 1
+  }
+ },
+ "graph_view": {
+  "L_nodes": 49550,
+  "analyst_copies": 23203,
+  "exact_copies": 20719,
+  "copy_share": 0.468,
+  "dialogue_L_nodes": 25741,
+  "L_to_I_anchors": 20746,
+  "anchors_from_copies": 0,
+  "anchors_from_non_dialogue_L": 7,
+  "I_nodes": 23465,
+  "I_nodes_without_anchor": 2947,
+  "maps_lt2_I": 0,
+  "maps_without_relations": 3,
+  "speakers_empty": 31
+ },
+ "split": {
+  "maps": 1478,
+  "episodes": 29,
+  "assigned": 1392,
+  "unassigned": 86,
+  "train": 1250,
+  "dev": 228,
+  "dev_share": 0.154,
+  "moved_by_leak_guard": 0,
+  "leaky_dev_train_pairs": 0,
+  "leaky_pairs": [],
+  "dev_episodes": [
+   {
+    "episode": 0,
+    "maps": 33,
+    "ids": [
+     17918,
+     18994
+    ],
+    "panel": [
+     "Andy Burnham",
+     "Camilla Tominey",
+     "Chris Philp",
+     "Helle Thorning-Schmidt",
+     "James Graham"
+    ],
+    "split": "dev"
+   },
+   {
+    "episode": 3,
+    "maps": 49,
+    "ids": [
+     18751,
+     25566
+    ],
+    "panel": [
+     "George Mpanga",
+     "Iona Bain",
+     "Jess Phillips",
+     "Steve Barclay",
+     "Theo Paphitis"
+    ],
+    "split": "dev"
+   },
+   {
+    "episode": 10,
+    "maps": 43,
+    "ids": [
+     19878,
+     25501
+    ],
+    "panel": [
+     "Anand Menon",
+     "Arlene Foster",
+     "Brandon Lewis",
+     "Louise Haigh",
+     "Michelle O'Neill"
+    ],
+    "split": "dev"
+   },
+   {
+    "episode": 18,
+    "maps": 56,
+    "ids": [
+     21425,
+     25461
+    ],
+    "panel": [
+     "Anthony Costello",
+     "Heather McGregor",
+     "Jenni Murray",
+     "Lucy Frazer",
+     "Peter Kyle"
+    ],
+    "split": "dev"
+   },
+   {
+    "episode": 19,
+    "maps": 47,
+    "ids": [
+     21567,
+     24905
+    ],
+    "panel": [
+     "Daniel Finkelstein",
+     "Ian Blackford",
+     "Mark Harper",
+     "Rosemary Squire",
+     "Sarah Jones"
+    ],
+    "split": "dev"
+   }
+  ]
+ }
+}
