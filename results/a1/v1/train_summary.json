@@ -1,0 +1,25 @@
+{
+ "run": "v1",
+ "lr": 3e-05,
+ "accum_steps": 3,
+ "max_tokens": 4096,
+ "epochs": 3,
+ "patience": 99,
+ "note": "first A1 run: whole-dialogue inputs (k = 10), tuned-score checkpoint selection",
+ "event": "end",
+ "steps": 10089,
+ "epochs_run": 3.0,
+ "best_ari_tuned_general": 50.9,
+ "best_step": 6724,
+ "seconds": 5662.2,
+ "minutes_per_epoch": 31.5,
+ "tokens_per_s": 20733,
+ "peak_vram_gib": 5.0,
+ "class_weights": {
+  "None": 1.0,
+  "Inference A->B": 6.36,
+  "Inference B->A": 5.97,
+  "Conflict": 10.53,
+  "Rephrase": 4.91
+ }
+}

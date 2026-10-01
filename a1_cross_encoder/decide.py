@@ -120,6 +120,19 @@ class Dev:
         return {n: ari_f1(self.gold[n], self.predicted(probs, n, th), self.n_pairs[n]) for n in (names or self.names)}
 
 
+def ece(probs: np.ndarray, labels: np.ndarray, bins: int = 15) -> float:
+    """Expected calibration error of the top label: |accuracy - confidence| averaged over confidence bins."""
+    conf, pred = probs.max(1), probs.argmax(1)
+    hit = (pred == labels).astype(float)
+    edges = np.linspace(0, 1, bins + 1)
+    total = 0.0
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        m = (conf > lo) & (conf <= hi)
+        if m.any():
+            total += m.mean() * abs(hit[m].mean() - conf[m].mean())
+    return round(float(total), 4)
+
+
 def mean_f1(scores: dict, which: int = 0) -> float:
     return 100 * float(np.mean([s[which][2] for s in scores.values() if s[which] is not None]))
 

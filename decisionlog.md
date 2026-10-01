@@ -17,9 +17,9 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | 3 | ILO labeller (trained) | `ilo/`: candidate filter, (turn, proposition, context) dataset, ModernBERT-base classifier, one-to-one decoding + per-type thresholds; reusable fine-tuning loop | Linking accuracy on dev beats text similarity (94.2%); ILO F1 general / focused on dev reported | Shared ILO labeller | **Passed (D028–D039): run v1 selected, dev ILO 90.08 / 80.64 cross-fitted; iteration v2 not adopted** |
 | A1.1 | Pair builder | `build_pairs.py`: candidates, 5-way labels, context text → `cache/` | ≥98% of gold relations survive pruning; gold→pairs→AIF round trip scores at the pruning ceiling; samples read by eye | A1 | **Passed (D040–D041): k = 10, dev ceiling 98.64 / 94.44** |
 | A1.2 | Model + training loop | `model.py`, `train.py` on `common/finetune.py` (built in Phase 3): weighted/focal loss, bf16, grad ckpt, map-level early stop | Overfits a tiny subset; VRAM and epoch time measured; base vs large chosen | A1 | **Passed (D042): ~27 min/epoch, 5.0 GB** |
-| A1.3 | Training run | Checkpoint + `results/timing.csv` | Dev per-map macro-F1 (argmax) recorded | A1 | — |
-| A1.4 | Decision layer | `tune.py` (temperature + per-class thresholds), `repair.py` | ECE before/after; thresholded ≥ argmax on dev | A1 | — |
-| A1.5 | Assemble + dev score | `predict.py` → valid AIF with S-nodes and YAs | Validator passes; dev ARI / ILO / Global table next to 2024 | A1 | — |
+| A1.3 | Training run | Checkpoint + `results/timing.csv` | Dev per-map macro-F1 (argmax) recorded | A1 | **Passed (D043): best at 2 epochs, tuned dev ARI 50.9 / 33.9** |
+| A1.4 | Decision layer | `tune.py` (temperature + per-class thresholds), `repair.py` | ECE before/after; thresholded ≥ argmax on dev | A1 | **Passed (D044): cross-fitted dev ARI 50.50 / 32.61** |
+| A1.5 | Assemble + dev score | `predict.py` → valid AIF with S-nodes and YAs | Validator passes; dev ARI / ILO / Global table next to 2024 | A1 | **Passed (D045): 225/225 valid; dev Global ≈ 70.3 / 56.6** |
 | A1.6 | Ablations | −context · −speaker/TA features · −pruning · argmax · (DeBERTa vs ModernBERT) | One lever off per run, re-scored on dev | A1 | — |
 | A1.7 | Test run | Final A1 row | Run once only, on the user's go | Final run | — |
 | A2 · A3 · A4 | Other approaches | Phased (A2.1, …) when each starts | — | A2 / A3 / A4 | Not started |
@@ -410,3 +410,41 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - *Check, memorisation:* 72 pairs (including 9 Conflict) reach 83% after 100 steps and **100% (loss 0.0) after 300 steps**. Longer inputs need more steps than ILO did; nothing is misaligned.
 - *Benchmark* (300 optimizer steps on the real data): **24.4k tokens/s, 4.98 GiB** peak, 39.1M tokens per epoch, so **about 27 min per epoch**. Dev prediction runs at 129 pairs/s (about 2.5 min per evaluation, plus tuning). Full run (A1.3): about 1 h 40 min.
 - *Base vs large (D006):* base. Large was about 3× slower and at the 8 GB limit in Phase 0.
+
+### D043 — A1.3 result: best checkpoint at 2 epochs, dev ARI 50.9 / 33.9 (tuned)
+- **2026-10-01 · A1.3 · by Claude · Finding** (run v1, launched detached; `results/a1/v1/train_log.jsonl`)
+
+  | Epoch | 0.5 | 1.0 | 1.5 | **2.0** | 2.5 | 3.0 |
+  |---|---|---|---|---|---|---|
+  | Tuned ARI general / focused | 42.07 / 19.75 | 45.53 / 25.50 | 49.31 / 30.43 | **50.90 / 33.91** | 50.37 / 30.65 | 50.59 / 33.44 |
+  | Simple decode | 37.69 / 11.95 | 41.87 / 15.85 | 48.78 / 31.29 | 50.08 / 33.82 | 49.45 / 30.84 | 49.79 / 31.41 |
+  | Temperature | 0.70 | 0.95 | 0.95 | 0.90 | 1.30 | 1.35 |
+
+- *Cost:* 94.4 min in total (31.5 min per epoch including dev evaluations), 20.7k tokens/s, 5.0 GiB GPU, 3.6 GB RAM.
+- *Learning:* relations are learnt much more slowly than illocutions. ILO peaked at 0.5 epoch; ARI climbs until 2 epochs, then flattens as the model grows overconfident (temperature above 1). Choosing checkpoints by tuned score picked epoch 2.
+
+### D044 — A1.4 result: thresholds tame the rare-label trap; honest dev ARI 50.50 / 32.61
+- **2026-10-01 · A1.4 · by Claude · Done** (`python -m a1_cross_encoder.tune --run=v1`, `results/a1/v1/thresholds.json`)
+- *Fitted on dev:* temperature 0.90; thresholds Inference **0.30**, Conflict **0.65**, Rephrase **0.45**. They are stable across folds (Inference 0.30–0.40, Conflict 0.55–0.65, Rephrase 0.45).
+- *Dev ARI:* simple decode 50.08 / 33.82; tuned on all of dev 50.90 / 33.91; **leave-one-episode-out 50.50 / 32.61**. Thresholds help general (+0.4) but cost focused (−1.2), because they are tuned for the general metric.
+- *Rare-label trap:* maps predicting Conflict with none in gold fall from **34 to 8**.
+- *Per type (pooled, tuned):*
+  - Inference: P 0.27, R 0.39, F1 0.32 (1,542 predicted vs 1,060 gold, so over-predicted);
+  - Conflict: P 0.31, **R 0.09**, F1 0.14 (39 vs 130);
+  - Rephrase: P 0.42, R 0.53, F1 0.47.
+- *Direction:* among gold Inference pairs found, **81% get the right direction**.
+- *Calibration:* top-label ECE is 0.93% before the temperature and 1.13% after. The model is already well calibrated, so the temperature step is neutral for A1 and the thresholds do the work. That gate item is recorded.
+- *Consistency repair:* nothing needed for scoring, since every unordered pair gets one label. Linked-RA merging is unscored and skipped (convergent RAs are valid IAT).
+
+### D045 — A1.5 result: complete, valid maps; dev Global about 70.3 / 56.6
+- **2026-10-01 · A1.5 · by Claude · Done** (`python -m a1_cross_encoder.predict --run=v1 --split=dev`, `results/a1/v1/dev_global.json`)
+- Each dev map is the test-format input, plus A1's relations (tuned thresholds), plus the ILO labeller's L→I links, plus unscored transition illocutions (Arguing / Restating / Disagreeing, D024). **225 / 225 maps pass the strict validator.** The official scorer on the assembled maps reproduces each component's tuned-on-all-dev numbers exactly.
+
+  | Dev (thresholds tuned on all of dev) | General P / R / F1 | Focused P / R / F1 |
+  |---|---|---|
+  | ARI | 50.21 / 57.03 / **50.90** | 45.08 / 30.56 / **33.91** |
+  | ILO | 90.39 / 90.26 / **90.16** | 81.01 / 80.79 / **80.67** |
+  | **Global** | 70.30 / 73.64 / **70.53** | 63.05 / 55.67 / **57.29** |
+
+- *Honest (cross-fitted components):* Global about **70.3 general / 56.6 focused**.
+- *For reference only (different maps):* 2024's best was 67.05 / 48.25 on the 11 test maps, which come from later debates and were chosen to be rich in arguments. Only the final run decides.

@@ -19,3 +19,4 @@ when,approach,stage,seconds,peak_vram_gib,host,info
 2026-10-01T16:37:01,a1,A1.2_overfit,20.765,4.36,KunalPC,"{""examples"": 72, ""train_accuracy"": 0.8333333333333334}"
 2026-10-01T16:38:14,a1,A1.2_overfit,49.030,4.36,KunalPC,"{""examples"": 72, ""train_accuracy"": 1.0, ""steps"": 300}"
 2026-10-01T16:45:17,a1,A1.2_bench,170.556,1.26,KunalPC,"{""max_tokens"": 4096, ""accum"": 3, ""train_tokens_per_s"": 23934, ""train_peak_vram"": 4.98, ""dev_pairs_per_s"": 129, ""dev_peak_vram"": 1.26, ""train_tokens_per_epoch"": 39139362, ""est_minutes_per_epoch"": 27.3}"
+2026-10-01T18:16:18,a1,A1.3_train_v1,5663.762,5.00,KunalPC,"{""lr"": 3e-05, ""train"": 104662, ""dev"": 19644, ""event"": ""end"", ""steps"": 10089, ""epochs_run"": 3.0, ""best_ari_tuned_general"": 50.9, ""best_step"": 6724, ""seconds"": 5662.2, ""minutes_per_epoch"": 31.5, ""tokens_per_s"": 20733, ""peak_vram_gib"": 5.0}"
