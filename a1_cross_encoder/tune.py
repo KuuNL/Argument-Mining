@@ -6,7 +6,8 @@
 3. Diagnostics: per relation type (pooled P/R/F1 over ordered pairs), Inference direction accuracy,
    and how often each type is predicted in maps that have none (the rare-label trap).
 
-    python -m a1_cross_encoder.tune --run=v1    -> results/a1/<run>/thresholds.json
+    python -m a1_cross_encoder.tune --run=v1             -> results/a1/<run>/thresholds.json
+    python -m a1_cross_encoder.tune --run=v1 --cap=1     -> results/a1/<run>/thresholds_cap1.json (D046)
 """
 import json
 from collections import Counter, defaultdict
@@ -20,12 +21,12 @@ from a1_cross_encoder.train import arg, dirs
 NAMES = {v: k for k, v in CODE.items()}
 
 
-def diagnostics(dev: Dev, probs, th) -> dict:
+def diagnostics(dev: Dev, probs, th, cap=None) -> dict:
     tp, fp, fn = Counter(), Counter(), Counter()
     direction_right = direction_total = 0
     spurious = Counter()                     # predicted type in a map whose gold has none of it
     for n in dev.names:
-        gold, pred = dev.gold[n], dev.predicted(probs, n, th)
+        gold, pred = dev.gold[n], dev.predicted(probs, n, th, cap)
         for k in gold.keys() | pred.keys():
             g, p = gold.get(k), pred.get(k)
             if g == p:
@@ -57,11 +58,12 @@ def diagnostics(dev: Dev, probs, th) -> dict:
 
 def main():
     run = arg("run", "v1")
+    cap = int(arg("cap", 0)) or None
     ckpt, out = dirs(run)
     dev = Dev(ckpt / "dev_probs.npy")
     t = fit_temperature(dev, dev.raw)
     probs = dev.calibrated(t)
-    final = tune(dev, probs, dev.names)
+    final = tune(dev, probs, dev.names, cap)
 
     ep_of, *_ = episodes(map_speakers())
     by_ep = defaultdict(list)
@@ -69,14 +71,14 @@ def main():
         by_ep[ep_of[int(n.removeprefix("nodeset"))]].append(n)
     held, folds = {}, {}
     for ep, names in sorted(by_ep.items()):
-        fit = tune(dev, probs, [n for n in dev.names if n not in names])
-        held.update(dev.scores(probs, fit["th"], names))
+        fit = tune(dev, probs, [n for n in dev.names if n not in names], cap)
+        held.update(dev.scores(probs, fit["th"], names, cap))
         folds[str(ep)] = {"maps": len(names), **fit["th"]}
 
     simple = dev.scores(dev.raw, None)
-    tuned_all = dev.scores(probs, final["th"])
+    tuned_all = dev.scores(probs, final["th"], cap=cap)
     report = {
-        "run": run, "temperature": t, "thresholds": final["th"],
+        "run": run, "cap": cap, "temperature": t, "thresholds": final["th"],
         "ece_top_label": {"before_temperature": ece(dev.raw, dev.labels), "after_temperature": ece(probs, dev.labels)},
         "dev_ari_f1": {
             "argmax_decode": {"general": round(mean_f1(simple, 0), 2), "focused": round(mean_f1(simple, 1), 2)},
@@ -84,11 +86,11 @@ def main():
             "cross_fitted (honest)": {"general": round(mean_f1(held, 0), 2), "focused": round(mean_f1(held, 1), 2)},
         },
         "folds": folds,
-        "diagnostics_tuned": diagnostics(dev, probs, final["th"]),
+        "diagnostics_tuned": diagnostics(dev, probs, final["th"], cap),
         "diagnostics_argmax": diagnostics(dev, dev.raw, None),
     }
     out.mkdir(parents=True, exist_ok=True)
-    with open(out / "thresholds.json", "w", encoding="utf-8", newline="\n") as f:
+    with open(out / ("thresholds.json" if cap is None else f"thresholds_cap{cap}.json"), "w", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(report, indent=1))
     print(json.dumps(report, indent=1))
 

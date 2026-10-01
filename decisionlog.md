@@ -448,3 +448,25 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 
 - *Honest (cross-fitted components):* Global about **70.3 general / 56.6 focused**.
 - *For reference only (different maps):* 2024's best was 67.05 / 48.25 on the 11 test maps, which come from later debates and were chosen to be rich in arguments. Only the final run decides.
+
+### D046 — A1 improvement, step 1: decoding-level levers are nearly exhausted
+- **2026-10-01 · A1 improvement · by Claude · Finding** (requested by user: "improve A1 first")
+- *Structure check* (dev, v1 tuned): the model attaches one proposition to several others far more often than gold does. The share of propositions that are the source of 2+ relations of one type:
+
+  | Relation | Gold | Predicted |
+  |---|---|---|
+  | Inference | 8% | 26% |
+  | Rephrase | 1% | 10% |
+  | Conflict | 0% | 11% |
+
+  On average 10.9 relations are predicted per map, against a gold 8.3.
+- *Fix tried: cap the outgoing relations per proposition and type* (`decide.py`, `tune.py --cap=N`), with thresholds re-tuned and scored by leave-one-episode-out:
+
+  | Honest dev ARI | No cap | Cap 1 | Cap 2 |
+  |---|---|---|---|
+  | General / focused | 50.50 / 32.61 | **50.95** / 32.20 | 50.58 / **33.57** |
+
+  The cap removes correct Inferences about as often as wrong ones (precision 0.27 → 0.28, recall 0.39 → 0.34). The gains are within dev noise, so **no cap stays the default**, and the option is kept.
+- *Checkpoint ensembling* (averaging the saved dev probabilities of several evaluations): epochs 2.0 + 2.5 + 3.0 give 50.15 / 31.43, and 1.5–3.0 give 49.75 / 32.83, both **worse** than epoch 2 alone. Checkpoints of one run make correlated errors, and the later ones overfit.
+- *Loss curve:* the training loss (class-weighted) falls steadily to the end (about 1.09 → 0.33), while dev peaks at epoch 2. That is **mild overfitting**, not underfitting.
+- *Conclusion:* the remaining gains need a better *model*: more training data, stronger weight on Conflict, or more capacity. They don't come from decoding.

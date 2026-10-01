@@ -163,6 +163,22 @@ Each dev map = the test-format input + A1's relations + the ILO labeller's illoc
 
 **Reference only:** 2024's best was 67.05 / 48.25, but on the 11 test maps, which come from later (2022–23) debates and were chosen to be rich in arguments. Dev and test aren't directly comparable; only the final run decides.
 
+## Improving A1, step 1: decoding (D046)
+
+Before retraining, the free levers were tested on the saved dev predictions:
+
+| Lever | What it tests | Honest dev ARI (general / focused) |
+|---|---|---|
+| v1 as is | — | 50.50 / 32.61 |
+| **Cap: 1 outgoing relation per proposition and type** | The model attaches one proposition to several (26% vs 8% in gold for Inference) | **50.95** / 32.20 |
+| Cap: 2 per proposition and type | Same, gentler | 50.58 / **33.57** |
+| Average of checkpoints at epochs 2.0–3.0 | Ensembling within one run | 50.15 / 31.43 |
+
+- **The structural problem is real, but capping can't fix it:** the model's most confident support for a proposition isn't reliably the right one, so precision barely moves (0.27 → 0.28) while recall drops.
+- **Ensembling one run's checkpoints makes things worse:** they make the same mistakes, and the later ones overfit.
+- **The loss curve shows mild overfitting:** training loss keeps falling while dev peaks at epoch 2.
+- **Conclusion:** further gains need a better model (more data, stronger Conflict weighting, or more capacity), not better decoding. No cap stays the default.
+
 ## Lessons so far
 - **ILO is strong (90 / 81) and ARI is the bottleneck (50.5 / 32.6).** That's where further work should go, as in 2024.
 - **Within ARI, Conflict recall (9%) and Inference precision (0.27) are the weakest parts.** Direction, a known 2024 failure, is right 81% of the time once a pair is found.

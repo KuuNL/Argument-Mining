@@ -59,8 +59,9 @@ def build_map(inp: dict, name: str, relations: dict, links: list, pos: dict) -> 
 
 def main():
     run, split = arg("run", "v1"), arg("split", "dev")
+    cap = int(arg("cap", 0)) or None
     ckpt, out = dirs(run)
-    th = json.loads((out / "thresholds.json").read_text())
+    th = json.loads((out / ("thresholds.json" if cap is None else f"thresholds_cap{cap}.json")).read_text())
     rows = read(split)
     probs = np.load(ckpt / f"{split}_probs.npy")
     z = np.log(np.clip(probs, 1e-12, 1.0)) / th["temperature"]
@@ -77,7 +78,7 @@ def main():
     pred_dir.mkdir(parents=True, exist_ok=True)
     for name, idx in sorted(by_map.items()):
         rs = [rows[k] for k in idx]
-        relations = decode(rs, cal[idx], th["thresholds"])
+        relations = decode(rs, cal[idx], th["thresholds"], cap)
         pos = {}
         for r in rs:
             for p, q in ((r["a"], r["a_pos"]), (r["b"], r["b_pos"])):
@@ -94,10 +95,10 @@ def main():
             json.dump(m, f)
         per_map.append(score_map(gold[name], m))
     agg = aggregate(per_map)
-    report = {"run": run, "split": split, "maps": len(per_map), "invalid_maps": len(problems),
+    report = {"run": run, "split": split, "cap": cap, "maps": len(per_map), "invalid_maps": len(problems),
               "problems": dict(list(problems.items())[:5]), "relations_predicted": dict(counts),
               "table": format_table(agg), **{k: agg[k] for k in ("ari", "ilo", "global", "skipped_maps")}}
-    with open(out / f"{split}_global.json", "w", encoding="utf-8", newline="\n") as f:
+    with open(out / (f"{split}_global.json" if cap is None else f"{split}_global_cap{cap}.json"), "w", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(report, indent=1))
     print(report["table"])
     print(json.dumps({k: report[k] for k in ("maps", "invalid_maps", "relations_predicted", "skipped_maps")}))

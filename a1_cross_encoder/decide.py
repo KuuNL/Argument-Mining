@@ -3,6 +3,9 @@
 Decoding: each pair's best non-None label c is kept if P(c) >= the threshold of its relation type
 (Inference, Conflict, Rephrase); with no thresholds the plain argmax over all five labels is used.
 Thresholds can sit below 0.5, trading precision for recall where macro-F1 rewards it.
+Optional caps (D046): each proposition keeps only its `cap` most probable *outgoing* relations of
+each type. In gold, 92% of premises support one conclusion, 99% of rephrasing propositions restate
+one earlier proposition, and no proposition attacks two; incoming relations stay uncapped.
 
 Used in A1.2/A1.3 to pick checkpoints (tuned_score: temperature + thresholds on all of dev);
 A1.4 adds leave-one-episode-out cross-fitting, consistency repair and the report.
@@ -71,9 +74,9 @@ def ari_f1(gold: dict, pred: dict, n_pairs: int):
     return general, focused
 
 
-def decode(rows, probs, th: dict | None) -> dict:
+def decode(rows, probs, th: dict | None, cap: int | None = None) -> dict:
     """{(source, target): code} for the pairs of one map."""
-    pred = {}
+    cand = []
     for r, p in zip(rows, probs):
         if th is None:
             c = int(np.argmax(p))
@@ -84,8 +87,16 @@ def decode(rows, probs, th: dict | None) -> dict:
             if p[c] < th[KIND[c]]:
                 continue
         kind, src, tgt = relation(r["a"], r["b"], LABELS[c])
-        pred[(src, tgt)] = CODE[kind]
-    return pred
+        cand.append((float(p[c]), kind, src, tgt))
+    if cap:
+        cand.sort(key=lambda x: -x[0])
+        used, kept = defaultdict(int), []
+        for score, kind, src, tgt in cand:
+            if used[(src, kind)] < cap:
+                used[(src, kind)] += 1
+                kept.append((score, kind, src, tgt))
+        cand = kept
+    return {(src, tgt): CODE[kind] for _, kind, src, tgt in cand}
 
 
 class Dev:
@@ -112,12 +123,12 @@ class Dev:
         e = np.exp(z)
         return e / e.sum(1, keepdims=True)
 
-    def predicted(self, probs, name, th):
+    def predicted(self, probs, name, th, cap=None):
         idx = self.idx[name]
-        return decode([self.rows[k] for k in idx], probs[idx], th)
+        return decode([self.rows[k] for k in idx], probs[idx], th, cap)
 
-    def scores(self, probs, th, names=None):
-        return {n: ari_f1(self.gold[n], self.predicted(probs, n, th), self.n_pairs[n]) for n in (names or self.names)}
+    def scores(self, probs, th, names=None, cap=None):
+        return {n: ari_f1(self.gold[n], self.predicted(probs, n, th, cap), self.n_pairs[n]) for n in (names or self.names)}
 
 
 def ece(probs: np.ndarray, labels: np.ndarray, bins: int = 15) -> float:
@@ -145,14 +156,14 @@ def fit_temperature(dev: Dev, probs) -> float:
     return T_GRID[int(np.argmin(nll))]
 
 
-def tune(dev: Dev, probs, names) -> dict:
+def tune(dev: Dev, probs, names, cap=None) -> dict:
     """Coordinate ascent (2 passes) on mean ARI general F1 over `names`."""
     th = {g: 0.5 for g in GROUPS}
-    best = mean_f1(dev.scores(probs, th, names))
+    best = mean_f1(dev.scores(probs, th, names, cap))
     for _ in range(2):
         for g in GROUPS:
             for v in TH_GRID:
-                f = mean_f1(dev.scores(probs, {**th, g: v}, names))
+                f = mean_f1(dev.scores(probs, {**th, g: v}, names, cap))
                 if f > best + 1e-9:
                     best, th = f, {**th, g: v}
     return {"th": th, "objective": round(best, 2)}
