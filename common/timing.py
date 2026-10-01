@@ -29,7 +29,7 @@ def timed(approach: str, stage: str, **info):
         path.parent.mkdir(parents=True, exist_ok=True)
         new = not path.exists()
         with open(path, "a", newline="", encoding="utf-8") as f:
-            w = csv.writer(f)
+            w = csv.writer(f, lineterminator="\n")   # csv defaults to CRLF; the repo stores LF
             if new:
                 w.writerow(COLUMNS)
             w.writerow([datetime.now().isoformat(timespec="seconds"), approach, stage, f"{seconds:.3f}",
