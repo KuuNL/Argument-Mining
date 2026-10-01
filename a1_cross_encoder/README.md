@@ -1,6 +1,6 @@
 # Approach 1 — PyTorch cross-encoder
 
-> **Status:** plan only. Nothing here has been run. Background (IAT, scoring, data) is in [`../CLAUDE.md`](../CLAUDE.md); the cross-approach plan is in [`../PLAN.md`](../PLAN.md).
+> **Status:** see the phase map in [`../decisionlog.md`](../decisionlog.md), the single record of progress (A1's phases are A1.1–A1.7). Background (IAT, scoring, data) is in [`../CLAUDE.md`](../CLAUDE.md); the cross-approach plan is in [`../PLAN.md`](../PLAN.md).
 
 **One sentence:** train a transformer to look at *two propositions plus the surrounding dialogue* and say how they relate, then turn its probabilities into careful, consistent decisions tuned to the official metric.
 
@@ -44,7 +44,7 @@ flowchart LR
 | **Fine-tuning** | Starting from a pre-trained model and continuing training on our labelled pairs, so it learns this annotation style. |
 | **Logits → softmax → probabilities** | The head outputs one score per label; softmax turns them into probabilities that sum to 1. |
 | **Class weights / focal loss** | Loss tweaks that make mistakes on rare labels (Conflict) cost more, so the model doesn't ignore them. |
-| **EDA** | *Exploratory data analysis* (Phase 1): counting and measuring the training maps to test our assumptions before modelling, e.g. relation distances, direction patterns, speaker effects. |
+| **EDA** | *Exploratory data analysis* (Phase 2, [`../eda/README.md`](../eda/README.md)): counting and measuring the training maps to test our assumptions before modelling, e.g. relation distances, direction patterns, speaker effects. |
 | **Pruning window** | Only pairs whose locutions are within *k* dialogue turns become candidates. *k* is set in EDA so ~98% of gold relations survive. |
 | **Temperature scaling** | One number fitted on dev that makes probabilities honest (a 0.8 means right ~80% of the time). |
 | **Per-class threshold** | Minimum probability required to output a label. Conflict gets the strictest one. |
@@ -85,7 +85,7 @@ Every proposition gets a **dialogue position** (the turn of its locution). A pai
 flowchart LR
   P["n propositions<br/>(~16)"] --> ALL["All ordered pairs<br/>n(n-1) ≈ 240"]
   ALL --> UN["Unordered<br/>≈ 120"]
-  UN --> WIN["Within k turns<br/>far fewer"]
+  UN --> WIN["Within k turns<br/>about 73% at k = 8"]
   WIN --> OUT["Scored by model"]
   UN -.->|"too far apart"| NONE["Auto None"]
 ```
@@ -165,16 +165,16 @@ flowchart TB
 ---
 
 ## 4. How to execute (when approved)
-| # | Step | Command (planned) | Output |
+| Phase | Step | Command (planned) | Output |
 |---|---|---|---|
-| 0 | Install deps | WSL2 venv from `requirements.txt`; check with `python -m a1_cross_encoder.check_env` (decisionlog D008–D009) | — |
-| 1 | Prerequisites | Phase 0 (loader, scorer, dev split) and Phase 1 (EDA → window *k*) done | `results/eda/` |
-| 2 | Build pair datasets | `python -m a1_cross_encoder.build_pairs --window k` | `a1_cross_encoder/cache/*.jsonl` |
-| 3 | Train | `python -m a1_cross_encoder.train --model modernbert-base` | checkpoint + `results/timing.csv` |
-| 4 | Tune decisions | `python -m a1_cross_encoder.tune --split dev` | `thresholds.json` |
-| 5 | Dev score | `python -m a1_cross_encoder.predict --split dev` then scorer | dev F1 table |
-| 6 | Ablations | re-run 4–5 with one lever off each time | ablation table |
-| 7 | Final test run (once) | `python -m a1_cross_encoder.predict --split test` then scorer vs `data/evaluation/` | final F1 |
+| 0 | Install deps | WSL2 venv from `requirements.txt`; check with `python -m a1_cross_encoder.check_env` ([`../decisionlog.md`](../decisionlog.md) D008–D010) | — |
+| 0–3 | Prerequisites | Environment, foundation, EDA (→ window *k*) and the ILO labeller done | `common/`, `eda/`, `ilo/` |
+| A1.1 | Build pair datasets | `python -m a1_cross_encoder.build_pairs --window k` | `a1_cross_encoder/cache/*.jsonl` |
+| A1.2–A1.3 | Train | `python -m a1_cross_encoder.train --model modernbert-base` | checkpoint + `results/timing.csv` |
+| A1.4 | Tune decisions | `python -m a1_cross_encoder.tune --split dev` | `thresholds.json` |
+| A1.5 | Dev score | `python -m a1_cross_encoder.predict --split dev` then scorer | dev F1 table |
+| A1.6 | Ablations | re-run A1.4–A1.5 with one lever off each time | ablation table |
+| A1.7 | Final test run (once) | `python -m a1_cross_encoder.predict --split test` then scorer vs `data/evaluation/` | final F1 |
 
 Planned layout:
 ```

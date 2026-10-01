@@ -8,8 +8,9 @@ __pycache__/
 .venv/
 .venvs/
 
-# Model checkpoints and large run artefacts
+# Model checkpoints, caches and large run artefacts (D027)
 checkpoints/
+cache/
 *.pt
 *.pth
 *.bin

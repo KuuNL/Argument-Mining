@@ -14,7 +14,7 @@ from . import RESULTS
 from .aif import load_map, strip_to_input, test_paths, training_paths, view
 from .official import run_official
 from .score import format_table, score_map, score_maps
-from .split import make_split
+from .split import make_split, matches_stored
 from .timing import timed
 from .validate import YA_LABELS, problem_kind, validate
 
@@ -159,8 +159,9 @@ def main():
         ok["no_anchor_from_a_copy"] = anchor_from_copy == 0
         ok["non_dialogue_anchors_under_1pct"] = anchor_off_dialogue < 0.01 * len(anchors)
 
-        # 6. Episode-grouped split with a leakage audit.
-        split, speakers, tr, dev, episode_of = make_split()
+        # 6. Episode-grouped split with a leakage audit. Recomputed and compared, never rewritten (D027).
+        split, speakers, tr, dev, episode_of = make_split(write=False)
+        ok["split_matches_tracked_files"] = matches_stored(tr, dev)
         report["split"] = {**split["counts"], "leaky_pairs": split["leaky_pairs"][:10],
                            "dev_episodes": [e for e in split["episodes"] if e["split"] == "dev"]}
         ok["split_disjoint_and_complete"] = not (tr & dev) and len(tr | dev) == len(train)

@@ -1,4 +1,4 @@
-# ML environment (WSL2 Ubuntu 24.04, Python 3.12) — see a1_cross_encoder/decisionlog.md D008
+# ML environment (WSL2 Ubuntu 24.04, Python 3.12) — see decisionlog.md D008
 # uv venv ~/.venvs/dialam --python 3.12 && uv pip install --python ~/.venvs/dialam/bin/python -r requirements.txt
 --extra-index-url https://download.pytorch.org/whl/cu130
 Using Python 3.12.3 environment at: /home/kunal/.venvs/dialam

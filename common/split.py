@@ -1,4 +1,4 @@
-"""Episode-grouped train/dev split of the training maps (PLAN Phase 0, D012).
+"""Episode-grouped train/dev split of the training maps (PLAN: Foundation; D012).
 
 The maps carry no episode label (locution dates are mostly import dates), so episodes are
 recovered from their panels:
@@ -10,7 +10,11 @@ recovered from their panels:
 3. Whole cores go to dev until DEV_SHARE of the maps is reached; then any training map that
    shares a panellist unique to a dev episode is moved to dev too (leak guard).
 
-    python -m common.split          # writes splits/{train,dev}.txt and splits/episodes.json
+The split in splits/ is tracked in git and fixed for the whole project. Recomputing it only
+checks that the code still reproduces it; overwriting needs --write (D027).
+
+    python -m common.split            # recompute and compare with splits/
+    python -m common.split --write    # deliberately regenerate splits/ (shows up as a git diff)
 """
 import json
 import random
@@ -100,7 +104,7 @@ def episodes(speakers: dict[int, set[str]]):
     return episode_of, panels, n_panels, unassigned
 
 
-def make_split():
+def make_split(write: bool = False):
     speakers = map_speakers()
     episode_of, panels, n_panels, unassigned = episodes(speakers)
     members = defaultdict(list)
@@ -136,9 +140,6 @@ def make_split():
     train = sorted(set(speakers) - dev)
     leaks = leaks(train)   # the audit: must be empty
 
-    SPLITS.mkdir(exist_ok=True)
-    (SPLITS / "train.txt").write_text("".join(f"nodeset{i}\n" for i in train))
-    (SPLITS / "dev.txt").write_text("".join(f"nodeset{i}\n" for i in sorted(dev)))
     report = {
         "params": {"id_gap": ID_GAP, "core_min": CORE_MIN, "panel_min": PANEL_MIN, "twin_shared": TWIN_SHARED,
                    "dev_share": DEV_SHARE, "seed": SEED},
@@ -154,8 +155,21 @@ def make_split():
         "unassigned": unassigned,
         "moved_by_leak_guard": moved,
     }
-    (SPLITS / "episodes.json").write_text(json.dumps(report, indent=1))
+    if write:
+        SPLITS.mkdir(exist_ok=True)
+        for name, ids in (("train", train), ("dev", sorted(dev))):
+            with open(SPLITS / f"{name}.txt", "w", newline="\n") as f:
+                f.write("".join(f"nodeset{i}\n" for i in ids))
+        with open(SPLITS / "episodes.json", "w", newline="\n") as f:
+            f.write(json.dumps(report, indent=1))
     return report, speakers, set(train), dev, episode_of
+
+
+def matches_stored(train: set, dev: set) -> bool:
+    """True if a recomputed split equals the tracked splits/{train,dev}.txt."""
+    stored = {name: {int(s.removeprefix("nodeset")) for s in (SPLITS / f"{name}.txt").read_text().split()}
+              for name in ("train", "dev")}
+    return stored["train"] == set(train) and stored["dev"] == set(dev)
 
 
 def load_split(name: str):
@@ -165,5 +179,8 @@ def load_split(name: str):
 
 
 if __name__ == "__main__":
-    report, *_ = make_split()
+    import sys
+    write = "--write" in sys.argv
+    report, _, train, dev, _ = make_split(write=write)
     print(json.dumps(report["counts"]))
+    print("written to splits/" if write else f"matches tracked splits/: {matches_stored(train, dev)}")

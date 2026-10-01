@@ -1,7 +1,7 @@
 # DialAM-2024 — Dialogical Argument Mining
 
 **Working rules:** understand → plan → user approves → experiment. Don't run experiments, training or scoring until the user asks.
-Keep plans concise. The plan lives in `PLAN.md`.
+Keep plans concise. The plan lives in `PLAN.md`; decisions and phase status live in `decisionlog.md`.
 
 ---
 
@@ -91,7 +91,7 @@ Consequences:
   - A high general score with a low focused score means the system predicts too little. The reverse means it predicts too much.
 - ⚠ **The rare-label trap:** the macro average covers only labels present in *gold or prediction*. One spurious Conflict in a map with no gold Conflict adds a zero-scoring class and can cut that map's score by about a quarter. Rare classes need high confidence.
 - Checked (`common/score.py`, `python -m common.check_foundation`): the port equals the official scripts in 688/688 comparisons, and gives
-  the majority baseline 29.53 / 35.30 / 32.41. The paper prints 29.52 / 35.29 / 32.40; its table isn't an exact per-map mean (decisionlog D015).
+  the majority baseline 29.53 / 35.30 / 32.41. The paper prints 29.52 / 35.29 / 32.40; its table isn't an exact per-map mean (`decisionlog.md` D015).
 
 ## 5. The data
 | Path | Content |
@@ -101,12 +101,14 @@ Consequences:
 | `data/evaluation/` | **Gold** for those 11, wrapped as `{"AIF": …}` with the same node IDs. **Never train or tune on these.** Dev data comes from `training/`, split by episode. |
 | `splits/` | Fixed train/dev lists (1,250 / 228 maps, 5 dev episodes), made by `common/split.py` |
 | `common/` | Shared foundation: loader and graph view (`aif.py`), `score.py`, `validate.py`, `split.py`, `timing.py` |
+| `eda/` | Exploratory data analysis: findings with figures (`README.md`), `run_eda.py`, `findings.json` |
+| `decisionlog.md` | Every decision, plus the phase map: the single record of phase numbering and status |
 | `reference/` | Overview paper, annotation and data-format specs, official scorers (`eval-scripts/`) |
 
 Key numbers (training):
 - **Relations:** Rephrase 5,848 · Inference 5,687 · **Conflict 1,232 (rare)**. 90% of RAs have one premise.
 - **Scored illocutions (L→I):** Asserting 18,747 ≫ Pure Q 1,183 > Assertive Q 239 ≈ Rhetorical Q 222 > Default Illocuting 133 > Agreeing 107 > Challenging 40.
-- **Map size:** about 16 I-nodes per map. About 2 L-nodes per I-node, because maps include *analyst-copy* L-nodes (`"Anna: Speaker : …"`, linked by `Analysing`). These are annotation bookkeeping, not dialogue.
+- **Map size:** about 16 I-nodes per map. About 2 L-nodes per I-node, because maps include *analyst-copy* L-nodes (`"Anna: Speaker : …"`; only about 2% are linked by `Analysing`). These are annotation bookkeeping, not dialogue: they never sit in the turn chain or anchor a proposition (`eda/README.md` §1).
 - **Test set:** 11 maps with 11–35 I-nodes each, deliberately rich in linked, convergent and divergent arguments (gold: 53 RA, 13 CA, 46 MA).
 
 ## 6. What happened in 2024, and why
@@ -149,7 +151,7 @@ It also supplies the L→I links that the ARI approaches need on test maps.
 **A1 — PyTorch cross-encoder (the fixed 2024 recipe).** A *cross-encoder* is a transformer (DeBERTa-v3 / ModernBERT) that reads
 both propositions together plus a window of surrounding dialogue and speaker tags, and outputs a probability for each label.
 We fine-tune it in PyTorch on our pairs.
-- *Candidate pruning* (dropping pairs that are far apart in the dialogue) removes most "None" pairs before classification.
+- *Candidate pruning* (dropping pairs more than *k* turns apart) is cheap but modest: at k = 8 it keeps 98% of relations and removes about a quarter of the pairs (`eda/README.md` §5), so the loss and thresholds still carry most of the imbalance.
 - A *weighted or focal loss* upweights the rare Conflict class.
 - *Per-class thresholds*, tuned on dev for the per-map macro-F1, avoid the rare-label trap.
 - **Why:** it fixes failures 1, 2 and 4-lite cheaply on the local GPU. It's the strongest known baseline, modernised.
@@ -190,4 +192,4 @@ So a cheap pass decides the confident pairs, and only the uncertain ones go to A
 Windows 11 (Python 3.14 + PyMuPDF for docs). GPU: RTX 5060 Ti with 8 GB, and 16 GB RAM.
 **ML code runs in WSL2 Ubuntu 24.04**, because Smart App Control blocks torch's unsigned DLLs on Windows:
 `wsl -e bash -lc 'cd "/mnt/c/Argument Mining" && ~/.venvs/dialam/bin/python -m <module>'`.
-The venv (Python 3.12, torch 2.14+cu130, transformers 5.17) is pinned in `requirements.txt`. Details are in `a1_cross_encoder/decisionlog.md` D007–D011.
+The venv (Python 3.12, torch 2.14+cu130, transformers 5.17) is pinned in `requirements.txt`. Details are in `decisionlog.md` D007–D011.

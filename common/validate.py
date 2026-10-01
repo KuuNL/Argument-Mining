@@ -1,4 +1,4 @@
-"""Well-formedness checks for AIF maps (PLAN Phase 0).
+"""Well-formedness checks for AIF maps (PLAN: Foundation).
 
 `validate` returns a list of problems. Our own predicted maps must have none. Gold maps
 contain a few irregular relation nodes (about 1% of S-nodes), which are reported, not fixed.

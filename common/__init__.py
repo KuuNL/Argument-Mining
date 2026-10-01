@@ -1,4 +1,4 @@
-"""Shared foundation for all approaches: loading, validating, scoring, splitting, timing (PLAN Phase 0)."""
+"""Shared foundation for all approaches: loading, validating, scoring, splitting, timing (PLAN: Foundation; phase 1 in decisionlog.md)."""
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent

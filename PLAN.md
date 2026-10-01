@@ -1,8 +1,9 @@
 # PLAN — DialAM-2024 revisited: four approaches compared
 
-**Target:** beat 2024 best **Global 67.05 (general) / 48.25 (focused)**. ARI (55.3 / 35.9) is the main gap; ILO (81.2) is close to solved.
+**Target:** beat 2024 best **Global 67.05 (general) / 48.25 (focused)**. ARI (55.3 / 35.9) is the main gap; ILO (81.2) is stronger, but its rare types weigh heavily in macro-F1 (`eda/README.md` §3).
 **Research question:** which post-2024 method class solves dialogical argument mining best, at what cost and speed?
 **Execution:** one phase at a time (GSD: discuss → plan → execute → verify). Nothing runs until the user starts that phase.
+Phase numbers and status live in `decisionlog.md` (its phase map); sections here are named, not numbered.
 Background, IAT and scoring details are in `CLAUDE.md`.
 
 ---
@@ -20,7 +21,7 @@ Background, IAT and scoring details are in `CLAUDE.md`.
 
 ---
 
-## Phase 0 — Foundation
+## Foundation
 - **Loader/writer:** reads training, test and evaluation maps (handling evaluation's `{"AIF":…}` wrapper), a graph view (I, L, TA, speaker, dialogue order), and writes AIF.
 - **Validator:** every edge endpoint exists; each S-node has at least one incoming I-node and exactly one outgoing I-node; types and labels are legal.
 - **Scorer:** a vectorised port of `reference/eval-scripts/`, matching their quirks (target = *first* outgoing edge; ILO scores only L→I).
@@ -29,7 +30,7 @@ Background, IAT and scoring details are in `CLAUDE.md`.
 - **Timing harness:** a context manager that logs to `results/timing.csv`.
 - **Deps:** scikit-learn, torch (CUDA), transformers; everything else per phase.
 
-## Phase 1 — EDA and structural priors
+## EDA and structural priors
 Measure the hypotheses that later phases rely on:
 - L→I alignment: how often the best text-similarity match is the gold proposition; how analyst-copy L-nodes are recognised.
 - **TA distance** between the locutions behind related I-pairs. This sets the pruning window: the smallest window that keeps about 98% of gold relations.
@@ -40,9 +41,9 @@ Measure the hypotheses that later phases rely on:
   per pair `boolean` "does B contradict A?". Compare with gold to see which relations are visible on the surface and which need reasoning.
 - **Deliverable:** a short EDA note plus the pruning window. Every number is used by a later phase.
 
-## Phase 2 — Shared ILO labeller (trained)
+## Shared ILO labeller (trained)
 ILO is half the Global score. The EDA showed that its surface cues are weak ("?" is almost absent from the transcripts) and that rare types weigh heavily in macro-F1.
-So ILO is **learned, not hand-written** (user decision, 2026-09-30; details in `a1_cross_encoder/decisionlog.md` D025).
+So ILO is **learned, not hand-written** (user decision, 2026-09-30; details in `decisionlog.md` D025).
 1. **Candidates:** every (dialogue turn, proposition) pair in a map, narrowed to each turn's top-K most text-similar propositions. K is set so that ≥ 99.5% of gold links survive. Analyst copies are never candidates.
 2. **Model:** ModernBERT-base reads the speaker-tagged turn, the proposition and the neighbouring turns, and outputs P(None, Asserting, Pure / Assertive / Rhetorical Questioning, Agreeing, …).
 3. **Decode:**
@@ -59,7 +60,7 @@ So ILO is **learned, not hand-written** (user decision, 2026-09-30; details in `
 **Idea.** The 2024 winning recipe, with its known flaws fixed. Same model family, better inputs and better decisions.
 
 **End to end:**
-1. **Candidates:** all ordered I-pairs within the pruning window from Phase 1. That cuts most "None" pairs before any model runs.
+1. **Candidates:** all I-pairs within the pruning window set by the EDA. At k = 8 that keeps 98% of relations and removes about a quarter of the pairs, so most of the imbalance is left to the loss and thresholds.
 2. **Input text:** `[proposition A] [SEP] [proposition B] [SEP] dialogue window around both (speaker-tagged) + TA distance + same-speaker flag`.
 3. **Model:** DeBERTa-v3-large or ModernBERT-large (8k context), with a 5-way head
    {A→B Inference, B→A Inference, Conflict, Rephrase, None}. Direction is a label, and each unordered pair is scored once.
@@ -67,7 +68,7 @@ So ILO is **learned, not hand-written** (user decision, 2026-09-30; details in `
    loss to lift CA; early stopping on dev *map-level* macro-F1.
 5. **Decision layer:** per-class thresholds (CA strictest) tuned on dev; then consistency repair: one relation per pair, no
    A→B *and* B→A inference, and linked-RA merging when several premises share a conclusion and appear together.
-6. **ILO:** the shared Phase 2 labeller (trained ModernBERT). Its L→I links also give each test proposition its dialogue position and speaker.
+6. **ILO:** the shared ILO labeller (trained ModernBERT). Its L→I links also give each test proposition its dialogue position and speaker.
 7. **Assemble** the AIF output with anchoring YAs.
 
 **Why it beats 2024.** The 2024 encoders saw two sentences in isolation, trained on the full imbalanced pair space, and used
@@ -189,7 +190,7 @@ and output is free.
 
 ---
 
-## Phase 7 — Combination
+## Combination
 Route by confidence. Each approach does what it's best at:
 1. A **fast calibrated pass** (A1 or A4, whichever scored better on dev) decides the confident pairs.
 2. **Uncertain pairs** (probability within a band) go to A2 or A3 to adjudicate with whole-map reasoning.
@@ -197,7 +198,7 @@ Route by confidence. Each approach does what it's best at:
 - **Ablations:** −router (A2 on every pair) · different uncertainty bands. Report the cost saved versus the F1 gained.
 - **Expected best on the metric:** calibrated probabilities where they're reliable, reasoning where they aren't.
 
-## Phase 8 — Final run and write-up
+## Final run and write-up
 - **One run per system** on the 11 test maps, scored with the official logic.
 - **Main table:** A1–A4 plus the combination, against the 2024 results. Columns: ARI / ILO / Global (general and focused), training time, inference time, cost.
 - **Ablation table** from dev.

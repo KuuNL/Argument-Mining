@@ -9,6 +9,7 @@
   "stripped_maps_validate": true,
   "no_anchor_from_a_copy": true,
   "non_dialogue_anchors_under_1pct": true,
+  "split_matches_tracked_files": true,
   "split_disjoint_and_complete": true,
   "split_dev_share_14_to_17pct": true,
   "split_no_leaky_pairs": true

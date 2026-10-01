@@ -1,4 +1,4 @@
-"""Phase 2 exploratory data analysis (PLAN Phase 1, A1 slice) -> eda/findings.json.
+"""Phase 2 exploratory data analysis (PLAN: EDA, the A1-relevant part) -> eda/findings.json.
 
 Training split only (dev stays clean). Test *inputs* are read for sizes and text overlap;
 evaluation gold is never read. The findings are explained in eda/README.md.

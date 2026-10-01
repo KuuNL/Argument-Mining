@@ -1,8 +1,8 @@
 # What the data tells us: exploratory analysis of DialAM-2024
 
-> **Phase 2 of the build** (the A1 part of PLAN Phase 1). All four approaches use these findings.
+> **Phase 2 (EDA)** in the [phase map](../decisionlog.md), the A1-relevant part of `PLAN.md`'s EDA section. All four approaches use these findings.
 > Background on maps, IAT and scoring is in [`../CLAUDE.md`](../CLAUDE.md), and every decision that follows from here is in
-> [`../a1_cross_encoder/decisionlog.md`](../a1_cross_encoder/decisionlog.md).
+> [`../decisionlog.md`](../decisionlog.md).
 > Numbers come from [`run_eda.py`](run_eda.py) (raw output: [`findings.json`](findings.json)) and take about 2.5 minutes to run:
 > `python -m eda.run_eda` from the repo root, in the WSL venv.
 
@@ -33,7 +33,7 @@ The 19 larger training maps are covered separately in §1. From the test set we 
 | 6 | Conflict is absent from most maps | 57% of maps have none; one false Conflict costs **26 points** there | Conflict needs a strict threshold (§7) |
 | 7 | A whole map fits into one model input | Pair + entire dialogue ≤ 837 tokens | Show the model the **whole map** instead of a window (§8) |
 | 8 | "?" doesn't mark questions here | Only 7% of question turns contain "?" | Use question words and the "xxx" placeholder instead (§3) |
-| 9 | Plain text similarity links turns to propositions | 94.2% correct at the first guess | A strong starting point for the Phase 3 rules (§2) |
+| 9 | Plain text similarity links turns to propositions | 94.2% correct at the first guess | The candidate filter for the Phase 3 ILO labeller (§2) |
 | 10 | The test set is unseen text | 0 shared or near-identical propositions; 9 of 11 maps are from 2022–23 | No leakage; expect some topic drift (§9) |
 
 ---
@@ -54,7 +54,7 @@ A typical map is a question and the discussion it starts:
 
 - 27% of training maps open with the host, Fiona Bruce.
 - Almost half of all L-nodes (**46.6%**) are *analyst copies*: annotation bookkeeping such as `"Anna: Helen Whately : …"`. They never sit in the dialogue chain and never express a proposition, so they are removed from the dialogue (decision D014).
-- **19 training maps are giants**, with 41 to 287 propositions. They hold only 12.8% of the relations but **60% of all proposition pairs**, because pairs grow with the square of map size. Left in, they would dominate every pair-level statistic and most of the training data, so this document excludes them from pair statistics. Phase 4 decides how to train on them.
+- **19 training maps are giants**, with 41 to 287 propositions. They hold only 12.8% of the relations but **60% of all proposition pairs**, because pairs grow with the square of map size. Left in, they would dominate every pair-level statistic and most of the training data, so this document excludes them from pair statistics. Phase A1.1 decides how A1 trains on them.
 
 Here is one real test-like map (training map `nodeset18299`). It already shows most of what makes the task hard:
 
@@ -278,7 +278,7 @@ A model input is two propositions plus some surrounding dialogue. For the pairs 
 | **The entire dialogue of the map** | **352** | **621** | **837** |
 
 **Every pair, with its map's entire dialogue, fits in 1,024 tokens.** ModernBERT reads up to 8,192. So A1 doesn't have to choose a window: the model can see the whole map for every pair, which directly targets 2024's biggest weakness (no context). The windowed version becomes an ablation. The cost is compute: about 1.8× the tokens of w = 2.
-A rough estimate from the Phase 0 throughput (15–19k tokens/s for ModernBERT-base): about 30 min per training epoch with the whole map, against about 17 min with w = 2. Phase 5 measures this properly.
+A rough estimate from the Phase 0 throughput (15–19k tokens/s for ModernBERT-base): about 30 min per training epoch with the whole map, against about 17 min with w = 2. Phase A1.2 measures this properly.
 
 For the whole-map approaches (A2–A4), even the largest test map is under 1,000 tokens, so prompts with several full example maps stay small and cheap.
 
