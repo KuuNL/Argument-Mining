@@ -162,7 +162,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 ### Phase 2 result
 - **2026-09-30 · Phase 2 · Done.** The findings are in **`eda/README.md`**, a narrative with 5 figures. The numbers are in `eda/findings.json`, produced by `python -m eda.run_eda` in about 2.5 minutes, and the run is logged in `results/timing.csv`. The analysis used the training split only; pair statistics use the 1,231 test-like maps (≤ 40 propositions). Each number below feeds one of the proposed decisions D018–D024.
 
-### D018 — Pruning window k = 8 turns, with distance also given to the model
+### D018 — Pruning window k = 8 turns, with distance also given to the model *(k amended to 10 by D041)*
 - **2026-09-30 · Phase 2 → A1.1 · by Claude · Approved by user 2026-10-01**
 - k = 8 keeps **98.2%** of related pairs (98% was the plan's target) and drops 27% of pairs. Per type, the 98% window is Inference 6, Conflict 8, Rephrase 10. Propositions with no position (2.7%) are always kept as candidates.
 - *Why distance is also an input:* neighbouring pairs are related 43% of the time, against 7.8% overall. Pruning alone leaves most of the imbalance (10.5% positives at k = 8).
@@ -395,7 +395,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - *Not used:* the gold-only transition anchors (0.7%), so training doesn't see a signal that test can't provide.
 
 ### D041 — A1.1 result: pairs built; the window gate just missed at k = 8, and k = 10 recommended
-- **2026-10-01 · A1.1 · by Claude · Proposed** (the data is built and committed at k = 8; k = 10 needs the user's approval because it changes D018)
+- **2026-10-01 · A1.1 · by Claude · Approved by user 2026-10-01: k = 10** (pairs rebuilt at k = 10; the k = 8 figures below are kept for the record)
 - *Built:* `ilo/predict.py` (labeller links for any map; reproduces the saved v1 dev predictions exactly), `common/text.py`, `common/positions.py`, `a1_cross_encoder/build_pairs.py` and `assemble.py`. Train 1,231 maps / 92,465 pairs, dev 225 / 17,373, test 11 / 1,048 (inputs only). Inputs are at most 857 tokens with the whole dialogue (D019 holds, no windowing). All round-trip maps validate. Details in `results/a1/pairs.json` and `reports/A1-cross-encoder.md`.
 - *Gate:* 97.72% (train) and 97.76% (dev) of related pairs fall inside k = 8, against the ≥ 98% target. The EDA's 98.2% included gold-only transition anchors, which D040 excludes.
 - *Ceiling* (gold labels → map → official ARI, dev): k = 8 gives 97.92 / 92.19; k = 9 gives 98.39 / 93.56; **k = 10 gives 98.64 / 94.44 for +13% pairs**; no window gives 98.92 / 96.51. The remaining ~3.5 focused points come from the dialogue-order direction rule for Conflict/Rephrase and from pairs with two relations.

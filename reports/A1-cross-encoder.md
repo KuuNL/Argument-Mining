@@ -1,6 +1,6 @@
 # Approach A1 — ModernBERT cross-encoder for relations (ARI): findings
 
-> **Status:** A1.1 built; waiting for the user's call on the pruning window (k = 8 or 10, D041). A1.2–A1.7 not started.
+> **Status:** A1.1 done (k = 10, D041). A1.2 in progress.
 > **Design:** [`../a1_cross_encoder/README.md`](../a1_cross_encoder/README.md). **Decisions:** D018–D022, D029, D040, D041 in [`../decisionlog.md`](../decisionlog.md).
 > **Sources:** [`../results/a1/pairs.json`](../results/a1/pairs.json). One section per A1 phase, added as each closes.
 
@@ -36,7 +36,7 @@ flowchart LR
 
 **How each step works:**
 - **Placing propositions (D040):** on training maps, gold turn links. On dev and test, the ILO labeller's *predicted* links, which is all a test map offers; `python -m ilo.predict` reproduces the saved v1 predictions exactly. Fallback: the most similar turn, else unplaced. Node IDs are never used (D029).
-- **Pairs (D018):** unordered pairs at most k turns apart. A pair with an unplaced proposition is always kept. A is the earlier proposition; ties are broken by text.
+- **Pairs (D018, D041):** unordered pairs at most **k = 10** turns apart. A pair with an unplaced proposition is always kept. A is the earlier proposition; ties are broken by text.
 - **Labels (D020):** None, Inference A→B, Inference B→A, Conflict, Rephrase. Conflict and Rephrase are later → earlier when written back to the map.
 - **Input (D019, D021):**
   ```
@@ -48,21 +48,21 @@ flowchart LR
   ```
 - **Giant maps (D022):** the 19 train and 3 dev maps with more than 40 propositions are left out of this first run.
 
-**Results** (k = 8, as approved):
+**Results** (final, k = 10):
 
 | | Train | Dev | Test (inputs only) |
 |---|---|---|---|
 | Maps | 1,231 | 225 | 11 |
-| Pairs (share related) | 92,465 (10.5%) | 17,373 (10.6%) | 1,048 |
+| Pairs (share related) | 104,662 (9.4%) | 19,644 (9.4%) | 1,208 |
 | Placed by link / similarity / unplaced | 17,307 / 3 / 9 | 3,184 / 7 / 20 | 182 / 1 / 1 |
-| Related pairs inside the window | 97.72% | 97.76% | — |
-| **Round-trip ARI ceiling** (general / focused) | 98.76 / 94.85 (300 maps) | **97.92 / 92.19** | — |
-| Input tokens: median / max | 366 / 857 | 362 / 757 | 402 / 586 |
+| Related pairs inside the window | **98.47%** | **98.83%** | — |
+| **Round-trip ARI ceiling** (general / focused) | 99.27 / 96.83 (300 maps) | **98.64 / 94.44** | — |
+| Input tokens: median / max | 369 / 857 | 365 / 757 | 403 / 586 |
 
-- **Labels (train):** None 82,744 · Rephrase 3,882 · Inference B→A 2,653 · Inference A→B 2,336 · **Conflict 850**.
+- **Labels (train):** None 94,866 · Rephrase 3,933 · Inference B→A 2,664 · Inference A→B 2,343 · **Conflict 856**.
 - **Every pair fits in 1,024 tokens with the whole dialogue**, so no windowing was needed, and every assembled map validates.
 
-**The window costs ceiling.** Dev round trip by window size:
+**Choosing k: the window costs ceiling.** Dev round trip by window size (measured at the first build, k = 8):
 
 | k | Dev pairs | Ceiling general | Ceiling focused |
 |---|---|---|---|
@@ -74,10 +74,12 @@ flowchart LR
 
 - k = 8 loses about 4.3 focused points against no window; k = 10 recovers more than half of that for 13% more pairs.
 - The last ~3.5 focused points are the price of reading Conflict/Rephrase direction from dialogue order, plus pairs that carry two relations.
-- **The gate (≥ 98% of relations inside the window) is just missed at k = 8:** 97.7%. The EDA's 98.2% included gold-only transition anchors, which D040 excludes.
+- **At k = 8 the gate (≥ 98% of relations inside the window) was just missed:** 97.7%, because the EDA's 98.2% included gold-only transition anchors, which D040 excludes. **The user chose k = 10 (D041), which passes: 98.5% train / 98.8% dev.**
 
-## Open
-- **D041:** keep k = 8 (as approved) or move to **k = 10 (recommended)**.
+**Lessons from A1.1:**
+- Using the labeller's *predicted* links on dev costs almost nothing: dev keeps 98.8% of relations, against 98.5% on train with gold links.
+- Whole-dialogue context is affordable for every test-like map: at most 857 tokens.
+- A round trip on gold labels is a cheap way to price each design choice before training. The window was worth 2.3 focused points.
 
 ## Reproduce
 ```bash

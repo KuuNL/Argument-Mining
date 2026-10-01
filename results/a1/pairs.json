@@ -1,5 +1,5 @@
 {
- "k": 8,
+ "k": 10,
  "max_len": 1024,
  "giant_over": 40,
  "labels": [
@@ -32,32 +32,32 @@
    "nodeset25474",
    "nodeset25475"
   ],
-  "pairs": 92465,
+  "pairs": 104662,
   "placed_by": {
    "link": 17307,
    "unplaced": 9,
    "similar": 3
   },
   "tokens": {
-   "p50": 366,
-   "p99": 635,
+   "p50": 369,
+   "p99": 638,
    "max": 857,
-   "mean": 371.0,
+   "mean": 374.0,
    "over_max_len": 0
   },
   "windowed_pairs": 0,
   "labels": {
-   "None": 82744,
-   "Rephrase": 3882,
-   "Inference B->A": 2653,
-   "Inference A->B": 2336,
-   "Conflict": 850
+   "None": 94866,
+   "Rephrase": 3933,
+   "Inference B->A": 2664,
+   "Inference A->B": 2343,
+   "Conflict": 856
   },
-  "related_pairs_kept": "9721/9948 = 0.9772",
+  "related_pairs_kept": "9796/9948 = 0.9847",
   "round_trip_ari": {
    "maps": 300,
-   "general": 98.76,
-   "focused": 94.85,
+   "general": 99.27,
+   "focused": 96.83,
    "invalid_maps": 0
   }
  },
@@ -68,49 +68,49 @@
    "nodeset24905",
    "nodeset25461"
   ],
-  "pairs": 17373,
+  "pairs": 19644,
   "placed_by": {
    "link": 3184,
    "unplaced": 20,
    "similar": 7
   },
   "tokens": {
-   "p50": 362,
+   "p50": 365,
    "p99": 705,
    "max": 757,
-   "mean": 380.2,
+   "mean": 384.1,
    "over_max_len": 0
   },
   "windowed_pairs": 0,
   "labels": {
-   "None": 15539,
-   "Rephrase": 660,
-   "Inference B->A": 538,
-   "Inference A->B": 510,
-   "Conflict": 126
+   "None": 17790,
+   "Rephrase": 672,
+   "Inference B->A": 541,
+   "Inference A->B": 511,
+   "Conflict": 130
   },
-  "related_pairs_kept": "1834/1876 = 0.9776",
+  "related_pairs_kept": "1854/1876 = 0.9883",
   "round_trip_ari": {
    "maps": 225,
-   "general": 97.92,
-   "focused": 92.19,
+   "general": 98.64,
+   "focused": 94.44,
    "invalid_maps": 0
   }
  },
  "test": {
   "maps": 11,
   "skipped_giant_maps": [],
-  "pairs": 1048,
+  "pairs": 1208,
   "placed_by": {
    "link": 182,
    "unplaced": 1,
    "similar": 1
   },
   "tokens": {
-   "p50": 402,
+   "p50": 403,
    "p99": 580,
    "max": 586,
-   "mean": 409.9,
+   "mean": 412.9,
    "over_max_len": 0
   },
   "windowed_pairs": 0

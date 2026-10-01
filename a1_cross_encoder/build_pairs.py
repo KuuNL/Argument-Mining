@@ -31,7 +31,7 @@ from common.timing import timed
 from common.validate import validate
 from a1_cross_encoder.assemble import LABELS, relation, with_relations
 
-K, MAX_LEN, GIANT, MARGIN = 8, 1024, 40, 16
+K, MAX_LEN, GIANT, MARGIN = 10, 1024, 40, 16    # K = 10 since D041 (was 8, D018)
 CACHE = ROOT / "cache" / "a1"
 OUT = RESULTS / "a1"
 TOKENIZER = "answerdotai/ModernBERT-base"
