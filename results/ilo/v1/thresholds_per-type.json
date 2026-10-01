@@ -1,4 +1,5 @@
 {
+ "run": "v1",
  "groups": "per-type",
  "temperature": 1.05,
  "link_min": 0.1,
@@ -23,21 +24,21 @@
    "focused": 80.67
   },
   "cross_fitted (honest)": {
-   "general": 89.89,
-   "focused": 80.38
+   "general": 90.05,
+   "focused": 80.61
   }
  },
  "folds": {
   "0": {
    "maps": 33,
-   "link_min": 0.05,
-   "Agreeing": 0.0,
+   "link_min": 0.01,
+   "Agreeing": 0.4,
    "Arguing": 0.0,
    "Assertive Questioning": 0.5,
    "Challenging": 0.0,
    "Default Illocuting": 0.0,
    "Disagreeing": 0.0,
-   "Pure Questioning": 0.7,
+   "Pure Questioning": 0.5,
    "Restating": 0.0,
    "Rhetorical Questioning": 0.3
   },

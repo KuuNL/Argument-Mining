@@ -1,7 +1,7 @@
 # Phase 3 — The trained ILO labeller: findings
 
 > **Status:** passed (2026-10-01). **Run in use: v1** ([`../results/ilo/selected.json`](../results/ilo/selected.json)). A second run, v2, was trained and evaluated but not adopted.
-> **Branch / commits:** `phase3-ilo`: `c34e68c` (3.1–3.2), `66df3ad` (3.3–3.5), then the iteration commit.
+> **Branch / commits:** `phase3-ilo`: `c34e68c` (3.1–3.2), `66df3ad` (3.3–3.5), `2d70813` (iteration v2).
 > **Sources:** every number below comes from a committed file in [`../results/ilo/`](../results/ilo/): `dataset.json` for the data, and `v1/` and `v2/` for each run (training log, summary, thresholds, dev report, headroom). Decisions are D025 and D028–D039 in [`../decisionlog.md`](../decisionlog.md).
 > **Scope:** Task B (ILO) for every approach, plus the turn↔proposition links that the ARI approaches need on test maps.
 
