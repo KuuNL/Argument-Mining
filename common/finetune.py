@@ -33,6 +33,7 @@ class Config:
     max_len: int = 320
     max_tokens: int = 4096             # padded tokens per training batch (8 GB card; D033)
     batch_size: int = 64               # at most this many sequences per batch
+    accum_steps: int = 1               # batches per optimizer step (long inputs -> few sequences per batch)
     eval_max_tokens: int = 16384
     lr: float = 5e-5
     weight_decay: float = 0.01
@@ -47,10 +48,16 @@ class Config:
     extra: dict = field(default_factory=dict)
 
 
-def tokenize(model_name: str, a: list[str], b: list[str], max_len: int) -> list[list[int]]:
+def tokenize(model_name: str, a: list[str], b: list[str], max_len: int, chunk: int = 8192) -> list[np.ndarray]:
+    """Token ids per example as compact int32 arrays. Tokenising in chunks matters: ~40M ids held as
+    Python ints (A1: 104k pairs x ~374 tokens) exceed WSL's 7 GB of RAM (D042)."""
     tok = AutoTokenizer.from_pretrained(model_name)
-    enc = tok(a, b, truncation="only_second", max_length=max_len)
-    return enc["input_ids"]
+    out = []
+    for s in range(0, len(a), chunk):
+        enc = tok(a[s:s + chunk], b[s:s + chunk], truncation="only_second", max_length=max_len,
+                  return_attention_mask=False, return_token_type_ids=False)
+        out += [np.asarray(x, dtype=np.int32) for x in enc["input_ids"]]
+    return out
 
 
 def _pack(order: list[int], lengths: list[int], max_tokens: int, max_seqs: int) -> list[list[int]]:
@@ -87,7 +94,7 @@ def collate(ids: list[list[int]], batch: list[int], pad_id: int, device):
     x = torch.full((len(batch), width), pad_id, dtype=torch.long)
     m = torch.zeros((len(batch), width), dtype=torch.long)
     for r, i in enumerate(batch):
-        x[r, :len(ids[i])] = torch.tensor(ids[i])
+        x[r, :len(ids[i])] = torch.as_tensor(ids[i], dtype=torch.long)
         m[r, :len(ids[i])] = 1
     return x.to(device, non_blocking=True), m.to(device, non_blocking=True)
 
@@ -131,7 +138,7 @@ def train(cfg: Config, train_ids, train_labels, dev_ids, class_weights, evaluate
                "weight_decay": 0.0}]
     optim = torch.optim.AdamW(groups, lr=cfg.lr, fused=True)
     lengths = [len(x) for x in train_ids]
-    steps_per_epoch = len(batches(lengths, cfg.max_tokens, cfg.batch_size, random.Random(0)))
+    steps_per_epoch = len(batches(lengths, cfg.max_tokens, cfg.batch_size, random.Random(0))) // cfg.accum_steps
     total = max_steps or steps_per_epoch * cfg.epochs
     sched = get_linear_schedule_with_warmup(optim, int(cfg.warmup * total), total)
     loss_fn = torch.nn.CrossEntropyLoss(weight=torch.tensor(class_weights, dtype=torch.float, device="cuda"))
@@ -141,6 +148,7 @@ def train(cfg: Config, train_ids, train_labels, dev_ids, class_weights, evaluate
     torch.cuda.reset_peak_memory_stats()
     best, best_step, bad_evals, step, tokens, t0 = -1.0, 0, 0, 0, 0, time.perf_counter()
     window_loss, window_t, window_tok = 0.0, time.perf_counter(), 0
+    micro, step_loss = 0, 0.0
     log(cfg.log_path, {"event": "start", "config": {k: str(v) for k, v in asdict(cfg).items()},
                        "train": len(train_ids), "dev": len(dev_ids), "steps": total})
     done = False
@@ -150,17 +158,22 @@ def train(cfg: Config, train_ids, train_labels, dev_ids, class_weights, evaluate
             y = labels[b].to("cuda", non_blocking=True)
             with torch.autocast("cuda", dtype=torch.bfloat16):
                 logits = model(input_ids=x, attention_mask=m).logits
-            loss = loss_fn(logits.float(), y)
+            loss = loss_fn(logits.float(), y) / cfg.accum_steps
             loss.backward()
+            micro += 1
+            step_loss += loss.item()
+            n_tok = int(m.sum())
+            tokens += n_tok
+            window_tok += n_tok
+            if micro % cfg.accum_steps:                    # keep accumulating gradients
+                continue
             torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.grad_clip)
             optim.step()
             sched.step()
             optim.zero_grad(set_to_none=True)
             step += 1
-            n_tok = int(m.sum())
-            tokens += n_tok
-            window_loss += loss.item()
-            window_tok += n_tok
+            window_loss += step_loss
+            step_loss = 0.0
             if step % 100 == 0:
                 dt = time.perf_counter() - window_t
                 log(cfg.log_path, {"event": "train", "step": step, "epoch": round(step / steps_per_epoch, 2),

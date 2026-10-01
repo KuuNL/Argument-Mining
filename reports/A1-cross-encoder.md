@@ -1,6 +1,6 @@
 # Approach A1 — ModernBERT cross-encoder for relations (ARI): findings
 
-> **Status:** A1.1 done (k = 10, D041). A1.2 in progress.
+> **Status:** A1.1 done (k = 10, D041). A1.2 done (D042). A1.3 (full training run, about 1 h 40 min) waits for the user's go-ahead.
 > **Design:** [`../a1_cross_encoder/README.md`](../a1_cross_encoder/README.md). **Decisions:** D018–D022, D029, D040, D041 in [`../decisionlog.md`](../decisionlog.md).
 > **Sources:** [`../results/a1/pairs.json`](../results/a1/pairs.json). One section per A1 phase, added as each closes.
 
@@ -81,8 +81,40 @@ flowchart LR
 - Whole-dialogue context is affordable for every test-like map: at most 857 tokens.
 - A round trip on gold labels is a cheap way to price each design choice before training. The window was worth 2.3 focused points.
 
+## A1.2 — Model and training loop
+
+**What it is:** ModernBERT-base with a 5-way output, trained by the shared loop `common/finetune.py` (also used by the ILO labeller). Recipe `v1` in `a1_cross_encoder/train.py`:
+
+| Setting | Value | Why |
+|---|---|---|
+| Input | max 1,024 tokens, whole dialogue | D019; the longest pair is 857 |
+| Batch | 4,096 tokens (about 10 pairs) × 3 accumulated, about 30 pairs per update | Fits the 8 GB card (D033); accumulation keeps updates stable |
+| Learning rate / epochs | 3e-5, 3 epochs, no early stop | The steadier setting from Phase 3 |
+| Class weights | None 1.0 · Rephrase 4.9 · Inference 6.0–6.4 · Conflict 10.5 | Rare labels count more |
+| **Checkpoint choice** | **Tuned dev ARI score** (temperature + thresholds), every evaluation's predictions kept | Phase 3's main lesson (D039) |
+
+**The decision layer core** (`a1_cross_encoder/decide.py`): each pair's best relation is kept if its probability clears that relation type's threshold (Inference, Conflict, Rephrase). With no thresholds it falls back to the plain top label. Its **fast ARI metric equals the official scorer**: 0 mismatches over 675 map scorings, after one fix (below).
+
+**Checks:**
+
+| Check | Result |
+|---|---|
+| Gold labels through the decision layer | 98.64 / 94.44, exactly the A1.1 ceiling |
+| Memorise 72 pairs (9 Conflict) | 83% after 100 steps, **100% after 300** |
+| Speed (300 real optimizer steps) | **24.4k tokens/s, 5.0 GB GPU, 3.6 GB RAM**; about 27 min per epoch |
+| Dev prediction | 129 pairs/s, about 2.5 min per evaluation |
+
+**What we learnt (all fixed):**
+- **Gold has self-loops.** A few maps relate a proposition to itself. The official scorer never sees them, but a fast metric must skip them too: they caused 13 of 675 scores to differ.
+- **Long inputs exhaust RAM before VRAM.** 104k inputs of about 374 tokens became about 40M Python integers (3+ GB), and WSL's 7 GB limit killed the run. Compact int32 arrays, built in chunks, cut the peak to 3.6 GB. The ILO pipeline uses the same code.
+- **Longer inputs need more steps to fit.** The memorisation check needed 300 steps, against ILO's 100. That's no bug, just a harder task.
+- **Base, not large.** Large is about 3× slower and at the GPU memory limit, so a 3-epoch large run is out of reach on this card.
+
 ## Reproduce
 ```bash
 python -m ilo.predict --split=dev && python -m ilo.predict --split=test   # labeller links (selected run)
 python -m a1_cross_encoder.build_pairs                                     # cache/a1/*.jsonl, results/a1/pairs.json  (~2 min)
+python -m a1_cross_encoder.train --run=v1 --overfit --steps=300            # memorisation check
+python -m a1_cross_encoder.train --run=v1 --bench                          # speed and memory
+python -m a1_cross_encoder.train --run=v1                                  # A1.3 full run (~1 h 40 min, run detached)
 ```
