@@ -1,0 +1,98 @@
+{
+ "groups": "per-type",
+ "temperature": 1.05,
+ "link_min": 0.1,
+ "type_min": {
+  "Pure Questioning": 0.5,
+  "Assertive Questioning": 0.5,
+  "Rhetorical Questioning": 0.3,
+  "Default Illocuting": 0.0,
+  "Agreeing": 0.0,
+  "Challenging": 0.0,
+  "Disagreeing": 0.0,
+  "Arguing": 0.0,
+  "Restating": 0.0
+ },
+ "dev_ilo_f1": {
+  "argmax_decode (3.3)": {
+   "general": 89.46,
+   "focused": 78.06
+  },
+  "tuned_on_all_dev (optimistic)": {
+   "general": 90.16,
+   "focused": 80.67
+  },
+  "cross_fitted (honest)": {
+   "general": 89.89,
+   "focused": 80.38
+  }
+ },
+ "folds": {
+  "0": {
+   "maps": 33,
+   "link_min": 0.05,
+   "Agreeing": 0.0,
+   "Arguing": 0.0,
+   "Assertive Questioning": 0.5,
+   "Challenging": 0.0,
+   "Default Illocuting": 0.0,
+   "Disagreeing": 0.0,
+   "Pure Questioning": 0.7,
+   "Restating": 0.0,
+   "Rhetorical Questioning": 0.3
+  },
+  "3": {
+   "maps": 49,
+   "link_min": 0.1,
+   "Agreeing": 0.0,
+   "Arguing": 0.0,
+   "Assertive Questioning": 0.5,
+   "Challenging": 0.0,
+   "Default Illocuting": 0.0,
+   "Disagreeing": 0.0,
+   "Pure Questioning": 0.5,
+   "Restating": 0.0,
+   "Rhetorical Questioning": 0.3
+  },
+  "10": {
+   "maps": 42,
+   "link_min": 0.1,
+   "Agreeing": 0.0,
+   "Arguing": 0.0,
+   "Assertive Questioning": 0.5,
+   "Challenging": 0.0,
+   "Default Illocuting": 0.0,
+   "Disagreeing": 0.0,
+   "Pure Questioning": 0.5,
+   "Restating": 0.0,
+   "Rhetorical Questioning": 0.3
+  },
+  "18": {
+   "maps": 55,
+   "link_min": 0.1,
+   "Agreeing": 0.0,
+   "Arguing": 0.0,
+   "Assertive Questioning": 0.5,
+   "Challenging": 0.0,
+   "Default Illocuting": 0.0,
+   "Disagreeing": 0.0,
+   "Pure Questioning": 0.5,
+   "Restating": 0.0,
+   "Rhetorical Questioning": 0.0
+  },
+  "19": {
+   "maps": 46,
+   "link_min": 0.1,
+   "Agreeing": 0.0,
+   "Arguing": 0.0,
+   "Assertive Questioning": 0.5,
+   "Challenging": 0.0,
+   "Default Illocuting": 0.0,
+   "Disagreeing": 0.0,
+   "Pure Questioning": 0.5,
+   "Restating": 0.0,
+   "Rhetorical Questioning": 0.3
+  }
+ },
+ "fast_metric_matches_official": true
+}

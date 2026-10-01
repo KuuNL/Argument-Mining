@@ -14,7 +14,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | 0 | Environment | WSL2 venv `~/.venvs/dialam` (torch CUDA, transformers, sklearn); ModernBERT smoke test `a1_cross_encoder/check_env.py` | GPU visible, bf16 works, ModernBERT forward+backward on GPU, peak VRAM recorded | Foundation (deps) | **Passed (D009, D010)** |
 | 1 | Foundation | `common/`: loader + graph view, AIF writer, validator, scorer port, episode-grouped dev split, timing harness | Scorer reproduces 29.53 / 35.30 / 32.41 and matches official scripts; validator passes all 1,478 gold maps; the split recomputes to the tracked `splits/` | Foundation | **Passed (D012–D016, D027)** |
 | 2 | EDA | `eda/`: Pruning window *k*, direction stats (MA/CA later→earlier), speaker patterns, CA-absent maps, ModernBERT token lengths, leakage check | Every number feeds a named later decision | EDA | **Passed (D018–D024 proposed)** |
-| 3 | ILO labeller (trained) | `ilo/`: candidate filter, (turn, proposition, context) dataset, ModernBERT-base classifier, one-to-one decoding + per-type thresholds; reusable fine-tuning loop | Linking accuracy on dev beats text similarity (94.2%); ILO F1 general / focused on dev reported | Shared ILO labeller | **3.1–3.2 done (D028–D031); awaiting dataset review** |
+| 3 | ILO labeller (trained) | `ilo/`: candidate filter, (turn, proposition, context) dataset, ModernBERT-base classifier, one-to-one decoding + per-type thresholds; reusable fine-tuning loop | Linking accuracy on dev beats text similarity (94.2%); ILO F1 general / focused on dev reported | Shared ILO labeller | **Passed (D028–D036): dev ILO 89.89 / 80.38 cross-fitted** |
 | A1.1 | Pair builder | `build_pairs.py`: candidates, 5-way labels, context text → `cache/` | ≥98% of gold relations survive pruning; gold→pairs→AIF round trip scores at the pruning ceiling; samples read by eye | A1 | — |
 | A1.2 | Model + training loop | `model.py`, `train.py` on `common/finetune.py` (built in Phase 3): weighted/focal loss, bf16, grad ckpt, map-level early stop | Overfits a tiny subset; VRAM and epoch time measured; base vs large chosen | A1 | — |
 | A1.3 | Training run | Checkpoint + `results/timing.csv` | Dev per-map macro-F1 (argmax) recorded | A1 | — |
@@ -275,3 +275,54 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - *Size:* train 1,231 maps, 158,864 examples (11.0% links); dev 225 maps, 29,506 examples (10.9%). Tokens: median 108, p99 186, max 300, so **max length 320** truncates nothing.
 - *Rare types are very rare.* Train has Default Illocuting 123, Agreeing 89, Challenging 38, Disagreeing 18, Arguing 10 and Restating 4. Dev has 7, 11, 2, 2, 2 and 1. Per-type thresholds cannot be tuned reliably on dev for these. See the open question for 3.4.
 - *Files:* `cache/ilo/{train,dev}.jsonl` (not in git, rebuilt by `python -m ilo.data` in about 4 min); stats in `results/ilo/dataset.json`.
+
+### D032 — Phase 3.3 setup: training loop, sanity checks, attention kernel
+- **2026-10-01 · Phase 3 · by Claude · Done**
+- *Training loop* (`common/finetune.py`, reusable in A1.2): length-grouped batches, bf16 autocast with fp32 weights, weighted cross-entropy, fused AdamW (lr 5e-5, weight decay 0.01, 6% warm-up, linear decay), gradient clip 1.0, batch 32, max 320 tokens, up to 3 epochs. Dev is evaluated twice per epoch; training stops after 2 evaluations without improvement. The best checkpoint and its dev probabilities go to `checkpoints/ilo/`, which is git-ignored.
+- *Class weights:* (most frequent / count)^0.5, capped at 30. None 1.0, Asserting 3.0, Pure Questioning 11.9, Assertive / Rhetorical about 26–27, and the six rare types 30.
+- *Early-stopping metric:* dev ILO general F1 per map with the simple decode in `ilo/decode.py`: one-to-one Hungarian matching on 1 − P(None) ≥ 0.5, then the most probable type. Thresholds come in 3.4.
+- *Sanity checks:*
+  - Decoder with gold labels as input: **ILO 98.63 general / 94.73 focused**, linking recall 99.16%. This is the ceiling of this design on dev (candidate misses, plus turns that express two propositions).
+  - All None: 38.21 / 0, the majority baseline on dev.
+  - The model memorises 72 examples (100% train accuracy) in 100 steps: 10.6 s, 15.3k tokens/s, 3.43 GiB peak.
+- *Attention kernel:* on real variable-length batches **SDPA runs at 14,184 tokens/s, but flex_attention only at 2,749**, because it recompiles for every new shape. This supersedes D010's "flex as working default", which held only for fixed shapes. Training uses SDPA.
+
+### D033 — Batches are capped by tokens, not by sequence count
+- **2026-10-01 · Phase 3 · by Claude · Done**
+- *What happened:* the first full training run was **stopped at step 600 (0.12 epoch)** by the background-tool time limit (10 min). Its log, `results/ilo/train_log_run1_killed.jsonl`, also showed a real problem: throughput fell from 4.9k to 3.7k tokens/s, and peak VRAM reached 7.72 of 7.9 GiB. Fixed 32-sequence batches of the longest examples (about 9.6k tokens), on top of about 2.4 GB of weights and optimizer state, overflowed the card, and the driver spilled into system RAM.
+- *Fix* (`common/finetune.py`):
+  - Batches are packed under a padded-token budget: **4,096 tokens** for training (at most 64 sequences) and 16,384 for prediction.
+  - `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` limits fragmentation from variable shapes.
+- *Measured* (`python -m ilo.train --bench`, 400 steps): **26.3k tokens/s steady and 4.33 GiB peak**; dev prediction runs at 587 examples/s with a 1.25 GiB peak. One epoch is about 11–15 min, so a full run takes about 45–50 min including dev evaluations.
+- *For A1:* the same budget applies. Longer A1 inputs mean fewer pairs per batch, not more memory.
+
+### D034 — Phase 3.3 result: training stopped early at 1.5 epochs; best checkpoint at 0.5 epoch
+- **2026-10-01 · Phase 3 · by Claude · Finding**
+- *Launch:* detached as a hidden Windows process (user's choice) so it wasn't bound by the 10-minute tool limit. `scratchpad/run_ilo_train.sh` was monitored through `results/ilo/train_log.jsonl`.
+- *Dev ILO general / focused F1 (simple decode)* by evaluation: 0.5 epoch **89.46 / 78.06** (best), 1.0 epoch 86.41 / 72.31, 1.5 epoch 88.05 / 73.18. Patience 2 stopped the run.
+- *Cost:* 19.5 min in total (13.0 min per epoch, including evaluations), 22.5k tokens/s, 4.35 GiB peak. Best checkpoint in `checkpoints/ilo/` (598 MB, git-ignored).
+- *Caveat:* the best checkpoint is very early (0.5 epoch, while the learning rate was still near its peak). It never predicts the six rare types on dev (see D036). Later checkpoints may have learned them but scored lower under the simple decode, and they weren't kept.
+
+### D035 — Phase 3.4 result: decision layer tuned on dev; the rare-type grouping question is moot
+- **2026-10-01 · Phase 3 · by Claude · Done**
+- `ilo/tune.py` fits a temperature, then thresholds by coordinate ascent on mean per-map ILO general F1. The fast metric equals the official scorer on all 225 dev maps (asserted).
+- *Result:* **T = 1.05** (already well calibrated) and **link_min = 0.10** (4 of 5 folds pick 0.10, one picks 0.05). The first run's grid floor of 0.20 was too high and was widened to 0.05. P(type | link) minimum: Pure Questioning 0.5, Assertive Questioning 0.5, Rhetorical Questioning 0.3, and **0 for all six rare types**.
+- *Scores:* simple decode 89.46 / 78.06; tuned on all of dev 90.16 / 80.67 (optimistic); **leave-one-episode-out 89.89 / 80.38 (honest)**.
+- *Grouping question:* "shared" and "per-type" thresholds give **identical results**, because the data set every rare-type threshold to 0. No user decision is needed. Files: `results/ilo/thresholds_{shared,per-type}.json`.
+
+### D036 — Phase 3.5 result: gate passed; weak on rare and assertive/rhetorical types
+- **2026-10-01 · Phase 3 · by Claude · Finding** (`python -m ilo.evaluate`, `results/ilo/dev_report.json`; 225 dev maps in test-input format)
+
+  | Dev ILO F1 (general / focused) | |
+  |---|---|
+  | Majority (no illocutions) | 38.21 / 0.00 |
+  | Text similarity, one-to-one, all Asserting (threshold tuned) | 75.99 / 59.38 |
+  | Model, simple decode | 89.46 / 78.06 |
+  | **Model, tuned decision layer (cross-fitted)** | **89.89 / 80.38** |
+  | *Ceiling of this design (gold labels decoded)* | 98.63 / 94.73 |
+
+- **Gate passed:** the model links 98.27% of gold links at 99.62% precision, against 97.43% at 98.68% for text similarity with the same one-to-one matching, and about 94% for similarity top-1.
+- *Per type:* Asserting 0.98 F1, Pure Questioning 0.87, Rhetorical Questioning 0.51 (14 predicted vs 29 gold), Assertive Questioning 0.40 (6 vs 19). **Default Illocuting, Agreeing, Challenging, Disagreeing, Arguing and Restating are never predicted** (27 gold links in dev). This is the main room left between 80.4 focused and the 94.7 ceiling.
+- *Inference:* 0.21 s per map (48 s for all of dev). A reloaded checkpoint reproduces the saved probabilities exactly.
+- *Reference only (different maps):* 2024's best ILO on the test set was 81.2 / 72.1.
+- *Possible improvements:* select checkpoints by the *tuned* metric and keep every evaluation's probabilities; lower the learning rate or class-weight cap; give rare types more epochs. These are proposed for a Phase 3 iteration, or as A1.6 ablations, at the user's call.

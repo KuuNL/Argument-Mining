@@ -1,0 +1,7 @@
+{"event": "start", "config": {"num_labels": "11", "out_dir": "/mnt/c/Argument Mining/checkpoints/ilo", "log_path": "/mnt/c/Argument Mining/results/ilo/train_log.jsonl", "model": "answerdotai/ModernBERT-base", "attn": "sdpa", "max_len": "320", "batch_size": "32", "eval_batch_size": "128", "lr": "5e-05", "weight_decay": "0.01", "warmup": "0.06", "epochs": "3", "evals_per_epoch": "2", "patience": "2", "grad_clip": "1.0", "seed": "13", "metric": "ilo_general_f1", "extra": "{}"}, "train": 158864, "dev": 29506, "steps": 14895}
+{"event": "train", "step": 100, "epoch": 0.02, "loss": 1.3766, "lr": 5.599104143337066e-06, "tokens_per_s": 4132, "peak_vram_gib": 7.14}
+{"event": "train", "step": 200, "epoch": 0.04, "loss": 0.9936, "lr": 1.1198208286674133e-05, "tokens_per_s": 4891, "peak_vram_gib": 7.21}
+{"event": "train", "step": 300, "epoch": 0.06, "loss": 0.8102, "lr": 1.67973124300112e-05, "tokens_per_s": 4751, "peak_vram_gib": 7.21}
+{"event": "train", "step": 400, "epoch": 0.08, "loss": 0.9518, "lr": 2.2396416573348266e-05, "tokens_per_s": 4623, "peak_vram_gib": 7.72}
+{"event": "train", "step": 500, "epoch": 0.1, "loss": 0.6028, "lr": 2.7995520716685332e-05, "tokens_per_s": 4370, "peak_vram_gib": 7.72}
+{"event": "train", "step": 600, "epoch": 0.12, "loss": 0.4566, "lr": 3.35946248600224e-05, "tokens_per_s": 3726, "peak_vram_gib": 7.72}

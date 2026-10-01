@@ -1,0 +1,6 @@
+{"event": "start", "config": {"num_labels": "11", "out_dir": "/mnt/c/Argument Mining/checkpoints/ilo", "log_path": "/mnt/c/Argument Mining/results/ilo/bench_log.jsonl", "model": "answerdotai/ModernBERT-base", "attn": "sdpa", "max_len": "320", "max_tokens": "4096", "batch_size": "64", "eval_max_tokens": "16384", "lr": "5e-05", "weight_decay": "0.01", "warmup": "0.06", "epochs": "3", "evals_per_epoch": "2", "patience": "2", "grad_clip": "1.0", "seed": "13", "metric": "ilo_general_f1", "extra": "{}"}, "train": 158864, "dev": 0, "steps": 400}
+{"event": "train", "step": 100, "epoch": 0.02, "loss": 1.0486, "lr": 3.9893617021276594e-05, "tokens_per_s": 11879, "peak_vram_gib": 4.32}
+{"event": "train", "step": 200, "epoch": 0.05, "loss": 0.654, "lr": 2.6595744680851064e-05, "tokens_per_s": 26496, "peak_vram_gib": 4.32}
+{"event": "train", "step": 300, "epoch": 0.07, "loss": 0.4944, "lr": 1.3297872340425532e-05, "tokens_per_s": 26206, "peak_vram_gib": 4.33}
+{"event": "train", "step": 400, "epoch": 0.09, "loss": 0.3133, "lr": 0.0, "tokens_per_s": 26356, "peak_vram_gib": 4.33}
+{"event": "end", "steps": 400, "epochs_run": 0.09, "best_ilo_general_f1": -1.0, "best_step": 0, "seconds": 78.8, "minutes_per_epoch": 14.5, "tokens_per_s": 20182, "peak_vram_gib": 4.33}

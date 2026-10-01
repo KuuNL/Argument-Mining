@@ -1,0 +1,24 @@
+{
+ "event": "end",
+ "steps": 6615,
+ "epochs_run": 1.5,
+ "best_ilo_general_f1": 89.46,
+ "best_step": 2205,
+ "seconds": 1171.4,
+ "minutes_per_epoch": 13.0,
+ "tokens_per_s": 22467,
+ "peak_vram_gib": 4.35,
+ "class_weights": {
+  "None": 1.0,
+  "Asserting": 3.0,
+  "Pure Questioning": 11.88,
+  "Assertive Questioning": 25.59,
+  "Rhetorical Questioning": 27.14,
+  "Default Illocuting": 30.0,
+  "Agreeing": 30.0,
+  "Challenging": 30.0,
+  "Disagreeing": 30.0,
+  "Arguing": 30.0,
+  "Restating": 30.0
+ }
+}
