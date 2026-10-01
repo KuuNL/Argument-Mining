@@ -65,10 +65,45 @@ def per_type(dev: Dev, links_by_map: dict) -> dict:
     return out
 
 
+def headroom(dev: Dev, th: dict) -> dict:
+    """What would fixing each weakness be worth? Take the tuned predictions, correct one group of
+    types to gold (or all types on correctly linked pairs), and re-score. No retraining involved."""
+    from ilo.tune import QUESTIONS, RARE
+    probs = dev.calibrated(th["temperature"])
+    base = {n: {(t, p): y for t, p, y in dev.links(probs, n, th["link_min"], th["type_min"])} for n in dev.names}
+
+    def fixed(types=None, all_types=False):
+        out = {}
+        for n in dev.names:
+            pred = dict(base[n])
+            for k, y in dev.gold[n].items():
+                if (types and y in types) or (all_types and k in pred):
+                    pred[k] = y
+            out[n] = ilo_f1(dev.gold[n], pred, dev.n_pairs[n])
+        return out
+
+    variants = {"as is (tuned)": fixed(),
+                "rare types correct": fixed(set(RARE)),
+                "assertive + rhetorical questions correct": fixed({"Assertive Questioning", "Rhetorical Questioning"}),
+                "both of the above": fixed(set(RARE) | {"Assertive Questioning", "Rhetorical Questioning"}),
+                "every linked pair typed correctly": fixed(all_types=True)}
+    maps_with = lambda types: sum(any(y in types for y in dev.gold[n].values()) for n in dev.names)
+    return {"dev_maps": len(dev.names),
+            "maps_with_a_rare_type": maps_with(set(RARE)),
+            "maps_with_assertive_or_rhetorical": maps_with({"Assertive Questioning", "Rhetorical Questioning"}),
+            "ilo_f1": {k: {"general": round(mean_f1(v, 0), 2), "focused": round(mean_f1(v, 1), 2)} for k, v in variants.items()}}
+
+
 def main():
     mode = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--groups=")), "shared")
     th = json.loads((OUT / f"thresholds_{mode}.json").read_text())
     dev = Dev()
+    if "--headroom" in sys.argv:
+        rep = headroom(dev, th)
+        with open(OUT / "headroom.json", "w", encoding="utf-8", newline="\n") as f:
+            f.write(json.dumps(rep, indent=1))
+        print(json.dumps(rep, indent=1))
+        return
 
     # Inference timing (and a check that the saved dev probabilities come from this checkpoint).
     cfg = Config(num_labels=len(LABELS), out_dir=CKPT, log_path=OUT / "unused.jsonl")

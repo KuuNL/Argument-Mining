@@ -322,7 +322,13 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   | *Ceiling of this design (gold labels decoded)* | 98.63 / 94.73 |
 
 - **Gate passed:** the model links 98.27% of gold links at 99.62% precision, against 97.43% at 98.68% for text similarity with the same one-to-one matching, and about 94% for similarity top-1.
-- *Per type:* Asserting 0.98 F1, Pure Questioning 0.87, Rhetorical Questioning 0.51 (14 predicted vs 29 gold), Assertive Questioning 0.40 (6 vs 19). **Default Illocuting, Agreeing, Challenging, Disagreeing, Arguing and Restating are never predicted** (27 gold links in dev). This is the main room left between 80.4 focused and the 94.7 ceiling.
+- *Per type:* Asserting 0.98 F1, Pure Questioning 0.87, Rhetorical Questioning 0.51 (14 predicted vs 29 gold), Assertive Questioning 0.40 (6 vs 19). **Default Illocuting, Agreeing, Challenging, Disagreeing, Arguing and Restating are never predicted** (26 gold links in dev). This is the main room left between 80.4 focused and the 94.7 ceiling.
 - *Inference:* 0.21 s per map (48 s for all of dev). A reloaded checkpoint reproduces the saved probabilities exactly.
 - *Reference only (different maps):* 2024's best ILO on the test set was 81.2 / 72.1.
 - *Possible improvements:* select checkpoints by the *tuned* metric and keep every evaluation's probabilities; lower the learning rate or class-weight cap; give rare types more epochs. These are proposed for a Phase 3 iteration, or as A1.6 ablations, at the user's call.
+
+### D037 — Findings reports live in `reports/`, one per phase
+- **2026-10-01 · Setup · requested by user · Done**
+- `reports/README.md` is the index: one line per phase, with the headline and a link. `reports/03-ilo-labeller.md` is the Phase 3 report. Phase 2's report stays at `eda/README.md`, where it is already linked; Phases 0–1 are covered by their decision-log entries.
+- *Convention:* `NN-short-name.md`, shaped as at a glance → method → results → lessons → open items → reproduce. Every number comes from a committed file under `results/` or `eda/`. These reports are the source for the final write-up (now noted in `PLAN.md` and `CLAUDE.md` §5).
+- *Added for the report:* `python -m ilo.evaluate --headroom` (`results/ilo/headroom.json`). Correcting rare and Assertive/Rhetorical types to gold would lift dev ILO from 90.16 / 80.67 to **97.07 / 90.49**; perfect typing of correct links reaches 97.87 / 90.61. Typing, not linking, holds the remaining gap.

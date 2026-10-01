@@ -1,0 +1,27 @@
+{
+ "dev_maps": 225,
+ "maps_with_a_rare_type": 22,
+ "maps_with_assertive_or_rhetorical": 40,
+ "ilo_f1": {
+  "as is (tuned)": {
+   "general": 90.16,
+   "focused": 80.67
+  },
+  "rare types correct": {
+   "general": 93.04,
+   "focused": 85.13
+  },
+  "assertive + rhetorical questions correct": {
+   "general": 94.17,
+   "focused": 85.89
+  },
+  "both of the above": {
+   "general": 97.07,
+   "focused": 90.49
+  },
+  "every linked pair typed correctly": {
+   "general": 97.87,
+   "focused": 90.61
+  }
+ }
+}

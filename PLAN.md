@@ -199,6 +199,7 @@ Route by confidence. Each approach does what it's best at:
 - **Expected best on the metric:** calibrated probabilities where they're reliable, reasoning where they aren't.
 
 ## Final run and write-up
+- **Write-up sources:** the per-phase findings reports in `reports/` (index: `reports/README.md`), plus `decisionlog.md`.
 - **One run per system** on the 11 test maps, scored with the official logic.
 - **Main table:** A1–A4 plus the combination, against the 2024 results. Columns: ARI / ILO / Global (general and focused), training time, inference time, cost.
 - **Ablation table** from dev.
