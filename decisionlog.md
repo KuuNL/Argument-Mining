@@ -14,7 +14,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | 0 | Environment | WSL2 venv `~/.venvs/dialam` (torch CUDA, transformers, sklearn); ModernBERT smoke test `a1_cross_encoder/check_env.py` | GPU visible, bf16 works, ModernBERT forward+backward on GPU, peak VRAM recorded | Foundation (deps) | **Passed (D009, D010)** |
 | 1 | Foundation | `common/`: loader + graph view, AIF writer, validator, scorer port, episode-grouped dev split, timing harness | Scorer reproduces 29.53 / 35.30 / 32.41 and matches official scripts; validator passes all 1,478 gold maps; the split recomputes to the tracked `splits/` | Foundation | **Passed (D012–D016, D027)** |
 | 2 | EDA | `eda/`: Pruning window *k*, direction stats (MA/CA later→earlier), speaker patterns, CA-absent maps, ModernBERT token lengths, leakage check | Every number feeds a named later decision | EDA | **Passed (D018–D024 proposed)** |
-| 3 | ILO labeller (trained) | `ilo/`: candidate filter, (turn, proposition, context) dataset, ModernBERT-base classifier, one-to-one decoding + per-type thresholds; reusable fine-tuning loop | Linking accuracy on dev beats text similarity (94.2%); ILO F1 general / focused on dev reported | Shared ILO labeller | **Awaiting go-ahead (D025)** |
+| 3 | ILO labeller (trained) | `ilo/`: candidate filter, (turn, proposition, context) dataset, ModernBERT-base classifier, one-to-one decoding + per-type thresholds; reusable fine-tuning loop | Linking accuracy on dev beats text similarity (94.2%); ILO F1 general / focused on dev reported | Shared ILO labeller | **3.1–3.2 done (D028–D031); awaiting dataset review** |
 | A1.1 | Pair builder | `build_pairs.py`: candidates, 5-way labels, context text → `cache/` | ≥98% of gold relations survive pruning; gold→pairs→AIF round trip scores at the pruning ceiling; samples read by eye | A1 | — |
 | A1.2 | Model + training loop | `model.py`, `train.py` on `common/finetune.py` (built in Phase 3): weighted/focal loss, bf16, grad ckpt, map-level early stop | Overfits a tiny subset; VRAM and epoch time measured; base vs large chosen | A1 | — |
 | A1.3 | Training run | Checkpoint + `results/timing.csv` | Dev per-map macro-F1 (argmax) recorded | A1 | — |
@@ -197,7 +197,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - Inference → Arguing (97.9%), Rephrase → Restating (85.9%; Default Illocuting 13.7%), Conflict → Disagreeing (94.3%). These are used when assembling valid AIF. They aren't scored, so the majority choice is enough.
 
 ### D025 — Phase 3 is a trained ILO labeller only (no rules)
-- **2026-09-30 · Phase 3 · by user (approach) / Claude (design) · Approach approved; design waiting for go-ahead**
+- **2026-09-30 · Phase 3 · by user (approach) / Claude (design) · Approved by user 2026-10-01 (go-ahead for 3.1–3.2, then review)**
 - *User decision:* ILO type labelling is learned, not rule-based. This supersedes the rules in PLAN's ILO section and D023. `PLAN.md`, `CLAUDE.md` §6–7 and `a1_cross_encoder/README.md` are updated to match.
 - *Why:* ILO is half the Global score. "?" is almost absent (EDA §3). Macro-F1 weighs the rare types (Assertive / Rhetorical Questioning, Agreeing, Challenging) as heavily as Asserting. The rare-label trap also applies here (one invented type drops a map to 72.8), so the model must produce probabilities that can be thresholded. All top 2024 ILO systems were trained.
 - *Design* (code in a top-level `ilo/`, shared by all approaches; the fine-tuning loop goes in `common/finetune.py` so A1 reuses it in A1.2):
@@ -240,3 +240,38 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - **P6, complete status legend:** Done, Finding and Open added.
 - **P7, `cache/` ignored** before Phase 3, because Phase 3 already writes tokenised caches.
 - **X3, line endings:** 8 working files had CRLF, because Windows Python writes CRLF by default; they are normalised to LF. Edits now write LF explicitly.
+
+### D028 — Phase 3.1: ILO candidates = own top-5 + previous turn's top-5 + next turn's top-3
+- **2026-10-01 · Phase 3 · by Claude · Done** (within the approved 3.1 scope)
+- *Measured on the train split* (`python -m ilo.candidates`): similarity alone (difflib ratio) keeps 94.3% of the 17,509 gold links at K = 1, 97.5% at K = 3 and 98.8% at K = 6. No K reached the 99.5% target.
+- *Why it misses:* 371 of the 433 misses at K = 3 are short turns whose proposition was rebuilt from context ("Yes" becomes the claim agreed with; "it stinks" becomes what "it" refers to). These are mostly Agreeing, Disagreeing and question types, which weigh most in macro-F1.
+- *Fix:* a turn also borrows the candidates of its neighbouring turns. **Own 5 + previous 5 + next 3 keeps 99.59%**, with 205,955 pairs (8.5% positive). Every type is ≥ 98.3% except Agreeing (93.7%, 89/95) and Disagreeing (94.7%, 18/19).
+- *Alternatives measured:*
+
+  | Scheme (own / prev / next) | Links kept | Pairs |
+  |---|---|---|
+  | 3 / 2 / 0 | 98.8% | 97k |
+  | 3 / 3 / 0 | 99.0% | 113k |
+  | 4 / 3 / 2 | 99.3% | 155k |
+
+- *Cost:* about 2× the pairs of own-5 alone (≈ 31M tokens per epoch, roughly 30 min). Training on a subsample of the None pairs is the fallback if that proves too slow.
+
+### D029 — No node-ID or node-order shortcuts, in any approach
+- **2026-10-01 · All approaches · by Claude · Proposed**
+- *Finding:* in 74% of gold links, the proposition's node ID is exactly the turn's ID + 2, because the annotation tool creates L, YA and I in sequence. Test inputs keep these IDs, so a model could link by ID instead of by meaning.
+- *Proposal:* never use node IDs, or the order of nodes in the JSON, as a signal. Use only text, speakers and the TA dialogue order. Results then measure language understanding, transfer to unannotated debates, and stay comparable across A1–A4.
+- *Cost:* linking can't exploit the artefact. Expect a few points of linking accuracy left on the table compared with a system that does.
+- *One existing use to decide on:* `MapView.dialogue` orders the separate stretches of a map's TA chain (27% of maps have more than one) by node ID, because nothing else orders them. This never links a turn to a proposition, but it sets distances *across* stretches (EDA, A1). Options: keep it as a documented exception, or treat stretches as unordered.
+
+### D030 — Maps without an illocution layer are left out of ILO training and ILO dev scoring
+- **2026-10-01 · Phase 3 · by Claude · Done** (within the approved 3.2 scope; easy to reverse)
+- *Finding:* 1,614 "hard negatives" (a turn nearly identical to a proposition, yet no gold link) are not noise spread across the data. **19 train maps and 3 dev maps have no L→I links at all** (0 linked turns among 140 to 400 turns each), and they hold 1,553 of them. These are the late re-annotation batches (nodesets 24807 to 25475), which are **the same giant maps as in D022**. They carry relations but were never annotated for illocutions.
+- *Rule:* a map with no L→I link at all is skipped by `ilo/data.py`. The maps stay in for ARI (A1), and the test maps are fully annotated.
+- *Effect:* train goes from 205,973 to 158,864 examples, dev from 36,112 to 29,506; no labelled example is lost. ILO dev scoring covers 225 of 228 dev maps.
+
+### D031 — Phase 3.2: the ILO dataset
+- **2026-10-01 · Phase 3 · by Claude · Done**
+- *Input:* `text_a` = "Speaker: turn"; `text_b` = "proposition [SEP] before: (up to 2 turns) [SEP] after: (up to 2 turns)". There are 11 labels: None plus the 10 L→I types seen in training. Dev inputs are built from stripped maps (D004).
+- *Size:* train 1,231 maps, 158,864 examples (11.0% links); dev 225 maps, 29,506 examples (10.9%). Tokens: median 108, p99 186, max 300, so **max length 320** truncates nothing.
+- *Rare types are very rare.* Train has Default Illocuting 123, Agreeing 89, Challenging 38, Disagreeing 18, Arguing 10 and Restating 4. Dev has 7, 11, 2, 2, 2 and 1. Per-type thresholds cannot be tuned reliably on dev for these. See the open question for 3.4.
+- *Files:* `cache/ilo/{train,dev}.jsonl` (not in git, rebuilt by `python -m ilo.data` in about 4 min); stats in `results/ilo/dataset.json`.

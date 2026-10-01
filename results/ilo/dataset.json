@@ -1,0 +1,105 @@
+{
+ "candidates": {
+  "own": 5,
+  "prev": 5,
+  "next": 3
+ },
+ "context_turns": 2,
+ "labels": [
+  "None",
+  "Asserting",
+  "Pure Questioning",
+  "Assertive Questioning",
+  "Rhetorical Questioning",
+  "Default Illocuting",
+  "Agreeing",
+  "Challenging",
+  "Disagreeing",
+  "Arguing",
+  "Restating"
+ ],
+ "train": {
+  "maps": 1231,
+  "skipped_maps_without_ilo": [
+   "nodeset24807",
+   "nodeset24809",
+   "nodeset24903",
+   "nodeset24992",
+   "nodeset25045",
+   "nodeset25441",
+   "nodeset25442",
+   "nodeset25443",
+   "nodeset25444",
+   "nodeset25445",
+   "nodeset25452",
+   "nodeset25462",
+   "nodeset25463",
+   "nodeset25465",
+   "nodeset25468",
+   "nodeset25472",
+   "nodeset25473",
+   "nodeset25474",
+   "nodeset25475"
+  ],
+  "examples": 158864,
+  "positive_share": 0.1096,
+  "labels": {
+   "None": 141451,
+   "Asserting": 15721,
+   "Pure Questioning": 1002,
+   "Assertive Questioning": 216,
+   "Rhetorical Questioning": 192,
+   "Default Illocuting": 123,
+   "Agreeing": 89,
+   "Challenging": 38,
+   "Disagreeing": 18,
+   "Arguing": 10,
+   "Restating": 4
+  },
+  "unknown_labels": 0,
+  "tokens": {
+   "p50": 108,
+   "p90": 146,
+   "p99": 186,
+   "p999": 224,
+   "max": 300,
+   "mean": 110.5,
+   "over_256": 28,
+   "over_384": 0
+  }
+ },
+ "dev": {
+  "maps": 225,
+  "skipped_maps_without_ilo": [
+   "nodeset24808",
+   "nodeset24905",
+   "nodeset25461"
+  ],
+  "examples": 29506,
+  "positive_share": 0.1091,
+  "labels": {
+   "None": 26288,
+   "Asserting": 2984,
+   "Pure Questioning": 161,
+   "Rhetorical Questioning": 29,
+   "Assertive Questioning": 19,
+   "Agreeing": 11,
+   "Default Illocuting": 7,
+   "Arguing": 2,
+   "Challenging": 2,
+   "Disagreeing": 2,
+   "Restating": 1
+  },
+  "unknown_labels": 0,
+  "tokens": {
+   "p50": 108,
+   "p90": 145,
+   "p99": 181,
+   "p999": 213,
+   "max": 243,
+   "mean": 109.8,
+   "over_256": 0,
+   "over_384": 0
+  }
+ }
+}
