@@ -1,0 +1,30 @@
+{
+ "run": "v2",
+ "lr": 3e-05,
+ "select": "tuned",
+ "patience": 99,
+ "keep_eval_probs": true,
+ "note": "rare-type iteration (D038): all 3 epochs, checkpoint chosen by the tuned score",
+ "event": "end",
+ "steps": 13230,
+ "epochs_run": 3.0,
+ "best_ilo_tuned_general": 90.39,
+ "best_step": 8820,
+ "seconds": 2527.8,
+ "minutes_per_epoch": 14.0,
+ "tokens_per_s": 20828,
+ "peak_vram_gib": 4.35,
+ "class_weights": {
+  "None": 1.0,
+  "Asserting": 3.0,
+  "Pure Questioning": 11.88,
+  "Assertive Questioning": 25.59,
+  "Rhetorical Questioning": 27.14,
+  "Default Illocuting": 30.0,
+  "Agreeing": 30.0,
+  "Challenging": 30.0,
+  "Disagreeing": 30.0,
+  "Arguing": 30.0,
+  "Restating": 30.0
+ }
+}

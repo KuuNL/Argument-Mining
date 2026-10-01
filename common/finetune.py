@@ -43,6 +43,7 @@ class Config:
     grad_clip: float = 1.0
     seed: int = 13
     metric: str = "score"              # key of evaluate()'s result to maximise
+    keep_eval_probs: bool = False      # save every evaluation's dev probabilities to out_dir/evals/
     extra: dict = field(default_factory=dict)
 
 
@@ -169,6 +170,9 @@ def train(cfg: Config, train_ids, train_labels, dev_ids, class_weights, evaluate
                 window_loss, window_t, window_tok = 0.0, time.perf_counter(), 0
             if max_steps is None and step % eval_every == 0:
                 probs = predict(model, dev_ids, pad_id, cfg.eval_max_tokens)
+                if cfg.keep_eval_probs:
+                    (cfg.out_dir / "evals").mkdir(parents=True, exist_ok=True)
+                    np.save(cfg.out_dir / "evals" / f"step{step:05d}.npy", probs)
                 res = evaluate(probs)
                 improved = res[cfg.metric] > best
                 log(cfg.log_path, {"event": "eval", "step": step, "epoch": round(step / steps_per_epoch, 2),

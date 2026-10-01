@@ -1,0 +1,4 @@
+{
+ "run": "v1",
+ "why": "D039: v2 (rare-type iteration) did not beat v1 on cross-fitted dev ILO general F1 (89.74 vs 90.08); v1 kept"
+}

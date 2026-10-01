@@ -7,8 +7,9 @@
 3. Honest estimate: leave-one-dev-episode-out cross-fitting (tune on 4 episodes, score the 5th).
    The final thresholds are tuned on all of dev.
 
-    python -m ilo.tune                    # groups: 3 question types each, 6 rare types shared
-    python -m ilo.tune --groups=per-type  # every type its own threshold
+    python -m ilo.tune [--run=v2]                    # groups: 3 question types each, 6 rare types shared
+    python -m ilo.tune [--run=v2] --groups=per-type  # every type its own threshold
+Without --run, the selected run (results/ilo/selected.json) is used. Writes results/ilo/<run>/.
 """
 import json
 import sys
@@ -16,22 +17,21 @@ from collections import defaultdict
 
 import numpy as np
 
-from common import RESULTS
 from common.aif import load_map
 from common.score import ilo_labels, score_map
 from common.split import episodes, load_split, map_speakers
 from ilo.data import LABELS
 from ilo.decode import NONE, decode_map, predicted_map
-from ilo.train import CKPT, read
+from ilo.train import arg, dirs, read, selected_run
 
-OUT = RESULTS / "ilo"
 QUESTIONS = ["Pure Questioning", "Assertive Questioning", "Rhetorical Questioning"]
 RARE = ["Default Illocuting", "Agreeing", "Challenging", "Disagreeing", "Arguing", "Restating"]
 GROUPINGS = {
     "shared": {**{q: q for q in QUESTIONS}, **{r: "rare" for r in RARE}},
     "per-type": {t: t for t in QUESTIONS + RARE},
 }
-LINK_GRID = [round(x, 2) for x in np.arange(0.05, 0.86, 0.05)]   # first run hit the old 0.20 floor
+# Widened twice because the optimum sat on the floor (0.20 in v1's first tuning, 0.05 during v2).
+LINK_GRID = [0.01, 0.02, 0.03] + [round(x, 2) for x in np.arange(0.05, 0.86, 0.05)]
 TYPE_GRID = [0.0, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 1.01]   # 1.01 = never predict this type
 T_GRID = [round(x, 2) for x in np.arange(0.5, 3.01, 0.05)]
 
@@ -79,9 +79,9 @@ def ilo_f1(gold: dict, pred: dict, n_pairs: int):
 # ---------------------------------------------------------------- dev data
 
 class Dev:
-    def __init__(self, probs_path=None):
+    def __init__(self, probs_path=None, load=True):
         self.rows = read("dev")
-        self.raw = np.load(probs_path or CKPT / "dev_probs.npy")
+        self.raw = np.load(probs_path or dirs(selected_run())[0] / "dev_probs.npy") if load else None
         names = sorted({r["map"] for r in self.rows})
         self.gold_aif = {p.stem: load_map(p) for p in load_split("dev") if p.stem in names}
         self.idx = defaultdict(list)
@@ -149,10 +149,23 @@ def tune(dev: Dev, probs, grouping: dict, names) -> dict:
     return {"params": params, "type_min": {t: params[g] for t, g in grouping.items()}, "objective": round(best, 2)}
 
 
+def tuned_score(dev: Dev, probs: np.ndarray, grouping=GROUPINGS["shared"]) -> dict:
+    """Fit temperature and thresholds on all of dev and return the tuned score (used to pick checkpoints)."""
+    dev.raw = probs
+    t = fit_temperature(dev)
+    cal = dev.calibrated(t)
+    fit = tune(dev, cal, grouping, dev.names)
+    return {"ilo_tuned_general": fit["objective"],
+            "ilo_tuned_focused": round(mean_f1(dev.scores(cal, fit["params"]["link_min"], fit["type_min"]), 1), 2),
+            "tuned_temperature": t, "tuned_link_min": fit["params"]["link_min"]}
+
+
 def main():
-    mode = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--groups=")), "shared")
+    mode = arg("groups", "shared")
+    run = arg("run", selected_run())
+    ckpt, out = dirs(run)
     grouping = GROUPINGS[mode]
-    dev = Dev()
+    dev = Dev(ckpt / "dev_probs.npy")
 
     # The fast metric must equal the official scorer: check every dev map under the argmax decode.
     for name in dev.names:
@@ -179,7 +192,7 @@ def main():
         folds[str(ep)] = {"maps": len(names), **fit["params"]}
     argmax = dev.scores(dev.raw, 0.5, None)
     report = {
-        "groups": mode, "temperature": t, "link_min": final["params"]["link_min"], "type_min": final["type_min"],
+        "run": run, "groups": mode, "temperature": t, "link_min": final["params"]["link_min"], "type_min": final["type_min"],
         "dev_ilo_f1": {
             "argmax_decode (3.3)": {"general": round(mean_f1(argmax, 0), 2), "focused": round(mean_f1(argmax, 1), 2)},
             "tuned_on_all_dev (optimistic)": {"general": final["objective"],
@@ -188,8 +201,8 @@ def main():
         },
         "folds": folds, "fast_metric_matches_official": True,
     }
-    OUT.mkdir(parents=True, exist_ok=True)
-    with open(OUT / f"thresholds_{mode}.json", "w", encoding="utf-8", newline="\n") as f:
+    out.mkdir(parents=True, exist_ok=True)
+    with open(out / f"thresholds_{mode}.json", "w", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(report, indent=1))
     print(json.dumps(report, indent=1))
 

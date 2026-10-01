@@ -103,7 +103,7 @@ Consequences:
 | `common/` | Shared foundation: loader and graph view (`aif.py`), `score.py`, `validate.py`, `split.py`, `timing.py` |
 | `eda/` | Exploratory data analysis: findings with figures (`README.md`), `run_eda.py`, `findings.json` |
 | `decisionlog.md` | Every decision, plus the phase map: the single record of phase numbering and status |
-| `ilo/` | Shared trained ILO labeller (Task B, and the L→I links ARI needs on test maps): `python -m ilo.train / tune / evaluate` |
+| `ilo/` | Shared trained ILO labeller (Task B, and the L→I links ARI needs on test maps): `python -m ilo.train / tune / evaluate --run=<run>`; results per run in `results/ilo/<run>/`, the run in use named in `results/ilo/selected.json` |
 | `reports/` | One findings report per phase; the source for the final write-up (`reports/README.md` is the index) |
 | `reference/` | Overview paper, annotation and data-format specs, official scorers (`eval-scripts/`) |
 

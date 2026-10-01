@@ -8,7 +8,7 @@ Decisions and phase status live in [`../decisionlog.md`](../decisionlog.md); raw
 | 0 · Environment | [decision log](../decisionlog.md) D005–D011, D032–D033 | ML runs in WSL2 (Windows Smart App Control blocks torch). ModernBERT-base trains at about 26k tokens/s in 4.3 GB with token-budget batches. |
 | 1 · Foundation | [decision log](../decisionlog.md) D012–D016, D027 | The scorer port equals the official scripts (688/688). Episode-grouped split 1,250 / 228 with 0 leaks. |
 | 2 · EDA | [`../eda/README.md`](../eda/README.md) | 98% of relations lie within 8 turns. Inference direction is a coin flip (53/47). A whole map fits in under 1k tokens. "?" is absent. |
-| 3 · ILO labeller | [`03-ilo-labeller.md`](03-ilo-labeller.md) | Dev ILO 89.9 / 80.4 (cross-fitted). Linking 98.3% at 99.6% precision. The rest of the gap is minority types. |
+| 3 · ILO labeller | [`03-ilo-labeller.md`](03-ilo-labeller.md) | Run v1 selected: dev ILO 90.1 / 80.6 (cross-fitted), linking 98.3% at 99.6% precision. The remaining gap is minority-type typing; a longer, gentler v2 didn't close it (not undertraining). |
 
 **Conventions for new reports**
 - Name them `NN-short-name.md`, where NN is the phase (`A1-1-…` for approach phases).

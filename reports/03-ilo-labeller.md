@@ -1,23 +1,52 @@
 # Phase 3 — The trained ILO labeller: findings
 
-> **Status:** passed (2026-10-01). Branch `phase3-ilo`, commits `c34e68c` (3.1–3.2) and `66df3ad` (3.3–3.5).
-> **Sources:** every number below comes from a committed file in [`../results/ilo/`](../results/ilo/). Decisions are D025 and D028–D036 in [`../decisionlog.md`](../decisionlog.md).
+> **Status:** passed (2026-10-01). **Run in use: v1** ([`../results/ilo/selected.json`](../results/ilo/selected.json)). A second run, v2, was trained and evaluated but not adopted.
+> **Branch / commits:** `phase3-ilo`: `c34e68c` (3.1–3.2), `66df3ad` (3.3–3.5), then the iteration commit.
+> **Sources:** every number below comes from a committed file in [`../results/ilo/`](../results/ilo/): `dataset.json` for the data, and `v1/` and `v2/` for each run (training log, summary, thresholds, dev report, headroom). Decisions are D025 and D028–D039 in [`../decisionlog.md`](../decisionlog.md).
 > **Scope:** Task B (ILO) for every approach, plus the turn↔proposition links that the ARI approaches need on test maps.
 
 ## At a glance
 
 | # | Finding | Number | Consequence |
 |---|---|---|---|
-| 1 | The trained labeller works | Dev ILO **89.89 general / 80.38 focused** (cross-fitted) | Task B is in good shape: well above the baselines below |
-| 2 | Linking beats text similarity | 98.3% of links found, at 99.6% precision | Test maps get reliable positions and speakers for ARI |
-| 3 | The gap is in *typing*, not linking | Fixing the minority types is worth up to **+6.9 general / +9.8 focused** ILO; linking under +1 | The next ILO gain comes from rare and Assertive/Rhetorical types |
-| 4 | 22 maps have no illocution layer at all | 19 train + 3 dev, the late "giant" batches | Left out of ILO training and scoring; kept for ARI |
-| 5 | Similarity misses context-rebuilt turns | "Yes" or "it stinks" whose proposition came from context | Turns borrow candidates from their neighbours (99.6% recall) |
-| 6 | Fixed-size batches overflowed the 8 GB card | 7.7 GB peak and 4k tokens/s; after the fix 4.3 GB and 26k tokens/s | Every later training run uses token-budget batches |
-| 7 | Flex attention is slower on real batches | 2.7k vs 14.2k tokens/s (standard attention) | Standard attention (SDPA) is the default |
-| 8 | Inference is cheap | 0.21 s per map | No cost concern for the final run |
+| 1 | The trained labeller works | Dev ILO **90.08 general / 80.64 focused** (v1, cross-fitted) | Task B is in good shape: +14 general over text similarity and +52 over predicting nothing |
+| 2 | Linking is nearly solved | 98.3% of links found, at 99.6% precision | Test maps get reliable positions and speakers for ARI |
+| 3 | Typing the minority types holds the rest | Correct Assertive/Rhetorical and rare types would reach 97.1 / 90.5 | That is where ILO's remaining points are |
+| 4 | Undertraining was *not* the cause | v2 (3 full epochs, gentler learning rate) scored 89.74 cross-fitted, and its 7 Agreeing guesses on dev were all wrong | v1 kept. Rare types need a different design, or stay switched off |
+| 5 | 22 maps have no illocution layer | 19 train + 3 dev (the late "giant" batches) | Excluded from ILO training and scoring; kept for ARI |
+| 6 | Text similarity misses context-rebuilt turns | e.g. "Exactly." or "it stinks" | Candidates borrowed from neighbouring turns: 99.6% recall |
+| 7 | Fixed-size batches overflowed the 8 GB card | 7.7 GB and 4k tokens/s, versus 4.3 GB and 26k tokens/s with token budgets | Every training run uses token-budget batches |
+| 8 | Flex attention is slower on real batches | 2.7k vs 14.2k tokens/s with standard attention | Standard attention (SDPA) is the default |
+| 9 | It's cheap | Training takes 20–42 min; inference 0.21 s per map | No cost concern for the final run |
 
 ---
+
+## How Phase 3 ran
+
+```mermaid
+flowchart LR
+  S1["3.1 Candidates<br/>which pairs to score"] --> S2["3.2 Dataset<br/>inputs + labels"]
+  S2 --> S3["3.3 Train v1<br/>first try killed; batching fixed"]
+  S3 --> S4["3.4 Decision layer<br/>temperature + thresholds"]
+  S4 --> S5["3.5 Evaluate v1<br/>gate passed"]
+  S5 --> S6["3.6 Iteration v2<br/>rare types"]
+  S6 --> D{"v2 beats v1 by<br/>more than 0.5?"}
+  D -->|"no: 89.74 vs 90.08"| K(["Keep v1"])
+  classDef step fill:#dcfce7,stroke:#16a34a,color:#14532d
+  classDef end_ fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  class S1,S2,S3,S4,S5,S6 step
+  class K end_
+```
+*Figure 1: the steps of Phase 3 and the final decision.*
+
+| Step | What happened | Decision |
+|---|---|---|
+| 3.1 | Similarity alone keeps 98.8% of links at best; borrowing neighbours' candidates reaches 99.6% | D028; D029 (no node-ID shortcuts) proposed |
+| 3.2 | 22 maps turned out to have no illocution layer; rare types are very rare | D030, D031 |
+| 3.3 | First run killed by the tool's time limit and overflowing GPU memory; fixed with token budgets; v1 trained detached | D032–D034 |
+| 3.4 | Temperature and thresholds tuned on dev, scored honestly by leaving one episode out | D035 |
+| 3.5 | v1 evaluated against baselines: gate passed; minority types weak | D036 |
+| 3.6 | v2: longer, gentler training, checkpoint chosen by the tuned score. Not better; v1 kept | D038, D039 |
 
 ## 1. What the labeller does
 
@@ -28,7 +57,7 @@ flowchart LR
   M[("Map in test format<br/>turns + propositions")] --> C["Candidates<br/>similarity: own 5,<br/>prev 5, next 3"]
   C --> X["Input text<br/>turn + proposition<br/>+ 2 turns either side"]
   X --> B["ModernBERT-base<br/>11 probabilities"]
-  B --> T["Temperature<br/>T = 1.05"]
+  B --> T["Temperature<br/>v1: 1.05"]
   T --> H["One-to-one matching<br/>link if 1 - P(None) at least 0.10"]
   H --> Y["Type thresholds<br/>questions 0.3-0.5"]
   Y --> O[("YA links<br/>L to I with type")]
@@ -39,7 +68,7 @@ flowchart LR
   class C,X,T,H,Y step
   class B model
 ```
-*Figure 1: the labeller end to end. Blue = data, green = deterministic steps (tuned on dev), yellow = the trained model.*
+*Figure 2: the labeller end to end. Blue = data, green = deterministic steps (tuned on dev), yellow = the trained model.*
 
 ## 2. Candidates (3.1, D028)
 
@@ -55,7 +84,7 @@ The model only scores candidate pairs; everything else is None. Text similarity 
 - **Why similarity misses:** 371 of the 433 misses at K = 3 are short turns whose proposition was rebuilt from context. "Exactly." becomes the claim agreed with; "it stinks" becomes what "it" refers to.
 - **The fix:** borrow the candidates of neighbouring turns. That rescues 183 links, mostly rare types.
 - **Recall per type:** every type is ≥ 98.3%, except Agreeing (93.7%) and Disagreeing (94.7%).
-- **The labeller never uses node IDs or node order** (proposed rule D029). In 74% of links the proposition's ID is the turn's ID + 2, an annotation-tool artefact.
+- **No node IDs:** the labeller never uses node IDs or node order (proposed rule D029). In 74% of links the proposition's ID is the turn's ID + 2, an annotation-tool artefact.
 
 ## 3. Data (3.2, D030–D031)
 
@@ -88,20 +117,20 @@ B: Jeane Freeman can enforce it when people can fly into England … by xxx
   | Arguing | 10 | 2 |
   | Restating | 4 | 1 |
 
-## 4. Training (3.3, D032–D034)
+## 4. Training run v1 (3.3, D032–D034)
 
-**Setup:**
+**Setup** (recipe `v1` in `ilo/train.py`):
 - ModernBERT-base, max 320 tokens, batches capped at 4,096 padded tokens (≤ 64 pairs).
 - AdamW at learning rate 5e-5, 6% warm-up then linear decay, bf16.
 - Class weights (most frequent / count)^0.5, capped at 30.
-- Dev evaluated every half epoch; stop after 2 evaluations without improvement.
+- Dev evaluated every half epoch; stop after 2 evaluations without improvement on the *simple* decode (one-to-one matching, most probable type, no thresholds).
 
 **Sanity checks before training:**
-- **Decoder ceiling:** decoding the *gold* labels scores 98.63 / 94.73, with 99.16% linking recall. The gap is candidate misses plus turns that express two propositions.
+- **Decoder ceiling:** decoding the gold labels scores 98.63 / 94.73, with 99.16% linking recall. The gap is candidate misses plus turns that express two propositions.
 - **Majority baseline:** all-None scores 38.21 / 0.
 - **Memorisation:** the model learns 72 examples perfectly in 100 steps.
 
-**Training curve** (dev, simple decode):
+**Curve** (dev, simple decode):
 
 | Epoch | ILO general / focused | Link recall / precision |
 |---|---|---|
@@ -109,32 +138,31 @@ B: Jeane Freeman can enforce it when people can fly into England … by xxx
 | 1.0 | 86.41 / 72.31 | 96.3% / 99.7% |
 | 1.5 | 88.05 / 73.18 | 96.3% / 99.8% |
 
-**Cost:** 19.5 min in total (13 min per epoch), 22.5k tokens/s, 4.35 GB peak.
+**Cost:** 19.5 min (13 min per epoch), 22.5k tokens/s, 4.35 GB peak.
 
-**Engineering lessons:**
+**Engineering lessons** (these apply to every later training run):
 
 | Problem | Evidence | Fix |
 |---|---|---|
 | GPU memory overflow | Fixed 32-pair batches reached about 9.6k tokens; 7.72 GB of 7.9 used, and 3.7–4.9k tokens/s as the driver spilled into RAM | Token-budget batches: 4.33 GB and 26.3k tokens/s (6× faster) |
 | Flex attention recompiles | Every new batch shape triggers a recompile: 2.7k vs 14.2k tokens/s with standard attention | SDPA is the default; flex only pays off at fixed shapes |
-| Tool time limit | The first run was killed at step 600 by the 10-min background limit | Long runs go detached, monitored through the progress log |
+| Tool time limit | The first run was killed at step 600 by the 10-min background limit (`v1/train_log_run1_killed.jsonl`) | Long runs go detached, monitored through the progress log |
 
 ## 5. Decision layer (3.4, D035)
 
 Fitted on dev, and scored honestly by **leave-one-episode-out** (tune on 4 dev episodes, score the 5th):
-- **Temperature 1.05:** the model is already well calibrated.
-- **Link threshold 0.10** on 1 − P(None). Low, because one-to-one matching already blocks most false links. 4 of 5 folds agree.
-- **Type thresholds** on P(type | link): Pure and Assertive Questioning 0.5, Rhetorical 0.3, **rare types 0**. Grouping the rare types or not made no difference.
-- **Gain over simple decoding:** +0.43 general / +2.32 focused, cross-fitted.
+- **Temperature** (one number that softens or sharpens all probabilities): 1.05 for v1, already well calibrated.
+- **Link threshold** on 1 − P(None): **0.10** for v1. It's low because one-to-one matching already blocks most false links. The search range was widened twice, from 0.20 to 0.05 to 0.01, because the optimum kept landing on the floor.
+- **Type thresholds** on P(type | link): Pure and Assertive Questioning 0.5, Rhetorical 0.3, rare types 0. Grouping the rare types or not made no difference.
 
-## 6. Results on dev (3.5, D036)
+## 6. Results for v1 on dev (3.5, D036)
 
 | Dev ILO F1 | General | Focused |
 |---|---|---|
 | Majority (no illocutions) | 38.21 | 0.00 |
 | Text similarity, one-to-one, all Asserting | 75.99 | 59.38 |
 | Model, simple decode | 89.46 | 78.06 |
-| **Model, tuned (cross-fitted)** | **89.89** | **80.38** |
+| **Model, tuned (cross-fitted)** | **90.08** | **80.64** |
 | Ceiling of this design | 98.63 | 94.73 |
 
 **Linking:** 98.27% recall and 99.62% precision, against 97.43% / 98.68% for similarity with the same matching.
@@ -148,40 +176,71 @@ Fitted on dev, and scored honestly by **leave-one-episode-out** (tune on 4 dev e
 
 **For reference only:** 2024's best ILO was 81.2 / 72.1, but on the 11 *test* maps, so it isn't directly comparable.
 
-## 7. Where the remaining points are
+## 7. The rare-type iteration: v2 (D038–D039)
 
-Re-scoring the tuned predictions with one group of types corrected to gold (no retraining; `python -m ilo.evaluate --headroom`):
+**Why:** v1's kept checkpoint came from half an epoch, and v1 never predicted any rare type. v1's probabilities hinted at undertraining: Default Illocuting got probability about 0.001 despite 123 training examples, and Assertive/Rhetorical were often the second choice.
 
-| Dev ILO F1 if… | General | Focused | Maps affected |
+**What changed** (recipe `v2`; data, model, weights and batching unchanged):
+- all 3 epochs;
+- learning rate 3e-5 instead of 5e-5;
+- **every checkpoint judged by its *tuned* score** (about 13 s per evaluation);
+- every evaluation's dev probabilities kept.
+
+| v2 epoch | 0.5 | 1.0 | 1.5 | **2.0** | 2.5 | 3.0 |
+|---|---|---|---|---|---|---|
+| Tuned general / focused | 89.06 / 80.36 | 89.41 / 80.12 | 89.93 / 79.99 | **90.39 / 81.97** | 89.66 / 80.43 | 89.39 / 80.09 |
+| Temperature | 1.10 | 1.15 | 1.40 | 1.20 | 1.55 | 1.65 |
+
+**Cost:** 42.1 min (14 min per epoch). The rising temperature shows the model growing overconfident with longer training.
+
+**Comparison** (both runs tuned on the same, widened grid):
+
+| Dev ILO | v1 | v2 |
+|---|---|---|
+| Tuned on all of dev (optimistic) | 90.16 / 80.67 | 90.40 / 82.29 |
+| **Cross-fitted (honest)** | **90.08 / 80.64** | 89.74 / 81.29 |
+| Linking recall / precision | 98.27 / 99.62% | 98.61 / 99.59% |
+| Assertive / Rhetorical Q. F1 | 0.40 / 0.51 | 0.46 / 0.56 |
+| Rare-type predictions | none | none: tuning switches them off |
+
+- **Rare types:** with suppression off, v2 predicts **Agreeing 7 times on dev, all wrong**, and still never Default Illocuting. The tuning therefore disables them. Predicting them would add a zero-scoring class to those maps (the rare-label trap).
+- **Decision:** the stop rule (cross-fitted general must beat v1 by more than 0.5) failed by −0.34, so **v1 stays selected**. v2 is slightly better on focused and on questions, but all v1/v2 differences are within dev's noise.
+- **What this teaches:** the gap is not undertraining. This design (one pair at a time, ±2 turns of context, 89 Agreeing examples) can't learn Agreeing or Default Illocuting well enough to beat the rare-label penalty.
+
+## 8. Where the remaining points are
+
+Re-scoring the tuned predictions with one group of types corrected to gold (no retraining; `python -m ilo.evaluate --run=<run> --headroom`):
+
+| Dev ILO F1 if… | v1 | v2 | Maps affected |
 |---|---|---|---|
-| As is | 90.16 | 80.67 | — |
-| Rare types correct | 93.04 | 85.13 | 22 of 225 |
-| Assertive + Rhetorical correct | 94.17 | 85.89 | 40 of 225 |
-| Both | **97.07** | **90.49** | — |
-| Every linked pair typed correctly | 97.87 | 90.61 | — |
+| As is | 90.16 / 80.67 | 90.40 / 82.29 | — |
+| Rare types correct | 93.04 / 85.13 | 93.31 / 86.88 | 22 of 225 |
+| Assertive + Rhetorical correct | 94.17 / 85.89 | 93.79 / 86.77 | 40 of 225 |
+| Both | **97.07 / 90.49** | **96.73 / 91.47** | — |
+| Every linked pair typed correctly | 97.87 / 90.61 | 97.90 / 92.07 | — |
 
-**Linking is nearly solved; typing the minority types holds almost all of the rest.** These are upper bounds. Global is the mean of ARI and ILO, so the full gap is worth about 3.5 Global points (general).
+Linking costs under 1 point; minority-type typing holds about 7. These are upper bounds. Global is the mean of ARI and ILO, so the whole gap is worth about 3.5 Global points (general).
 
-**Likely cause:** the kept checkpoint is from half an epoch, before the rare types were learned. Later checkpoints were judged by the simple decode, which punishes rare-type mistakes hardest, and were discarded.
-
-## 8. Lessons for the other approaches
+## 9. Lessons for the other approaches
 - **Reuse `common/finetune.py`** (A1.2): token-budget batches, SDPA, and detached launch for runs over 10 minutes.
-- **Select checkpoints by the tuned metric, not the simple decode,** and keep each evaluation's dev probabilities. This applies even more to A1, whose Conflict class is rare.
-- **The labeller's links give each test proposition its turn and speaker.** A1.1 should build test-format pair inputs from these predicted links, not gold.
-- **Rare classes on dev are tiny** (1–12 examples), so thresholds are cross-fitted by episode. The same will hold for Conflict in A1.
+- **Choose checkpoints by the tuned metric and keep every evaluation's probabilities.** It's cheap, the selection is honest, and it matters most for rare classes such as A1's Conflict. Recalibrate each checkpoint, because the temperature drifts.
+- **Use the labeller's predicted links on test maps:** they give each test proposition its turn and speaker. A1.1 builds test-format inputs from them, not from gold.
+- **Rare classes on dev are tiny** (1–12 examples here), so thresholds are cross-fitted by episode and gains under about 0.5 are noise.
+- **Not predicting a rare class can be correct.** When a model can't predict it reliably, the tuned layer switching it off beats guessing.
 - **22 maps lack illocutions but have relations.** ILO ignores them; ARI decides on them in A1.1 (D022).
 
-## 9. Open items
-- **Rare-type iteration** (optional, about 30–40 min of GPU time): choose checkpoints by the tuned score, keep all dev probabilities, try a gentler learning rate and weight cap. Target: part of the +6.9 / +9.8 headroom.
+## 10. Open items
+- **Rare types** (not planned now): add transition-anchored Agreeing / Disagreeing / Challenging examples as training signal; give reply turns the turn they answer as explicit context; or revisit after A1, if ILO becomes the bottleneck.
 - **D029** (no node-ID shortcuts) still needs a user decision. It affects every approach.
 
 ## Reproduce
 ```bash
 # from the repo root, inside WSL (see CLAUDE.md §8)
-python -m ilo.candidates          # 3.1  recall table
-python -m ilo.data                # 3.2  cache/ilo/*.jsonl, results/ilo/dataset.json      (~4 min)
-python -m ilo.train               # 3.3  checkpoints/ilo/, results/ilo/train_*.json(l)    (~20 min, run detached)
-python -m ilo.tune                # 3.4  results/ilo/thresholds_shared.json               (~2 min)
-python -m ilo.evaluate            # 3.5  results/ilo/dev_report.json
-python -m ilo.evaluate --headroom #      results/ilo/headroom.json
+python -m ilo.candidates                    # 3.1  recall table
+python -m ilo.data                          # 3.2  cache/ilo/*.jsonl, results/ilo/dataset.json      (~4 min)
+python -m ilo.train --run=v1                # 3.3  checkpoints/ilo/v1/, results/ilo/v1/            (~20 min, run detached)
+python -m ilo.tune --run=v1                 # 3.4  results/ilo/v1/thresholds_shared.json           (~2 min)
+python -m ilo.evaluate --run=v1             # 3.5  results/ilo/v1/dev_report.json
+python -m ilo.evaluate --run=v1 --headroom  #      results/ilo/v1/headroom.json
+python -m ilo.train --run=v2                # 3.6  the same for v2                                  (~42 min, run detached)
 ```

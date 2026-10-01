@@ -14,7 +14,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | 0 | Environment | WSL2 venv `~/.venvs/dialam` (torch CUDA, transformers, sklearn); ModernBERT smoke test `a1_cross_encoder/check_env.py` | GPU visible, bf16 works, ModernBERT forward+backward on GPU, peak VRAM recorded | Foundation (deps) | **Passed (D009, D010)** |
 | 1 | Foundation | `common/`: loader + graph view, AIF writer, validator, scorer port, episode-grouped dev split, timing harness | Scorer reproduces 29.53 / 35.30 / 32.41 and matches official scripts; validator passes all 1,478 gold maps; the split recomputes to the tracked `splits/` | Foundation | **Passed (D012–D016, D027)** |
 | 2 | EDA | `eda/`: Pruning window *k*, direction stats (MA/CA later→earlier), speaker patterns, CA-absent maps, ModernBERT token lengths, leakage check | Every number feeds a named later decision | EDA | **Passed (D018–D024 proposed)** |
-| 3 | ILO labeller (trained) | `ilo/`: candidate filter, (turn, proposition, context) dataset, ModernBERT-base classifier, one-to-one decoding + per-type thresholds; reusable fine-tuning loop | Linking accuracy on dev beats text similarity (94.2%); ILO F1 general / focused on dev reported | Shared ILO labeller | **Passed (D028–D036): dev ILO 89.89 / 80.38 cross-fitted** |
+| 3 | ILO labeller (trained) | `ilo/`: candidate filter, (turn, proposition, context) dataset, ModernBERT-base classifier, one-to-one decoding + per-type thresholds; reusable fine-tuning loop | Linking accuracy on dev beats text similarity (94.2%); ILO F1 general / focused on dev reported | Shared ILO labeller | **Passed (D028–D039): run v1 selected, dev ILO 90.08 / 80.64 cross-fitted; iteration v2 not adopted** |
 | A1.1 | Pair builder | `build_pairs.py`: candidates, 5-way labels, context text → `cache/` | ≥98% of gold relations survive pruning; gold→pairs→AIF round trip scores at the pruning ceiling; samples read by eye | A1 | — |
 | A1.2 | Model + training loop | `model.py`, `train.py` on `common/finetune.py` (built in Phase 3): weighted/focal loss, bf16, grad ckpt, map-level early stop | Overfits a tiny subset; VRAM and epoch time measured; base vs large chosen | A1 | — |
 | A1.3 | Training run | Checkpoint + `results/timing.csv` | Dev per-map macro-F1 (argmax) recorded | A1 | — |
@@ -307,7 +307,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - **2026-10-01 · Phase 3 · by Claude · Done**
 - `ilo/tune.py` fits a temperature, then thresholds by coordinate ascent on mean per-map ILO general F1. The fast metric equals the official scorer on all 225 dev maps (asserted).
 - *Result:* **T = 1.05** (already well calibrated) and **link_min = 0.10** (4 of 5 folds pick 0.10, one picks 0.05). The first run's grid floor of 0.20 was too high and was widened to 0.05. P(type | link) minimum: Pure Questioning 0.5, Assertive Questioning 0.5, Rhetorical Questioning 0.3, and **0 for all six rare types**.
-- *Scores:* simple decode 89.46 / 78.06; tuned on all of dev 90.16 / 80.67 (optimistic); **leave-one-episode-out 89.89 / 80.38 (honest)**.
+- *Scores:* simple decode 89.46 / 78.06; tuned on all of dev 90.16 / 80.67 (optimistic); **leave-one-episode-out 89.89 / 80.38 (honest)**. *Updated in D039:* after the link grid was widened to 0.01, v1's cross-fitted score is **90.08 / 80.64**; the all-dev result is unchanged.
 - *Grouping question:* "shared" and "per-type" thresholds give **identical results**, because the data set every rare-type threshold to 0. No user decision is needed. Files: `results/ilo/thresholds_{shared,per-type}.json`.
 
 ### D036 — Phase 3.5 result: gate passed; weak on rare and assertive/rhetorical types
@@ -318,7 +318,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   | Majority (no illocutions) | 38.21 / 0.00 |
   | Text similarity, one-to-one, all Asserting (threshold tuned) | 75.99 / 59.38 |
   | Model, simple decode | 89.46 / 78.06 |
-  | **Model, tuned decision layer (cross-fitted)** | **89.89 / 80.38** |
+  | **Model, tuned decision layer (cross-fitted)** | **89.89 / 80.38** (90.08 / 80.64 with the widened grid, D039) |
   | *Ceiling of this design (gold labels decoded)* | 98.63 / 94.73 |
 
 - **Gate passed:** the model links 98.27% of gold links at 99.62% precision, against 97.43% at 98.68% for text similarity with the same one-to-one matching, and about 94% for similarity top-1.
@@ -332,3 +332,48 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - `reports/README.md` is the index: one line per phase, with the headline and a link. `reports/03-ilo-labeller.md` is the Phase 3 report. Phase 2's report stays at `eda/README.md`, where it is already linked; Phases 0–1 are covered by their decision-log entries.
 - *Convention:* `NN-short-name.md`, shaped as at a glance → method → results → lessons → open items → reproduce. Every number comes from a committed file under `results/` or `eda/`. These reports are the source for the final write-up (now noted in `PLAN.md` and `CLAUDE.md` §5).
 - *Added for the report:* `python -m ilo.evaluate --headroom` (`results/ilo/headroom.json`). Correcting rare and Assertive/Rhetorical types to gold would lift dev ILO from 90.16 / 80.67 to **97.07 / 90.49**; perfect typing of correct links reaches 97.87 / 90.61. Typing, not linking, holds the remaining gap.
+
+### D038 — ILO rare-type iteration (run v2), and one folder per training run
+- **2026-10-01 · Phase 3 · approved by user 2026-10-01 · Done; result in D039**
+- *Why:* v1 never predicts Default Illocuting, Agreeing or the other rare types, and it is weak on Assertive and Rhetorical Questioning. On v1's dev probabilities the evidence points to **undertraining**, not unlearnable types:
+  - **Default Illocuting** (123 training examples) gets probability about 0.001.
+  - **Assertive and Rhetorical Questioning** put the right type first or second in 31 of 48 dev links.
+  - **Agreeing** turns get a median link probability of 2%.
+
+  The kept checkpoint was from 0.5 epoch, because checkpoints were judged by the simple decode, which punishes rare-type mistakes hardest.
+- *What changes in v2 (one recipe, fixed in `ilo/train.py` RUNS):*
+  - All 3 epochs (patience 99).
+  - **The checkpoint is chosen by the tuned score** (`ilo.tune.tuned_score`: temperature plus thresholds on all of dev, about 13 s per evaluation).
+  - **Every evaluation's dev probabilities are kept** (`checkpoints/ilo/v2/evals/`).
+  - **Learning rate 3e-5** instead of 5e-5.
+  - Data, class weights (cap 30), batching and model are unchanged.
+- *Expectation:* Challenging, Disagreeing, Arguing and Restating (38, 18, 10 and 4 training examples) will likely stay unpredicted, which is correct given the rare-label trap.
+- *Stop rule:* adopt v2 only if its **cross-fitted** dev ILO general F1 beats v1's 89.89 by more than about 0.5. Otherwise keep v1 and move to A1.1.
+- *Caveat:* choosing among 6 checkpoints on dev adds slight optimism. Cross-fitting covers the thresholds, not the checkpoint choice. v1's early stopping had the same property.
+- *Structure:* each run has its own `checkpoints/ilo/<run>/` and `results/ilo/<run>/`. v1's files were moved with `git mv`, so their history is kept. `results/ilo/selected.json` names the run the rest of the project uses (now v1). `ilo.tune` and `ilo.evaluate` take `--run=`.
+
+### D039 — Rare-type iteration result: v2 not adopted, v1 stays selected
+- **2026-10-01 · Phase 3 · by Claude (applying the stop rule in D038) · Done**
+- *v2 training* (all 3 epochs, lr 3e-5; tuned on all of dev at each evaluation):
+
+  | Epoch | 0.5 | 1.0 | 1.5 | **2.0** | 2.5 | 3.0 |
+  |---|---|---|---|---|---|---|
+  | Tuned general / focused | 89.06 / 80.36 | 89.41 / 80.12 | 89.93 / 79.99 | **90.39 / 81.97** | 89.66 / 80.43 | 89.39 / 80.09 |
+  | Temperature | 1.10 | 1.15 | 1.40 | 1.20 | 1.55 | 1.65 |
+
+  The temperature rises as the model grows overconfident. Run time 42.1 min (14.0 min per epoch), 20.8k tokens/s, 4.35 GiB peak.
+- *Final tuning:* the link-threshold grid was widened to 0.01 (`ilo/tune.py`), because v2's optimum sat on the old 0.05 floor. **Both runs were re-tuned on it:**
+
+  | Dev ILO | v1 | v2 |
+  |---|---|---|
+  | Tuned on all of dev (optimistic) | 90.16 / 80.67 | 90.40 / 82.29 |
+  | **Cross-fitted (honest)** | **90.08 / 80.64** | 89.74 / 81.29 |
+  | Linking recall / precision | 98.27 / 99.62% | 98.61 / 99.59% |
+  | Assertive / Rhetorical Questioning F1 | 0.40 / 0.51 | 0.46 / 0.56 |
+- *Rare types:* v2's tuning sets every rare-type threshold to "never" (1.01). With suppression switched off, **v2 predicts Agreeing 7 times on dev and is wrong every time**, and it still never predicts Default Illocuting. v1 predicts none either way.
+- **Stop rule** (cross-fitted general must beat v1 by more than 0.5): **not met**, since v2 is 0.34 lower. v1 stays in `results/ilo/selected.json`. Every v1/v2 difference is within dev's noise.
+- *Lesson:* the rare-type gap is **not undertraining**. With this design (one pair at a time, ±2 turns, 89 Agreeing examples), the model can't learn Agreeing or Default Illocuting well enough to beat the rare-label penalty. Options for later, none done now:
+  - add the transition-anchored Agreeing / Disagreeing / Challenging examples as extra training signal;
+  - give short reply turns the turn they answer as explicit context;
+  - accept these types as unpredicted, which the tuned decision layer already does safely.
+- *For A1:* choosing checkpoints by the tuned metric and keeping every evaluation's probabilities is cheap (about 13 s per evaluation) and makes the selection honest. Use it in A1.2, and recalibrate each checkpoint because the temperature drifts.

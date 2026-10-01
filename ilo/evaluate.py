@@ -1,6 +1,7 @@
 """Step 3.5: evaluate the ILO labeller on dev (maps in test-input format) against simple baselines.
 
-    python -m ilo.evaluate [--groups=shared|per-type]   -> results/ilo/dev_report.json
+    python -m ilo.evaluate [--run=v2] [--groups=shared|per-type]   -> results/ilo/<run>/dev_report.json
+    python -m ilo.evaluate [--run=v2] --headroom                   -> results/ilo/<run>/headroom.json
 
 Rows compared on the official ILO metric (mean per-map macro F1, general / focused):
   majority (no illocutions) · similarity + Asserting (link by text similarity, one-to-one, threshold
@@ -15,13 +16,11 @@ from collections import Counter, defaultdict
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from common import RESULTS
 from common.finetune import load_model, predict, tokenize, Config
 from ilo.data import LABELS
-from ilo.train import CKPT
+from ilo.train import arg, dirs, selected_run
 from ilo.tune import Dev, ilo_f1, mean_f1
 
-OUT = RESULTS / "ilo"
 
 
 def similarity_links(dev: Dev, name: str, sim_min: float):
@@ -95,9 +94,11 @@ def headroom(dev: Dev, th: dict) -> dict:
 
 
 def main():
-    mode = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--groups=")), "shared")
+    mode = arg("groups", "shared")
+    run = arg("run", selected_run())
+    CKPT, OUT = dirs(run)
     th = json.loads((OUT / f"thresholds_{mode}.json").read_text())
-    dev = Dev()
+    dev = Dev(CKPT / "dev_probs.npy")
     if "--headroom" in sys.argv:
         rep = headroom(dev, th)
         with open(OUT / "headroom.json", "w", encoding="utf-8", newline="\n") as f:
@@ -131,7 +132,7 @@ def main():
         n: ilo_f1(dev.gold[n], {(t, p): y for t, p, y in tuned_links[n]}, dev.n_pairs[n]) for n in dev.names}
 
     report = {
-        "dev_maps": len(dev.names), "groups": mode,
+        "run": run, "dev_maps": len(dev.names), "groups": mode,
         "ilo_f1": {k: {"general": round(mean_f1(v, 0), 2), "focused": round(mean_f1(v, 1), 2)} for k, v in rows.items()},
         "ilo_f1_cross_fitted (honest)": th["dev_ilo_f1"]["cross_fitted (honest)"],
         "linking": {

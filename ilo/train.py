@@ -1,11 +1,15 @@
-"""Step 3.3: train the ILO labeller.
+"""Step 3.3 and its iterations: train the ILO labeller.
 
-    python -m ilo.train --overfit    # sanity: can it memorise 64 examples?
-    python -m ilo.train --probe      # throughput of sdpa vs flex_attention on real batches
-    python -m ilo.train              # full run with early stopping on dev ILO general F1
+Every training run has a name and a fixed recipe in RUNS, so each result traces back to its settings.
 
-Outputs: checkpoints/ilo/ (best model + dev_probs.npy; git-ignored), results/ilo/train_log.jsonl,
-results/ilo/train_summary.json, a row in results/timing.csv.
+    python -m ilo.train --run=v2              # full training run
+    python -m ilo.train --run=v1 --overfit    # sanity: can it memorise 72 examples?
+    python -m ilo.train --run=v1 --bench      # 400 real steps: speed and peak VRAM
+    python -m ilo.train --run=v1 --probe      # sdpa vs flex_attention on real batches
+
+Outputs per run: checkpoints/ilo/<run>/ (best model, dev_probs.npy, evals/*.npy; git-ignored) and
+results/ilo/<run>/ (train_log.jsonl, train_summary.json). results/ilo/selected.json names the run
+the rest of the project uses.
 """
 import json
 import sys
@@ -22,9 +26,26 @@ from common.timing import timed
 from ilo.data import CACHE, LABELS
 from ilo.decode import DevScorer
 
-CKPT = ROOT / "checkpoints" / "ilo"
-OUT = RESULTS / "ilo"
 WEIGHT_CAP = 30.0
+RUNS = {
+    "v1": {"lr": 5e-5, "select": "simple", "patience": 2, "keep_eval_probs": False,
+           "note": "first run (D032-D034): early stopping on the simple decode; best checkpoint at 0.5 epoch"},
+    "v2": {"lr": 3e-5, "select": "tuned", "patience": 99, "keep_eval_probs": True,
+           "note": "rare-type iteration (D038): all 3 epochs, checkpoint chosen by the tuned score"},
+}
+
+
+def arg(name: str, default=None):
+    return next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith(f"--{name}=")), default)
+
+
+def dirs(run: str):
+    """(checkpoint dir, results dir) of a run."""
+    return ROOT / "checkpoints" / "ilo" / run, RESULTS / "ilo" / run
+
+
+def selected_run() -> str:
+    return json.loads((RESULTS / "ilo" / "selected.json").read_text())["run"]
 
 
 def read(split):
@@ -39,24 +60,39 @@ def class_weights(labels: list[int]) -> list[float]:
     return [min(WEIGHT_CAP, (top / c[k]) ** 0.5) if c[k] else WEIGHT_CAP for k in range(len(LABELS))]
 
 
+def make_scorer(select: str, dev_rows):
+    """Dev evaluation used during training: the simple decode, plus the tuned score for 'tuned' runs."""
+    gold = {p.stem: load_map(p) for p in load_split("dev") if p.stem in {r["map"] for r in dev_rows}}
+    simple = DevScorer(dev_rows, gold)
+    if select == "simple":
+        return simple
+    from ilo.tune import Dev, tuned_score
+    dev = Dev(load=False)
+    return lambda probs: {**simple(probs), **tuned_score(dev, probs)}
+
+
 def main():
-    mode = sys.argv[1] if len(sys.argv) > 1 else "full"
-    cfg = Config(num_labels=len(LABELS), out_dir=CKPT, log_path=OUT / "train_log.jsonl", metric="ilo_general_f1")
+    run = arg("run", "v2")
+    recipe = RUNS[run]
+    ckpt, out = dirs(run)
+    cfg = Config(num_labels=len(LABELS), out_dir=ckpt, log_path=out / "train_log.jsonl", lr=recipe["lr"],
+                 patience=recipe["patience"], keep_eval_probs=recipe["keep_eval_probs"],
+                 metric="ilo_tuned_general" if recipe["select"] == "tuned" else "ilo_general_f1",
+                 extra={"run": run, "note": recipe["note"]})
     from transformers import AutoTokenizer
     pad_id = AutoTokenizer.from_pretrained(cfg.model).pad_token_id
     train_rows = read("train")
     y = [r["label_id"] for r in train_rows]
     weights = class_weights(y)
 
-    if mode == "--overfit":
+    if "--overfit" in sys.argv:
         rng = np.random.default_rng(0)
         pick = [int(i) for i in rng.choice(len(train_rows), 64, replace=False)]
         pick += [i for i, r in enumerate(train_rows) if r["label"] in ("Agreeing", "Challenging")][:8]
         sub = [train_rows[i] for i in pick]
         ids = tokenize(cfg.model, [r["text_a"] for r in sub], [r["text_b"] for r in sub], cfg.max_len)
         labels = [r["label_id"] for r in sub]
-        cfg.log_path = OUT / "overfit_log.jsonl"
-        cfg.out_dir = CKPT / "overfit"
+        cfg.log_path, cfg.out_dir = out / "overfit_log.jsonl", ckpt / "overfit"
         cfg.lr, cfg.warmup, cfg.batch_size = 1e-4, 0.0, 16
         with timed("ilo", "3.3_overfit", examples=len(sub)) as row:
             res = train(cfg, ids, labels, [], [1.0] * len(LABELS), None, pad_id, max_steps=100)
@@ -65,12 +101,12 @@ def main():
         print(json.dumps({"overfit_examples": len(sub), "train_accuracy": acc, "labels": dict(Counter(r["label"] for r in sub))}))
         return
 
-    if mode == "--bench":                              # 400 real steps + a dev pass: speed and peak VRAM
+    if "--bench" in sys.argv:                          # 400 real steps + a dev pass: speed and peak VRAM
         import torch
         dev_rows = read("dev")[:5000]
         tr_ids = tokenize(cfg.model, [r["text_a"] for r in train_rows], [r["text_b"] for r in train_rows], cfg.max_len)
         dv_ids = tokenize(cfg.model, [r["text_a"] for r in dev_rows], [r["text_b"] for r in dev_rows], cfg.max_len)
-        cfg.log_path = OUT / "bench_log.jsonl"
+        cfg.log_path = out / "bench_log.jsonl"
         with timed("ilo", "3.3_bench", max_tokens=cfg.max_tokens) as row:
             res = train(cfg, tr_ids, y, [], weights, None, pad_id, max_steps=400)
             torch.cuda.reset_peak_memory_stats()
@@ -82,11 +118,11 @@ def main():
         print(json.dumps(row))
         return
 
-    if mode == "--probe":
+    if "--probe" in sys.argv:
         import torch
         sample = train_rows[:6400]
         ids = tokenize(cfg.model, [r["text_a"] for r in sample], [r["text_b"] for r in sample], cfg.max_len)
-        out = {}
+        speeds = {}
         for attn in ("sdpa", "flex_attention"):
             cfg.attn = attn
             model = load_model(cfg)
@@ -105,24 +141,23 @@ def main():
                 loss.backward(); optim.step(); optim.zero_grad(set_to_none=True)
                 tok += int(m.sum())
             torch.cuda.synchronize()
-            out[attn] = round(tok / (time.perf_counter() - t0))
+            speeds[attn] = round(tok / (time.perf_counter() - t0))
             del model, optim
             torch.cuda.empty_cache()
-        print(json.dumps({"tokens_per_s": out}))
+        print(json.dumps({"tokens_per_s": speeds}))
         return
 
     dev_rows = read("dev")
-    gold = {p.stem: load_map(p) for p in load_split("dev") if p.stem in {r["map"] for r in dev_rows}}
-    scorer = DevScorer(dev_rows, gold)
-    attn = mode.split("=", 1)[1] if mode.startswith("--attn=") else "sdpa"
-    cfg.attn = attn
+    scorer = make_scorer(recipe["select"], dev_rows)
     tr_ids = tokenize(cfg.model, [r["text_a"] for r in train_rows], [r["text_b"] for r in train_rows], cfg.max_len)
     dv_ids = tokenize(cfg.model, [r["text_a"] for r in dev_rows], [r["text_b"] for r in dev_rows], cfg.max_len)
-    with timed("ilo", "3.3_train", attn=attn, train=len(tr_ids), dev=len(dv_ids)) as row:
+    with timed("ilo", f"3.3_train_{run}", attn=cfg.attn, lr=cfg.lr, train=len(tr_ids), dev=len(dv_ids)) as row:
         res = train(cfg, tr_ids, y, dv_ids, weights, scorer, pad_id)
         row.update({k: v for k, v in res.items() if k != "model"})
-    summary = {k: v for k, v in res.items() if k != "model"} | {"class_weights": dict(zip(LABELS, [round(w, 2) for w in weights]))}
-    with open(OUT / "train_summary.json", "w", encoding="utf-8", newline="\n") as f:
+    summary = ({"run": run, **recipe} | {k: v for k, v in res.items() if k != "model"}
+               | {"class_weights": dict(zip(LABELS, [round(w, 2) for w in weights]))})
+    out.mkdir(parents=True, exist_ok=True)
+    with open(out / "train_summary.json", "w", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(summary, indent=1))
     print(json.dumps(summary, indent=1))
 

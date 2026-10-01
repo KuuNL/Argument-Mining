@@ -1,0 +1,98 @@
+{
+ "run": "v1",
+ "dev_maps": 225,
+ "groups": "shared",
+ "ilo_f1": {
+  "majority (no illocutions)": {
+   "general": 38.21,
+   "focused": 0.0
+  },
+  "similarity + Asserting (threshold 0.2, tuned on dev)": {
+   "general": 75.99,
+   "focused": 59.38
+  },
+  "model, argmax decode": {
+   "general": 89.46,
+   "focused": 78.06
+  },
+  "model, tuned decision layer (on all dev; optimistic)": {
+   "general": 90.16,
+   "focused": 80.67
+  }
+ },
+ "ilo_f1_cross_fitted (honest)": {
+  "general": 90.08,
+  "focused": 80.64
+ },
+ "linking": {
+  "similarity": {
+   "recall": 0.9743,
+   "precision": 0.9868
+  },
+  "model_argmax": {
+   "recall": 0.9752,
+   "precision": 0.9968
+  },
+  "model_tuned": {
+   "recall": 0.9827,
+   "precision": 0.9962
+  }
+ },
+ "per_type_tuned": {
+  "Asserting": {
+   "gold": 2992,
+   "predicted": 2988,
+   "f1": 0.982
+  },
+  "Pure Questioning": {
+   "gold": 162,
+   "predicted": 176,
+   "f1": 0.87
+  },
+  "Assertive Questioning": {
+   "gold": 19,
+   "predicted": 6,
+   "f1": 0.4
+  },
+  "Rhetorical Questioning": {
+   "gold": 29,
+   "predicted": 14,
+   "f1": 0.512
+  },
+  "Default Illocuting": {
+   "gold": 7,
+   "predicted": 0,
+   "f1": 0.0
+  },
+  "Agreeing": {
+   "gold": 12,
+   "predicted": 0,
+   "f1": 0.0
+  },
+  "Challenging": {
+   "gold": 2,
+   "predicted": 0,
+   "f1": 0.0
+  },
+  "Disagreeing": {
+   "gold": 2,
+   "predicted": 0,
+   "f1": 0.0
+  },
+  "Arguing": {
+   "gold": 2,
+   "predicted": 0,
+   "f1": 0.0
+  },
+  "Restating": {
+   "gold": 1,
+   "predicted": 0,
+   "f1": 0.0
+  }
+ },
+ "inference": {
+  "seconds_all_dev": 48.3,
+  "seconds_per_map": 0.215,
+  "max_abs_diff_vs_saved_probs": 0.0
+ }
+}

@@ -1,4 +1,5 @@
 {
+ "run": "v1",
  "groups": "shared",
  "temperature": 1.05,
  "link_min": 0.1,
@@ -23,18 +24,18 @@
    "focused": 80.67
   },
   "cross_fitted (honest)": {
-   "general": 89.89,
-   "focused": 80.38
+   "general": 90.08,
+   "focused": 80.64
   }
  },
  "folds": {
   "0": {
    "maps": 33,
-   "link_min": 0.05,
+   "link_min": 0.01,
    "Assertive Questioning": 0.5,
-   "Pure Questioning": 0.7,
+   "Pure Questioning": 0.5,
    "Rhetorical Questioning": 0.3,
-   "rare": 0.0
+   "rare": 0.4
   },
   "3": {
    "maps": 49,
