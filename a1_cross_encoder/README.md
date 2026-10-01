@@ -92,15 +92,15 @@ flowchart LR
 *Figure: pruning shrinks the work and the None-heavy class imbalance before any model runs.*
 
 ### Step 3 — Input text
-Each candidate becomes one text sequence:
+Each candidate becomes one text pair (as built in A1.1, `build_pairs.py`):
 ```
-[CLS] Prop A [SEP] Prop B [SEP]
-<ctx> Fiona: Should NHS staff get a pay rise? <A> Minister: Yes, they deserve one </A> <B> Minister: they worked through the pandemic </B> ...
-<dist=1> <same_speaker=yes>
+text_a: NHS staff deserve a pay rise
+text_b: NHS staff worked through the pandemic [SEP] distance: 1 turns; same speaker [SEP]
+        Fiona: Should NHS staff get a pay rise? | [[A]] Minister: Yes, they deserve one [[/A]] | [[B]] Minister: they worked through the pandemic [[/B]] | …
 ```
-- The **dialogue window** holds the locutions around A and B, speaker-tagged, with markers showing which ones are A and B.
-- **TA distance** and **same-speaker** flags are cheap structural hints (EDA tells us how predictive they are).
-- Window size is a speed/accuracy knob: longer = more context but slower training.
+- The **whole dialogue** of the map is the context (D019). Every pair fits in 1,024 tokens; a window around the pair is only a fallback for longer maps.
+- **Distance** and **same-speaker** are written out as plain words (D021). The EDA found both strongly predictive.
+- A propositions' turns come from gold links in training and from the ILO labeller's predicted links on dev and test (D040).
 
 ### Step 4 — The model
 ```mermaid
@@ -169,7 +169,7 @@ flowchart TB
 |---|---|---|---|
 | 0 | Install deps | WSL2 venv from `requirements.txt`; check with `python -m a1_cross_encoder.check_env` ([`../decisionlog.md`](../decisionlog.md) D008–D010) | — |
 | 0–3 | Prerequisites | Environment, foundation, EDA (→ window *k*) and the ILO labeller done | `common/`, `eda/`, `ilo/` |
-| A1.1 | Build pair datasets | `python -m a1_cross_encoder.build_pairs --window k` | `a1_cross_encoder/cache/*.jsonl` |
+| A1.1 | Build pair datasets | `python -m ilo.predict --split=dev` (and `test`), then `python -m a1_cross_encoder.build_pairs` | `cache/a1/{train,dev,test}.jsonl`, `results/a1/pairs.json` |
 | A1.2–A1.3 | Train | `python -m a1_cross_encoder.train --model modernbert-base` | checkpoint + `results/timing.csv` |
 | A1.4 | Tune decisions | `python -m a1_cross_encoder.tune --split dev` | `thresholds.json` |
 | A1.5 | Dev score | `python -m a1_cross_encoder.predict --split dev` then scorer | dev F1 table |

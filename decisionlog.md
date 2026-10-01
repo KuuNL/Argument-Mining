@@ -15,7 +15,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | 1 | Foundation | `common/`: loader + graph view, AIF writer, validator, scorer port, episode-grouped dev split, timing harness | Scorer reproduces 29.53 / 35.30 / 32.41 and matches official scripts; validator passes all 1,478 gold maps; the split recomputes to the tracked `splits/` | Foundation | **Passed (D012–D016, D027)** |
 | 2 | EDA | `eda/`: Pruning window *k*, direction stats (MA/CA later→earlier), speaker patterns, CA-absent maps, ModernBERT token lengths, leakage check | Every number feeds a named later decision | EDA | **Passed (D018–D024 proposed)** |
 | 3 | ILO labeller (trained) | `ilo/`: candidate filter, (turn, proposition, context) dataset, ModernBERT-base classifier, one-to-one decoding + per-type thresholds; reusable fine-tuning loop | Linking accuracy on dev beats text similarity (94.2%); ILO F1 general / focused on dev reported | Shared ILO labeller | **Passed (D028–D039): run v1 selected, dev ILO 90.08 / 80.64 cross-fitted; iteration v2 not adopted** |
-| A1.1 | Pair builder | `build_pairs.py`: candidates, 5-way labels, context text → `cache/` | ≥98% of gold relations survive pruning; gold→pairs→AIF round trip scores at the pruning ceiling; samples read by eye | A1 | — |
+| A1.1 | Pair builder | `build_pairs.py`: candidates, 5-way labels, context text → `cache/` | ≥98% of gold relations survive pruning; gold→pairs→AIF round trip scores at the pruning ceiling; samples read by eye | A1 | **Built (D040–D041); awaiting k = 8 vs 10** |
 | A1.2 | Model + training loop | `model.py`, `train.py` on `common/finetune.py` (built in Phase 3): weighted/focal loss, bf16, grad ckpt, map-level early stop | Overfits a tiny subset; VRAM and epoch time measured; base vs large chosen | A1 | — |
 | A1.3 | Training run | Checkpoint + `results/timing.csv` | Dev per-map macro-F1 (argmax) recorded | A1 | — |
 | A1.4 | Decision layer | `tune.py` (temperature + per-class thresholds), `repair.py` | ECE before/after; thresholded ≥ argmax on dev | A1 | — |
@@ -163,28 +163,38 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - **2026-09-30 · Phase 2 · Done.** The findings are in **`eda/README.md`**, a narrative with 5 figures. The numbers are in `eda/findings.json`, produced by `python -m eda.run_eda` in about 2.5 minutes, and the run is logged in `results/timing.csv`. The analysis used the training split only; pair statistics use the 1,231 test-like maps (≤ 40 propositions). Each number below feeds one of the proposed decisions D018–D024.
 
 ### D018 — Pruning window k = 8 turns, with distance also given to the model
-- **2026-09-30 · Phase 2 → A1.1 · by Claude · Proposed**
+- **2026-09-30 · Phase 2 → A1.1 · by Claude · Approved by user 2026-10-01**
 - k = 8 keeps **98.2%** of related pairs (98% was the plan's target) and drops 27% of pairs. Per type, the 98% window is Inference 6, Conflict 8, Rephrase 10. Propositions with no position (2.7%) are always kept as candidates.
 - *Why distance is also an input:* neighbouring pairs are related 43% of the time, against 7.8% overall. Pruning alone leaves most of the imbalance (10.5% positives at k = 8).
 - *Alternatives:* k = 5 (95.7% of relations, 52% of pairs) as a speed ablation, and no pruning.
 
 ### D019 — Context = the whole map's dialogue, max length 1,024 (supersedes the "dialogue window")
-- **2026-09-30 · Phase 2 → A1.1/A1.2 · by Claude · Proposed**
+- **2026-09-30 · Phase 2 → A1.1/A1.2 · by Claude · Approved by user 2026-10-01**
 - The pair plus the *entire* dialogue is ≤ 837 tokens (p99 621) in the test-like maps, and whole test maps are ≤ 953 tokens. The model sees everything, which is the direct fix for 2024's no-context failure.
 - *Cost:* about 1.8× the tokens of ±2 turns, roughly 30 vs 17 min per epoch for base (to be measured in A1.2). The ±2-turn window becomes an ablation.
 
 ### D020 — Label scheme: 5 classes; Rephrase/Conflict direction from dialogue order
-- **2026-09-30 · Phase 2 → A1.1 · by Claude · Proposed**
-- Rephrase and Conflict run later → earlier in 97.8% and 97.7% of cases, so their direction comes from the turn order at a cost of about 2%. When both propositions are in the same turn (1.2% of Rephrases), node order breaks the tie. **Inference is 53% later→earlier and 47% earlier→later, so the model predicts its direction** (A→B Inference and B→A Inference are separate classes).
+- **2026-09-30 · Phase 2 → A1.1 · by Claude · Approved by user 2026-10-01** (tie-break amended: see the last bullet)
+- Rephrase and Conflict run later → earlier in 97.8% and 97.7% of cases, so their direction comes from the turn order at a cost of about 2%. When both propositions are in the same turn (1.2% of Rephrases), ~~node order~~ **the canonical pair order (by proposition text) breaks the tie**, because node order is ruled out by D029. **Inference is 53% later→earlier and 47% earlier→later, so the model predicts its direction** (A→B Inference and B→A Inference are separate classes).
 - Only 12 pairs carry two relations, so one label per pair is fine.
 
 ### D021 — Input features: distance and same-speaker marked explicitly
-- **2026-09-30 · Phase 2 → A1.1 · by Claude · Proposed**
+- **2026-09-30 · Phase 2 → A1.1 · by Claude · Approved by user 2026-10-01**
 - Same-speaker rates are Inference 94.5%, Rephrase 81.7% and Conflict 56.1%, against a 66.2% base rate among candidates. Distance: see D018. Both go into the input as short marker tokens; the "−speaker/TA features" ablation removes them.
 
 ### D022 — The 19 giant training maps (> 40 propositions) are an open question for A1.1
-- **2026-09-30 · Phase 2 → A1.1 · by Claude · Open**
+- **2026-09-30 · Phase 2 → A1.1 · by Claude · Decided (Approved by user 2026-10-01): left out of A1's first run; chunked variant in A1.6**
 - They hold 60% of all pairs but only 12.8% of relations, and no test map is that large (max 35). Options: train only on their pruned candidates (k = 8 already cuts them sharply), cap them, or drop them. A1.1 decides once pair counts after pruning are known.
+- *Measured 2026-10-01 (train split, k = 8, EDA positions):*
+
+  | | Test-like maps (1,231) | Giant maps (19) |
+  |---|---|---|
+  | Candidate pairs | 92,465 | **81,227** |
+  | Relations kept | 9,721 (97.8%) | 987 (**67.7%**) |
+  | Propositions that can't be placed | 9 | **528 of 2,592** (no L→I layer, D030) |
+
+  Other facts: their dialogues of about 200 turns don't fit the 1,024-token whole-map input (D019), and they hold about 19% of all Conflict examples (204 of 1,069).
+- *Recommendation:* leave them out of A1's first training run. Add them back as a chunked variant (about 25-turn windows, positions from the ILO labeller's predicted links) in A1.6, to test whether their Conflict examples help.
 
 ### D023 — ILO rules (Phase 3): question words and "xxx", not "?"; similarity-first alignment
 - **2026-09-30 · Phase 2 → Phase 3 · by Claude · Superseded by D025.** There are no ILO rules any more. The model learns these cues. The similarity finding survives as D025's candidate filter and baseline.
@@ -257,7 +267,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - *Cost:* about 2× the pairs of own-5 alone (≈ 31M tokens per epoch, roughly 30 min). Training on a subsample of the None pairs is the fallback if that proves too slow.
 
 ### D029 — No node-ID or node-order shortcuts, in any approach
-- **2026-10-01 · All approaches · by Claude · Proposed**
+- **2026-10-01 · All approaches · by Claude · Approved by user 2026-10-01**, including the documented exception for ordering separate dialogue stretches
 - *Finding:* in 74% of gold links, the proposition's node ID is exactly the turn's ID + 2, because the annotation tool creates L, YA and I in sequence. Test inputs keep these IDs, so a model could link by ID instead of by meaning.
 - *Proposal:* never use node IDs, or the order of nodes in the JSON, as a signal. Use only text, speakers and the TA dialogue order. Results then measure language understanding, transfer to unannotated debates, and stay comparable across A1–A4.
 - *Cost:* linking can't exploit the artefact. Expect a few points of linking accuracy left on the table compared with a system that does.
@@ -377,3 +387,16 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - give short reply turns the turn they answer as explicit context;
   - accept these types as unpredicted, which the tuned decision layer already does safely.
 - *For A1:* choosing checkpoints by the tuned metric and keeping every evaluation's probabilities is cheap (about 13 s per evaluation) and makes the selection honest. Use it in A1.2, and recalibrate each checkpoint because the temperature drifts.
+
+### D040 — Where A1 gets each proposition's turn and speaker
+- **2026-10-01 · A1.1 · by Claude · Approved by user 2026-10-01**
+- **Training maps:** gold L→I links. **Dev and test maps:** the ILO labeller's *predicted* links (the selected run, v1), because that is all a test map offers (D004).
+- *Fallback chain on every split:* link → most similar turn (similarity ≥ 0.8) → unplaced. Unplaced propositions are always candidates (D018).
+- *Not used:* the gold-only transition anchors (0.7%), so training doesn't see a signal that test can't provide.
+
+### D041 — A1.1 result: pairs built; the window gate just missed at k = 8, and k = 10 recommended
+- **2026-10-01 · A1.1 · by Claude · Proposed** (the data is built and committed at k = 8; k = 10 needs the user's approval because it changes D018)
+- *Built:* `ilo/predict.py` (labeller links for any map; reproduces the saved v1 dev predictions exactly), `common/text.py`, `common/positions.py`, `a1_cross_encoder/build_pairs.py` and `assemble.py`. Train 1,231 maps / 92,465 pairs, dev 225 / 17,373, test 11 / 1,048 (inputs only). Inputs are at most 857 tokens with the whole dialogue (D019 holds, no windowing). All round-trip maps validate. Details in `results/a1/pairs.json` and `reports/A1-cross-encoder.md`.
+- *Gate:* 97.72% (train) and 97.76% (dev) of related pairs fall inside k = 8, against the ≥ 98% target. The EDA's 98.2% included gold-only transition anchors, which D040 excludes.
+- *Ceiling* (gold labels → map → official ARI, dev): k = 8 gives 97.92 / 92.19; k = 9 gives 98.39 / 93.56; **k = 10 gives 98.64 / 94.44 for +13% pairs**; no window gives 98.92 / 96.51. The remaining ~3.5 focused points come from the dialogue-order direction rule for Conflict/Rephrase and from pairs with two relations.
+- *Recommendation:* k = 10, which recovers about 2.3 focused points of ceiling for about 13% more training time.

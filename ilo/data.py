@@ -34,9 +34,22 @@ def turn_text(v, lid):
     return f"{l.speaker}: {l.body}" if l.speaker else l.body
 
 
+def inputs(v, name: str, sep: str) -> list[dict]:
+    """Model inputs for every candidate pair of one map (no labels: works on test inputs too)."""
+    pos = {lid: k for k, lid in enumerate(v.dialogue)}
+    out = []
+    for c in candidates(v):
+        k = pos[c["turn"]]
+        before = " / ".join(turn_text(v, l) for l in v.dialogue[max(0, k - CONTEXT):k]) or "-"
+        after = " / ".join(turn_text(v, l) for l in v.dialogue[k + 1:k + 1 + CONTEXT]) or "-"
+        out.append({"map": name, **c, "text_a": turn_text(v, c["turn"]),
+                    "text_b": f"{v.props[c['prop']]} {sep} before: {before} {sep} after: {after}"})
+    return out
+
+
 def examples(gold_aif: dict, name: str, sep: str, test_format: bool) -> list[dict] | None:
-    """All candidate examples of one map. With test_format, inputs come from the stripped map.
-    None if the map has no L->I links at all: its illocution layer was never annotated (D030)."""
+    """All candidate examples of one map, with gold labels. With test_format, inputs come from the
+    stripped map. None if the map has no L->I links at all: its illocution layer was never annotated (D030)."""
     gold = view(gold_aif, name)
     if not gold.anchors():
         return None
@@ -45,16 +58,10 @@ def examples(gold_aif: dict, name: str, sep: str, test_format: bool) -> list[dic
     label = {}
     for s, t, y in gold.anchors():
         label.setdefault((s, t), y)                       # first occurrence wins, as in the scorer
-    pos = {lid: k for k, lid in enumerate(v.dialogue)}
     out = []
-    for c in candidates(v):
-        k = pos[c["turn"]]
-        before = " / ".join(turn_text(v, l) for l in v.dialogue[max(0, k - CONTEXT):k]) or "-"
-        after = " / ".join(turn_text(v, l) for l in v.dialogue[k + 1:k + 1 + CONTEXT]) or "-"
-        y = label.get((c["turn"], c["prop"]), "None")
-        out.append({"map": name, **c, "label": y, "label_id": LABELS.index(y) if y in LABELS else -1,
-                    "text_a": turn_text(v, c["turn"]),
-                    "text_b": f"{v.props[c['prop']]} {sep} before: {before} {sep} after: {after}"})
+    for r in inputs(v, name, sep):
+        y = label.get((r["turn"], r["prop"]), "None")
+        out.append({**r, "label": y, "label_id": LABELS.index(y) if y in LABELS else -1})
     return out
 
 

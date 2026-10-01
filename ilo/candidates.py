@@ -8,20 +8,12 @@ the turn itself can't find. Node IDs and node order are never used (D029).
 
     python -m ilo.candidates        # recall of gold links on the train split, overall and per label
 """
-import re
 from difflib import SequenceMatcher
 
 from common.aif import MapView
+from common.text import norm, similarity  # noqa: F401  (similarity re-exported for older callers)
 
 OWN, PREV, NEXT = 5, 5, 3
-
-
-def norm(text: str) -> str:
-    return " ".join(re.sub(r"[^\w\s]", " ", text.lower()).split())
-
-
-def similarity(a: str, b: str) -> float:
-    return SequenceMatcher(None, norm(a), norm(b), autojunk=False).ratio()
 
 
 def ranked(v: MapView) -> dict[str, list[tuple[str, float]]]:
