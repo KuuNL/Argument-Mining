@@ -21,7 +21,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A1.4 | Decision layer | `tune.py` (temperature + per-class thresholds), `repair.py` | ECE before/after; thresholded ≥ argmax on dev | A1 | **Passed (D044): cross-fitted dev ARI 50.50 / 32.61** |
 | A1.5 | Assemble + dev score | `predict.py` → valid AIF with S-nodes and YAs | Validator passes; dev ARI / ILO / Global table next to 2024 | A1 | **Passed (D045): 225/225 valid; dev Global ≈ 70.3 / 56.6** |
 | A1.6 | Ablations | −context · −speaker/TA features · −pruning · argmax · (DeBERTa vs ModernBERT) | One lever off per run, re-scored on dev | A1 | **Passed (D047–D048)** |
-| A1.7 | Test run | Final A1 row | Run once only, on the user's go | Final run | **Deferred to the project's final run** (test answers opened once, all approaches together) |
+| A1.7 | Test run | Final A1 row | Run once only, on the user's go | Final run | **Done (D050): test Global 72.01 / 57.53, beating 2024's 67.05 / 48.25** |
 | A2 · A3 · A4 | Other approaches | Phased (A2.1, …) when each starts | — | A2 / A3 / A4 | Not started |
 | — | Combination · Final run | — | — | Combination / Final run | Not started |
 
@@ -498,3 +498,33 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 
 - *Reading:* on general F1 only whole-map context matters beyond noise (about 0.5). On focused F1 every lever helps: hints and pruning mostly help the model *find* relations, and without them it predicts far fewer. Pruning is a net win even though it lowers the ceiling (96.5 → 94.4 focused): the model learns better from the less imbalanced pairs, and training is 23% cheaper. Thresholds trade 1.2 focused for 0.4 general and protect against the rare-label trap.
 - *Caveat:* one seed per variant, so treat these as indicative. Direction accuracy rises as models predict fewer Inferences (79–86%), because a cautious model only commits to the easier pairs.
+
+### D049 — Final test run for A1 + the ILO labeller, now
+- **2026-10-03 · A1.7 · by user · Approved · Done; results in D050** (replaces the earlier "defer to the final run")
+- *What runs:* the 11 test inputs go through the ILO labeller (v1, dev-tuned, links already predicted from inputs only), then A1 v1 (epoch-2 checkpoint, temperature and thresholds tuned on all of dev, `results/a1/v1/thresholds.json`), then assembly into complete maps.
+- *Rules:* the gold in `data/evaluation/` is read **once, only to score**. Nothing is tuned or changed after the scores are seen. The predicted maps are saved as deliverables in `results/a1/v1/test_predictions/`.
+- *Consequence for later approaches:* A1's test number is now fixed. If A2–A4 are built later, they are tuned on dev only and scored on test once each.
+
+### D050 — Final test result: Global 72.01 / 57.53, first against the 2024 field; the gain comes from ILO
+- **2026-10-03 · A1.7 · by Claude · Finding** (`results/a1/v1/test_global.json`; predicted maps in `results/a1/v1/test_predictions/`)
+- *Protocol:* dev was re-run through the modified script first and reproduced exactly (70.53 / 57.29). On test, the 11 maps were assembled from inputs only, validated (11 / 11) and saved before the gold was read. Nothing was tuned afterwards.
+
+  | Test, F1 general / focused | A1 + ILO labeller | Best 2024 (system) | Rank among 2024 entries |
+  |---|---|---|---|
+  | ARI | 51.38 / 30.77 | 55.33 (DFKI-MLST) / 35.89 (POKEMON) | 2nd / 2nd |
+  | ILO | **92.64 / 84.28** | 81.17 (PUNGENE) / 72.09 (RoBERTa baseline) | 1st / 1st |
+  | **Global** | **72.01 / 57.53** | 67.05 / 48.25 (DFKI-MLST) | **1st / 1st** |
+
+  Global P / R: 72.61 / 73.25 general, 67.05 / 54.81 focused.
+- *Reading:* the overall win comes from **ILO (+11.5 / +12.2 over 2024's best)**. **ARI is at about 2024 level:** −4.0 general against DFKI, level with DFKI on focused (30.77 vs 30.40), −5.1 against POKEMON. Dev predicted test well (ARI 50.50 → 51.38, ILO 90.08 → 92.64).
+- *Test diagnostics* (pooled):
+
+  | Relation | Gold | Predicted | Precision | Recall | F1 |
+  |---|---|---|---|---|---|
+  | Inference | 65 | 59 | 0.31 | 0.28 | 0.29 |
+  | Conflict | 13 | 3 | 0.67 | 0.15 | 0.25 |
+  | Rephrase | 46 | 63 | 0.46 | 0.63 | 0.53 |
+
+  Inference direction is right for 78% of the 23 found. No invented Conflict in any map; one map has an invented Rephrase.
+- *Variance:* per-map ARI general ranges **23.5 to 77.0**, so each of the 11 maps moves the average by about 9%. Per-map ILO is perfect (100 / 100) on 7 maps; maps 1, 2 and 9 sit around 73 general.
+- *Cost:* A1 test inference 10.4 s for all 11 maps (0.94 s per map); the ILO labeller takes about 0.21 s per map.

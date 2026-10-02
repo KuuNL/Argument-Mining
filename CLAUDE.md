@@ -117,6 +117,7 @@ Key numbers (training):
 | F1 (general / focused) | ARI | ILO | Global |
 |---|---|---|---|
 | Best 2024 | 55.3 / 35.9 | 81.2 / 72.1 | **67.05 / 48.25** (DFKI-MLST) |
+| **Ours: A1 + ILO labeller, test (2026-10-03)** | 51.4 / 30.8 | **92.6 / 84.3** | **72.01 / 57.53**: see `reports/A1-cross-encoder.md` |
 
 Every winning system was a **pairwise encoder classifier** (DeBERTa/RoBERTa). It read two sentences at a time with no
 surrounding dialogue. This caused five failures:
