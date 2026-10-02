@@ -1,0 +1,26 @@
+{
+ "run": "abl-nomark",
+ "lr": 3e-05,
+ "accum_steps": 3,
+ "max_tokens": 4096,
+ "epochs": 3,
+ "patience": 99,
+ "note": "ablation: no written distance / same-speaker hints",
+ "data": "nomark",
+ "event": "end",
+ "steps": 9833,
+ "epochs_run": 3.0,
+ "best_ari_tuned_general": 51.14,
+ "best_step": 8195,
+ "seconds": 5379.4,
+ "minutes_per_epoch": 29.9,
+ "tokens_per_s": 21302,
+ "peak_vram_gib": 5.0,
+ "class_weights": {
+  "None": 1.0,
+  "Inference A->B": 6.36,
+  "Inference B->A": 5.97,
+  "Conflict": 10.53,
+  "Rephrase": 4.91
+ }
+}

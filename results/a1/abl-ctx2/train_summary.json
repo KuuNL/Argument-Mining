@@ -1,0 +1,26 @@
+{
+ "run": "abl-ctx2",
+ "lr": 3e-05,
+ "accum_steps": 3,
+ "max_tokens": 4096,
+ "epochs": 3,
+ "patience": 99,
+ "note": "ablation: 2 turns of context either side instead of the whole map",
+ "data": "ctx2",
+ "event": "end",
+ "steps": 6045,
+ "epochs_run": 3.0,
+ "best_ari_tuned_general": 49.77,
+ "best_step": 6042,
+ "seconds": 3060.1,
+ "minutes_per_epoch": 17.0,
+ "tokens_per_s": 23381,
+ "peak_vram_gib": 4.94,
+ "class_weights": {
+  "None": 1.0,
+  "Inference A->B": 6.36,
+  "Inference B->A": 5.97,
+  "Conflict": 10.53,
+  "Rephrase": 4.91
+ }
+}

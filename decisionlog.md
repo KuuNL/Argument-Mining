@@ -20,8 +20,8 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A1.3 | Training run | Checkpoint + `results/timing.csv` | Dev per-map macro-F1 (argmax) recorded | A1 | **Passed (D043): best at 2 epochs, tuned dev ARI 50.9 / 33.9** |
 | A1.4 | Decision layer | `tune.py` (temperature + per-class thresholds), `repair.py` | ECE before/after; thresholded ≥ argmax on dev | A1 | **Passed (D044): cross-fitted dev ARI 50.50 / 32.61** |
 | A1.5 | Assemble + dev score | `predict.py` → valid AIF with S-nodes and YAs | Validator passes; dev ARI / ILO / Global table next to 2024 | A1 | **Passed (D045): 225/225 valid; dev Global ≈ 70.3 / 56.6** |
-| A1.6 | Ablations | −context · −speaker/TA features · −pruning · argmax · (DeBERTa vs ModernBERT) | One lever off per run, re-scored on dev | A1 | — |
-| A1.7 | Test run | Final A1 row | Run once only, on the user's go | Final run | — |
+| A1.6 | Ablations | −context · −speaker/TA features · −pruning · argmax · (DeBERTa vs ModernBERT) | One lever off per run, re-scored on dev | A1 | **Passed (D047–D048)** |
+| A1.7 | Test run | Final A1 row | Run once only, on the user's go | Final run | **Deferred to the project's final run** (test answers opened once, all approaches together) |
 | A2 · A3 · A4 | Other approaches | Phased (A2.1, …) when each starts | — | A2 / A3 / A4 | Not started |
 | — | Combination · Final run | — | — | Combination / Final run | Not started |
 
@@ -470,3 +470,31 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - *Checkpoint ensembling* (averaging the saved dev probabilities of several evaluations): epochs 2.0 + 2.5 + 3.0 give 50.15 / 31.43, and 1.5–3.0 give 49.75 / 32.83, both **worse** than epoch 2 alone. Checkpoints of one run make correlated errors, and the later ones overfit.
 - *Loss curve:* the training loss (class-weighted) falls steadily to the end (about 1.09 → 0.33), while dev peaks at epoch 2. That is **mild overfitting**, not underfitting.
 - *Conclusion:* the remaining gains need a better *model*: more training data, stronger weight on Conflict, or more capacity. They don't come from decoding.
+
+### D047 — A1.6 ablations: one lever off per retrain; no further A1 improvement
+- **2026-10-02 · A1.6 · by user (no improvement; do the ablations) / Claude (design) · Done; results in D048**
+- *User decision:* don't retrain A1 to improve it (step 2 options from D046 declined). Run the ablations instead.
+- *Ablations* (each identical to v1 except one lever; scored by tuned checkpoint selection and leave-one-episode-out dev ARI):
+  - **abl-ctx2:** dialogue context limited to ±2 turns around the pair, instead of the whole map (D019).
+  - **abl-nomark:** no written distance / same-speaker hints (D021). Turn markers and speaker names in the dialogue stay.
+  - **abl-k99:** no pruning, so every pair is compared (D018).
+  - **argmax** instead of thresholds: no retrain needed (D044: 50.08 / 33.82 vs 50.50 / 32.61 honest).
+- *Left out:* DeBERTa vs ModernBERT. DeBERTa reads only 512 tokens, so it would confound the model with the context length, and it costs ~2–3 h more. Available if the user wants it.
+- *Run:* the three retrains are chained in one detached job (~4.5 h).
+- *Two problems caught before any ablation training (both fixed):*
+  1. **Variable clash:** in `build_pairs.map_pairs` the new pruning parameter `k` was reused as the loop variable that marks dialogue turns. After the first pair of each map the window became the last turn index, so the ctx2 / nomark builds had **no effective pruning** (124,773 train pairs and distances up to 36, against v1's 104,662 and ≤ 10). Each ablation would have changed two levers at once. The parameter now has its own name, and the strict check is that ctx2 and nomark have exactly v1's pairs. v1's own data was unaffected, because it used the constant.
+  2. **RAM hang:** the build's token-length check tokenised every pair in one call. On k99 that exhausted WSL's 7 GB, and WSL stopped responding (`WSAETIMEDOUT`). WSL was restarted (`wsl --terminate`; only the stuck build died), and the check now runs in chunks. This is the same lesson as D042: never hold tens of millions of token ids as Python ints.
+
+### D048 — A1.6 result: every component helps focused F1; whole-map context is the only clear gain on general
+- **2026-10-03 · A1.6 · by Claude · Finding** (one run each; `results/a1/abl-*/`; honest = leave-one-episode-out dev ARI)
+
+  | Variant | Removed | Honest general (Δ) | Honest focused (Δ) | Notes |
+  |---|---|---|---|---|
+  | v1 | — | 50.50 | 32.61 | best at epoch 2; 94 min |
+  | abl-ctx2 | whole-map context (±2 turns only) | 48.99 (−1.51) | 30.36 (−2.25) | Conflict recall 9.2% → 4.6%; direction 81% → 79%; 51 min |
+  | abl-nomark | distance / same-speaker hints | 50.15 (−0.35) | 29.78 (−2.83) | 34% fewer Inferences predicted (precision 0.33, recall 0.31); 90 min |
+  | abl-k99 | pruning (every pair) | 50.49 (−0.01) | 28.47 (−4.14) | very cautious: 833 Inference and 6 Conflict predicted; 120 min |
+  | argmax | thresholds (same model as v1) | 50.08 (−0.42) | 33.82 (+1.21) | 34 maps with an invented Conflict, against 8 |
+
+- *Reading:* on general F1 only whole-map context matters beyond noise (about 0.5). On focused F1 every lever helps: hints and pruning mostly help the model *find* relations, and without them it predicts far fewer. Pruning is a net win even though it lowers the ceiling (96.5 → 94.4 focused): the model learns better from the less imbalanced pairs, and training is 23% cheaper. Thresholds trade 1.2 focused for 0.4 general and protect against the rare-label trap.
+- *Caveat:* one seed per variant, so treat these as indicative. Direction accuracy rises as models predict fewer Inferences (79–86%), because a cautious model only commits to the easier pairs.

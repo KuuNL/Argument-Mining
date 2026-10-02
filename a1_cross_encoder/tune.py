@@ -16,7 +16,7 @@ import numpy as np
 
 from common.split import episodes, map_speakers
 from a1_cross_encoder.decide import CODE, Dev, ece, fit_temperature, mean_f1, tune
-from a1_cross_encoder.train import arg, dirs
+from a1_cross_encoder.train import RUNS, arg, dirs
 
 NAMES = {v: k for k, v in CODE.items()}
 
@@ -60,7 +60,7 @@ def main():
     run = arg("run", "v1")
     cap = int(arg("cap", 0)) or None
     ckpt, out = dirs(run)
-    dev = Dev(ckpt / "dev_probs.npy")
+    dev = Dev(ckpt / "dev_probs.npy", data=RUNS[run].get("data"))
     t = fit_temperature(dev, dev.raw)
     probs = dev.calibrated(t)
     final = tune(dev, probs, dev.names, cap)

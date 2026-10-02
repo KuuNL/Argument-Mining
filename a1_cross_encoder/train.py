@@ -28,6 +28,11 @@ RUNS = {
     "v1": {"lr": 3e-5, "accum_steps": 3, "max_tokens": 4096, "epochs": 3, "patience": 99,
            "note": "first A1 run: whole-dialogue inputs (k = 10), tuned-score checkpoint selection"},
 }
+# A1.6 ablations (D047): the v1 recipe with one lever off, via the input variant they train on.
+for _name, _data, _note in (("abl-ctx2", "ctx2", "ablation: 2 turns of context either side instead of the whole map"),
+                            ("abl-nomark", "nomark", "ablation: no written distance / same-speaker hints"),
+                            ("abl-k99", "k99", "ablation: no pruning, every pair")):
+    RUNS[_name] = {**RUNS["v1"], "data": _data, "note": _note}
 
 
 def arg(name: str, default=None):
@@ -55,7 +60,7 @@ def main():
                  metric="ari_tuned_general", extra={"run": run, "note": recipe["note"]})
     from transformers import AutoTokenizer
     pad_id = AutoTokenizer.from_pretrained(cfg.model).pad_token_id
-    train_rows = read("train")
+    train_rows = read("train", recipe.get("data"))
     y = [r["label_id"] for r in train_rows]
     weights = class_weights(y)
 
@@ -100,7 +105,7 @@ def main():
         print(json.dumps(row))
         return
 
-    dev = Dev(load=False)
+    dev = Dev(load=False, data=recipe.get("data"))
     scorer = lambda probs: {**simple_score(dev, probs), **tuned_score(dev, probs)}
     tr_ids = tokenize(cfg.model, [r["text_a"] for r in train_rows], [r["text_b"] for r in train_rows], cfg.max_len)
     train_rows.clear()                                      # free the texts; ids are compact arrays (D042)

@@ -21,7 +21,7 @@ from common.split import load_split
 from common.validate import validate
 from a1_cross_encoder.assemble import S_NODE
 from a1_cross_encoder.decide import CODE, decode, read
-from a1_cross_encoder.train import arg, dirs
+from a1_cross_encoder.train import RUNS, arg, dirs
 
 TA_YA = {"Inference": "Arguing", "Rephrase": "Restating", "Conflict": "Disagreeing"}
 NAMES = {v: k for k, v in CODE.items()}
@@ -62,7 +62,7 @@ def main():
     cap = int(arg("cap", 0)) or None
     ckpt, out = dirs(run)
     th = json.loads((out / ("thresholds.json" if cap is None else f"thresholds_cap{cap}.json")).read_text())
-    rows = read(split)
+    rows = read(split, RUNS[run].get("data"))
     probs = np.load(ckpt / f"{split}_probs.npy")
     z = np.log(np.clip(probs, 1e-12, 1.0)) / th["temperature"]
     z -= z.max(1, keepdims=True)

@@ -1,0 +1,124 @@
+{
+ "run": "abl-k99",
+ "cap": null,
+ "temperature": 1.05,
+ "thresholds": {
+  "Inference": 0.3,
+  "Conflict": 0.7,
+  "Rephrase": 0.3
+ },
+ "ece_top_label": {
+  "before_temperature": 0.009,
+  "after_temperature": 0.0082
+ },
+ "dev_ari_f1": {
+  "argmax_decode": {
+   "general": 49.13,
+   "focused": 26.03
+  },
+  "tuned_on_all_dev (optimistic)": {
+   "general": 50.6,
+   "focused": 28.58
+  },
+  "cross_fitted (honest)": {
+   "general": 50.49,
+   "focused": 28.47
+  }
+ },
+ "folds": {
+  "0": {
+   "maps": 33,
+   "Inference": 0.3,
+   "Conflict": 0.7,
+   "Rephrase": 0.3
+  },
+  "3": {
+   "maps": 49,
+   "Inference": 0.3,
+   "Conflict": 0.7,
+   "Rephrase": 0.3
+  },
+  "10": {
+   "maps": 42,
+   "Inference": 0.3,
+   "Conflict": 0.75,
+   "Rephrase": 0.3
+  },
+  "18": {
+   "maps": 55,
+   "Inference": 0.3,
+   "Conflict": 0.7,
+   "Rephrase": 0.3
+  },
+  "19": {
+   "maps": 46,
+   "Inference": 0.3,
+   "Conflict": 0.7,
+   "Rephrase": 0.3
+  }
+ },
+ "diagnostics_tuned": {
+  "per_type": {
+   "Inference": {
+    "gold": 1060,
+    "predicted": 833,
+    "precision": 0.363,
+    "recall": 0.285,
+    "f1": 0.319
+   },
+   "Conflict": {
+    "gold": 130,
+    "predicted": 6,
+    "precision": 0.5,
+    "recall": 0.023,
+    "f1": 0.044
+   },
+   "Rephrase": {
+    "gold": 683,
+    "predicted": 743,
+    "precision": 0.431,
+    "recall": 0.469,
+    "f1": 0.449
+   }
+  },
+  "inference_direction_correct": 0.858,
+  "inference_pairs_found": 352,
+  "maps_with_spurious_type": {
+   "Rephrase": 15,
+   "Inference": 6,
+   "Conflict": 2
+  }
+ },
+ "diagnostics_argmax": {
+  "per_type": {
+   "Inference": {
+    "gold": 1060,
+    "predicted": 560,
+    "precision": 0.405,
+    "recall": 0.214,
+    "f1": 0.28
+   },
+   "Conflict": {
+    "gold": 130,
+    "predicted": 77,
+    "precision": 0.247,
+    "recall": 0.146,
+    "f1": 0.184
+   },
+   "Rephrase": {
+    "gold": 683,
+    "predicted": 624,
+    "precision": 0.471,
+    "recall": 0.43,
+    "f1": 0.45
+   }
+  },
+  "inference_direction_correct": 0.8534,
+  "inference_pairs_found": 266,
+  "maps_with_spurious_type": {
+   "Conflict": 24,
+   "Rephrase": 15,
+   "Inference": 4
+  }
+ }
+}

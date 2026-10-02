@@ -1,0 +1,101 @@
+{
+ "variant": "k99",
+ "k": 99,
+ "max_len": 1024,
+ "giant_over": 40,
+ "labels": [
+  "None",
+  "Inference A->B",
+  "Inference B->A",
+  "Conflict",
+  "Rephrase"
+ ],
+ "train": {
+  "maps": 1231,
+  "skipped_giant_maps": [
+   "nodeset24807",
+   "nodeset24809",
+   "nodeset24903",
+   "nodeset24992",
+   "nodeset25045",
+   "nodeset25441",
+   "nodeset25442",
+   "nodeset25443",
+   "nodeset25444",
+   "nodeset25445",
+   "nodeset25452",
+   "nodeset25462",
+   "nodeset25463",
+   "nodeset25465",
+   "nodeset25468",
+   "nodeset25472",
+   "nodeset25473",
+   "nodeset25474",
+   "nodeset25475"
+  ],
+  "pairs": 127417,
+  "placed_by": {
+   "link": 17307,
+   "unplaced": 9,
+   "similar": 3
+  },
+  "tokens": {
+   "p50": 379,
+   "p99": 654,
+   "max": 857,
+   "mean": 385.6,
+   "over_max_len": 0
+  },
+  "windowed_pairs": 0,
+  "labels": {
+   "None": 117522,
+   "Rephrase": 3993,
+   "Inference B->A": 2679,
+   "Inference A->B": 2361,
+   "Conflict": 862
+  },
+  "related_pairs_kept": "9895/9948 = 0.9947",
+  "round_trip_ari": {
+   "maps": 300,
+   "general": 99.52,
+   "focused": 98.38,
+   "invalid_maps": 0
+  }
+ },
+ "dev": {
+  "maps": 225,
+  "skipped_giant_maps": [
+   "nodeset24808",
+   "nodeset24905",
+   "nodeset25461"
+  ],
+  "pairs": 24169,
+  "placed_by": {
+   "link": 3184,
+   "unplaced": 20,
+   "similar": 7
+  },
+  "tokens": {
+   "p50": 378,
+   "p99": 711,
+   "max": 758,
+   "mean": 399.5,
+   "over_max_len": 0
+  },
+  "windowed_pairs": 0,
+  "labels": {
+   "None": 22296,
+   "Rephrase": 683,
+   "Inference B->A": 546,
+   "Inference A->B": 514,
+   "Conflict": 130
+  },
+  "related_pairs_kept": "1873/1876 = 0.9984",
+  "round_trip_ari": {
+   "maps": 225,
+   "general": 98.92,
+   "focused": 96.51,
+   "invalid_maps": 0
+  }
+ }
+}

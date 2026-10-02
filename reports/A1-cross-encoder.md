@@ -1,144 +1,105 @@
-# Approach A1 — ModernBERT cross-encoder for relations (ARI): findings
+# A1 — A ModernBERT cross-encoder for argument relations
 
-> **Status:** A1.1–A1.5 done (D040–D045). Full system on dev: ARI 50.5 / 32.6 and Global about 70.3 / 56.6 (honest). Next: A1.6 ablations.
-> **Design:** [`../a1_cross_encoder/README.md`](../a1_cross_encoder/README.md). **Decisions:** D018–D022, D029, D040, D041 in [`../decisionlog.md`](../decisionlog.md).
-> **Sources:** [`../results/a1/pairs.json`](../results/a1/pairs.json) and [`../results/a1/v1/`](../results/a1/v1/) (training log and summary, thresholds and diagnostics, dev Global). One section per A1 phase, added as each closes.
+> **What this is:** the report on approach A1, from idea to dev results and ablations. It's written so a reader new to the project can follow it; terms are explained where they first appear.
+> **Status:** complete on dev (2026-10-03). The single test run is deferred to the project's final run, so every approach opens the test answers once.
+> **Evidence:** every number comes from a committed file in [`../results/a1/`](../results/a1/). Decisions D018–D022, D029 and D040–D048 are in [`../decisionlog.md`](../decisionlog.md).
 
-## What A1 does, in one line
-For every pair of nearby propositions in a map, a ModernBERT model reads both propositions **plus the whole dialogue** and outputs one of five labels:
-- None;
-- Inference A→B;
-- Inference B→A;
-- Conflict;
-- Rephrase.
-
-A decision layer then turns those probabilities into relations, and the ILO labeller (Phase 3) supplies the illocutions.
+## In one minute
+- **The task.** A debate map has *propositions* (what was claimed) and *turns* (who said what, in order). We must say which propositions **support** (Inference), **attack** (Conflict) or **restate** (Rephrase) each other. That is Task A, ARI. Task B, ILO (how each turn was said), is handled by the separate ILO labeller ([Phase 3 report](03-ilo-labeller.md)).
+- **What A1 is.** The approach that won in 2024 (a transformer judging one pair of propositions at a time), with three fixes: it reads **the whole debate**, it gets **structural hints** (distance, same speaker), and it decides with **tuned thresholds** rather than the top label.
+- **Result on dev (honest):** ARI **50.5 general / 32.6 focused**. With the ILO labeller (90.1 / 80.6), **Global ≈ 70.3 / 56.6**. 2024's best was 67.05 / 48.25, but on the *test* maps, so this is encouraging, not yet a win.
+- **What works:** valid maps every time, direction right 81% of the time, invented Conflicts cut from 34 maps to 8.
+- **What doesn't:** Conflict is mostly missed (9% recall) and Inference is over-predicted (27% precision). ARI is far below the 98.6 the pipeline allows, so **the model, not the pipeline, is the limit.**
+- **Ablations:** every component helps the focused score. Removing whole-map context costs −2.3, the hints −2.8 and pruning −4.1. Only whole-map context clearly helps general (−1.5 without it).
 
 ---
 
-## A1.1 — Pair builder
+## 1. The problem, briefly
+- A map has about 16 propositions. Every **ordered pair** of propositions is scored: *A supports B*, *A attacks B*, *A rephrases B*, or *none*. About 9 in 10 nearby pairs are "none".
+- **Direction matters.** Inference points from premise to conclusion. Conflict and Rephrase point from the later statement to the earlier one (true 98% of the time in the data).
+- **The metric is macro-F1 per map, averaged over maps** (F1 balances precision and recall). Every label present in a map counts equally:
+  - **General** includes the "none" pairs.
+  - **Focused** scores only the pairs that really are related.
+- **The rare-label trap.** Predicting one Conflict in a map that has none adds a zero-scoring class and costs about a quarter of that map's score. Rare labels need confidence before they're predicted.
+
+## 2. How A1 works
 
 ```mermaid
 flowchart LR
-  M[("Map in test format")] --> P["Place propositions<br/>train: gold links<br/>dev/test: ILO labeller links"]
-  P --> C["Candidate pairs<br/>at most 8 turns apart"]
-  C --> X["Input text<br/>A, B, distance, speaker,<br/>whole dialogue with markers"]
-  C --> L["Label from gold<br/>5 classes"]
-  X --> O[("cache/a1/*.jsonl")]
-  L --> O
-  L --> R["Round trip<br/>gold labels to map to scorer"]
+  M[("Debate map<br/>propositions + turns")] --> L["ILO labeller<br/>which turn said<br/>each proposition"]
+  L --> P["Candidate pairs<br/>at most 10 turns apart"]
+  P --> X["Input text<br/>A, B, hints,<br/>whole dialogue"]
+  X --> B["ModernBERT-base<br/>5 probabilities"]
+  B --> T["Thresholds per<br/>relation type"]
+  T --> O[("Completed map<br/>relations + illocutions")]
+  O --> S[["Official scorer"]]
   classDef data fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
   classDef step fill:#dcfce7,stroke:#16a34a,color:#14532d
+  classDef model fill:#fde68a,stroke:#b45309,color:#78350f
   class M,O data
-  class P,C,X,L,R step
+  class L,P,X,T step
+  class B model
 ```
-*Figure 1: the pair builder. The round trip measures the best score this pair design could ever reach.*
+*Figure 1: A1 end to end. Blue = data, green = deterministic steps, yellow = the trained model.*
 
-**How each step works:**
-- **Placing propositions (D040):** on training maps, gold turn links. On dev and test, the ILO labeller's *predicted* links, which is all a test map offers; `python -m ilo.predict` reproduces the saved v1 predictions exactly. Fallback: the most similar turn, else unplaced. Node IDs are never used (D029).
-- **Pairs (D018, D041):** unordered pairs at most **k = 10** turns apart. A pair with an unplaced proposition is always kept. A is the earlier proposition; ties are broken by text.
-- **Labels (D020):** None, Inference A→B, Inference B→A, Conflict, Rephrase. Conflict and Rephrase are later → earlier when written back to the map.
-- **Input (D019, D021):**
-  ```
-  text_a: keeping Scotland in the union is more of the same
-  text_b: we can do something different [SEP] distance: 1 turns; same speaker [SEP]
-          Fiona Bruce: will you ignore that pro-independence majority | Lorna Slater: Keeping us in the union isn't different |
-          [[A]] Lorna Slater: that's more of the same [[/A]] | [[B]] Lorna Slater: we can do something different [[/B]] | Anas Sarwar: …
-  label:  Conflict
-  ```
-- **Giant maps (D022):** the 19 train and 3 dev maps with more than 40 propositions are left out of this first run.
+1. **Place propositions.** The ILO labeller says which turn expressed each proposition. That gives positions (and so distances) and speakers, on test maps too.
+2. **Candidate pairs.** Only pairs at most 10 turns apart are scored, which keeps 98.5% of real relations. Every other pair is "none".
+3. **Input.** A *cross-encoder* reads both texts together in one pass, so every word of A can look at every word of B. A1 adds the whole dialogue, with the two turns marked:
+   ```
+   A: the government said farmers being undercut would never happen
+   B: farmers being undercut is now happening [SEP] distance: 1 turns; same speaker [SEP]
+      … | Sarah Jones: for those farmers which are going to be undercut |
+      [[A]] Sarah Jones: the government said would never happen [[/A]] | [[B]] Sarah Jones: is now happening [[/B]]
+   ```
+4. **Five labels:** none, Inference A→B, Inference B→A, Conflict, Rephrase. Direction is part of the label for Inference. For Conflict and Rephrase it comes from dialogue order.
+5. **Decide.** A pair gets its most likely relation only if that probability clears a threshold for its type. The thresholds are tuned on dev (Inference 0.30, Rephrase 0.45, **Conflict 0.65**).
+6. **Assemble.** The relations, the ILO labeller's illocutions and the unscored bookkeeping links make a complete map. **All 225 dev maps pass the validator.**
 
-**Results** (final, k = 10):
+## 3. What we did differently from 2024, and why
 
-| | Train | Dev | Test (inputs only) |
-|---|---|---|---|
-| Maps | 1,231 | 225 | 11 |
-| Pairs (share related) | 104,662 (9.4%) | 19,644 (9.4%) | 1,208 |
-| Placed by link / similarity / unplaced | 17,307 / 3 / 9 | 3,184 / 7 / 20 | 182 / 1 / 1 |
-| Related pairs inside the window | **98.47%** | **98.83%** | — |
-| **Round-trip ARI ceiling** (general / focused) | 99.27 / 96.83 (300 maps) | **98.64 / 94.44** | — |
-| Input tokens: median / max | 369 / 857 | 365 / 757 | 403 / 586 |
-
-- **Labels (train):** None 94,866 · Rephrase 3,933 · Inference B→A 2,664 · Inference A→B 2,343 · **Conflict 856**.
-- **Every pair fits in 1,024 tokens with the whole dialogue**, so no windowing was needed, and every assembled map validates.
-
-**Choosing k: the window costs ceiling.** Dev round trip by window size (measured at the first build, k = 8):
-
-| k | Dev pairs | Ceiling general | Ceiling focused |
-|---|---|---|---|
-| **8** | 17,373 | 97.92 | 92.19 |
-| 9 | 18,598 | 98.39 | 93.56 |
-| **10** | 19,644 (+13%) | **98.64** | **94.44** |
-| 12 | 21,280 | 98.77 | 94.97 |
-| none | 24,169 | 98.92 | 96.51 |
-
-- k = 8 loses about 4.3 focused points against no window; k = 10 recovers more than half of that for 13% more pairs.
-- The last ~3.5 focused points are the price of reading Conflict/Rephrase direction from dialogue order, plus pairs that carry two relations.
-- **At k = 8 the gate (≥ 98% of relations inside the window) was just missed:** 97.7%, because the EDA's 98.2% included gold-only transition anchors, which D040 excludes. **The user chose k = 10 (D041), which passes: 98.5% train / 98.8% dev.**
-
-**Lessons from A1.1:**
-- Using the labeller's *predicted* links on dev costs almost nothing: dev keeps 98.8% of relations, against 98.5% on train with gold links.
-- Whole-dialogue context is affordable for every test-like map: at most 857 tokens.
-- A round trip on gold labels is a cheap way to price each design choice before training. The window was worth 2.3 focused points.
-
-## A1.2 — Model and training loop
-
-**What it is:** ModernBERT-base with a 5-way output, trained by the shared loop `common/finetune.py` (also used by the ILO labeller). Recipe `v1` in `a1_cross_encoder/train.py`:
-
-| Setting | Value | Why |
+| 2024 winning recipe | A1 | Why (evidence) |
 |---|---|---|
-| Input | max 1,024 tokens, whole dialogue | D019; the longest pair is 857 |
-| Batch | 4,096 tokens (about 10 pairs) × 3 accumulated, about 30 pairs per update | Fits the 8 GB card (D033); accumulation keeps updates stable |
-| Learning rate / epochs | 3e-5, 3 epochs, no early stop | The steadier setting from Phase 3 |
-| Class weights | None 1.0 · Rephrase 4.9 · Inference 6.0–6.4 · Conflict 10.5 | Rare labels count more |
-| **Checkpoint choice** | **Tuned dev ARI score** (temperature + thresholds), every evaluation's predictions kept | Phase 3's main lesson (D039) |
+| Two sentences, no dialogue | Both propositions **plus the whole dialogue**, with turn markers | Missing context was 2024's main failure. A whole map fits in 1,024 tokens (EDA §8) |
+| DeBERTa-v3 (512 tokens) | **ModernBERT-base** (up to 8,192 tokens) | Needed to fit the whole dialogue |
+| Every pair scored | **Pairs ≤ 10 turns apart** | 98.5% of relations are inside; the window costs 0.3 general / 2.1 focused points of ceiling (A1.1) |
+| No structure given | **Distance and same-speaker written in** | Adjacent pairs are related 43% of the time against 8% overall; Inference is same-speaker 95% of the time (EDA) |
+| Top label wins (argmax) | **Thresholds per type**, tuned on dev | The rare-label trap: one invented Conflict costs about 26 points in maps without one |
+| Picked by loss or accuracy | **Picked by the tuned dev score**, reported by leave-one-episode-out | Avoids early or overconfident checkpoints and flattering numbers (Phase 3 lesson) |
 
-**The decision layer core** (`a1_cross_encoder/decide.py`): each pair's best relation is kept if its probability clears that relation type's threshold (Inference, Conflict, Rephrase). With no thresholds it falls back to the plain top label. Its **fast ARI metric equals the official scorer**: 0 mismatches over 675 map scorings, after one fix (below).
+## 4. Results on dev
 
-**Checks:**
+```mermaid
+%%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#9ec1ee, #2a78d6"}}}}%%
+xychart-beta
+  title "Dev ARI: where A1 stands"
+  x-axis ["No relations", "A1, top label", "A1, tuned (honest)", "Ceiling"]
+  y-axis "F1" 0 --> 100
+  bar [30.93, 50.08, 50.50, 98.64]
+  line [0, 33.82, 32.61, 94.44]
+```
+*Figure 2: bars = general F1, line = focused F1. The ceiling is what A1 would score if every candidate pair were labelled correctly; it sits below 100 mainly because of the 10-turn window and the dialogue-order direction rule.*
 
-| Check | Result |
-|---|---|
-| Gold labels through the decision layer | 98.64 / 94.44, exactly the A1.1 ceiling |
-| Memorise 72 pairs (9 Conflict) | 83% after 100 steps, **100% after 300** |
-| Speed (300 real optimizer steps) | **24.4k tokens/s, 5.0 GB GPU, 3.6 GB RAM**; about 27 min per epoch |
-| Dev prediction | 129 pairs/s, about 2.5 min per evaluation |
+| Dev | ARI general / focused | ILO general / focused | **Global** |
+|---|---|---|---|
+| A1 + ILO labeller (honest) | 50.50 / 32.61 | 90.08 / 80.64 | **≈ 70.3 / 56.6** |
+| 2024, best per column, *on the test maps* (reference) | 55.33 / 35.89 | 81.17 / 72.09 | 67.05 / 48.25 |
 
-**What we learnt (all fixed):**
-- **Gold has self-loops.** A few maps relate a proposition to itself. The official scorer never sees them, but a fast metric must skip them too: they caused 13 of 675 scores to differ.
-- **Long inputs exhaust RAM before VRAM.** 104k inputs of about 374 tokens became about 40M Python integers (3+ GB), and WSL's 7 GB limit killed the run. Compact int32 arrays, built in chunks, cut the peak to 3.6 GB. The ILO pipeline uses the same code.
-- **Longer inputs need more steps to fit.** The memorisation check needed 300 steps, against ILO's 100. That's no bug, just a harder task.
-- **Base, not large.** Large is about 3× slower and at the GPU memory limit, so a 3-epoch large run is out of reach on this card.
+*The 2024 row takes each column's best system, so it mixes systems; its Global is DFKI-MLST's.*
 
-## A1.3 — Training run (D043)
+**Training** took 94 min on a consumer 8 GB GPU (RTX 5060 Ti). The best checkpoint came at epoch 2:
 
-Run `v1`, launched detached. Every half epoch, dev is scored with the simple decode and with tuned thresholds; the tuned score picks the checkpoint.
+```mermaid
+%%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#9ec1ee, #2a78d6"}}}}%%
+xychart-beta
+  title "Tuned dev ARI during training"
+  x-axis "Epoch" ["0.5", "1.0", "1.5", "2.0", "2.5", "3.0"]
+  y-axis "F1" 0 --> 60
+  bar [42.07, 45.53, 49.31, 50.90, 50.37, 50.59]
+  line [19.75, 25.50, 30.43, 33.91, 30.65, 33.44]
+```
+*Figure 3: bars = general, line = focused. Relations are learnt slowly: the score keeps rising until epoch 2, then flattens as the model starts to overfit.*
 
-| Epoch | 0.5 | 1.0 | 1.5 | **2.0** | 2.5 | 3.0 |
-|---|---|---|---|---|---|---|
-| Tuned dev ARI (general / focused) | 42.07 / 19.75 | 45.53 / 25.50 | 49.31 / 30.43 | **50.90 / 33.91** | 50.37 / 30.65 | 50.59 / 33.44 |
-| Simple decode | 37.69 / 11.95 | 41.87 / 15.85 | 48.78 / 31.29 | 50.08 / 33.82 | 49.45 / 30.84 | 49.79 / 31.41 |
-| Temperature | 0.70 | 0.95 | 0.95 | 0.90 | 1.30 | 1.35 |
-
-**Cost:** 94 min (31.5 min per epoch with dev evaluations), 20.7k tokens/s, 5.0 GB GPU.
-
-**Learnt:** relations are learnt far more slowly than illocutions. ILO peaked at half an epoch; ARI keeps improving until 2 epochs, then flattens as the model grows overconfident (temperature above 1). With ILO's early stopping (Phase 3, v1) this run would have kept a much worse checkpoint, so tuned-score selection paid off here.
-
-## A1.4 — Decision layer (D044)
-
-Thresholds per relation type, fitted on dev and scored honestly by leaving one dev episode out at a time:
-
-| Dev ARI | General | Focused |
-|---|---|---|
-| Simple decode (most probable label) | 50.08 | 33.82 |
-| Tuned on all of dev (optimistic) | 50.90 | 33.91 |
-| **Cross-fitted (honest)** | **50.50** | **32.61** |
-
-- **Thresholds:** Inference 0.30, Conflict **0.65**, Rephrase 0.45, stable across folds. Conflict needs the most confidence.
-- **They tame the rare-label trap:** maps where Conflict is predicted but absent from gold drop from **34 to 8**. Because they're tuned for the *general* metric, they trade a little focused (−1.2) for general (+0.4).
-- **Calibration:** top-label calibration error is 0.9% before the temperature step and 1.1% after. A1 is already well calibrated, so the temperature is neutral here and the thresholds do the work.
-
-**Where the points go** (pooled over dev, tuned):
+**Where the points go** (dev, pooled over pairs):
 
 | Relation | Gold | Predicted | Precision | Recall | F1 |
 |---|---|---|---|---|---|
@@ -146,52 +107,94 @@ Thresholds per relation type, fitted on dev and scored honestly by leaving one d
 | Conflict | 130 | 39 | 0.31 | **0.09** | 0.14 |
 | Rephrase | 683 | 871 | 0.42 | 0.53 | 0.47 |
 
-- **Direction:** among Inference pairs it finds, the model gets the **direction right 81%** of the time.
-- **Weak spots:** Conflict is mostly missed (9% recall), and Inference is over-predicted (precision 0.27).
+- **Direction:** when A1 finds an Inference, it gets the direction right **81%** of the time.
+- **Rare-label trap:** the thresholds cut maps with an invented Conflict from **34 to 8**.
+- **A missed Conflict:** *"the government said farmers being undercut would never happen"* vs *"…is now happening"*. A1 ranked Conflict first (0.52) but below the 0.65 bar. Caution costs recall.
+- **A false Inference:** the host's *"the rules are pretty complex now…"* was predicted (0.87) to support the turn before. The annotators linked it to the *next* question: the right premise, the wrong conclusion. Pairs are judged one at a time, so A1 can't weigh one conclusion against another.
 
-## A1.5 — Complete maps and the first full-system dev score (D045)
+## 5. Ablations: what each component contributes
+Each ablation retrains A1 with **one** component removed. Everything else is identical, including the pairs, except in the no-pruning run. Each is scored the same honest way.
 
-Each dev map = the test-format input + A1's relations + the ILO labeller's illocution links + unscored transition illocutions (Arguing / Restating / Disagreeing, D024). **All 225 maps pass the strict validator**, and the official scorer on the assembled maps reproduces each component's numbers exactly.
+| Variant | What's removed | Honest general (Δ) | Honest focused (Δ) | What changed |
+|---|---|---|---|---|
+| **Full A1** | — | **50.50** | **32.61** | — |
+| No whole-map context | Dialogue cut to ±2 turns around the pair | 48.99 (**−1.5**) | 30.36 (**−2.3**) | Conflict recall halves (9% → 5%); trains twice as fast |
+| No hints | The words "distance: …; same speaker" | 50.15 (−0.4) | 29.78 (**−2.8**) | Predicts a third fewer Inferences: higher precision, lower recall |
+| No pruning | Every pair compared, not just ≤ 10 turns | 50.49 (±0.0) | 28.47 (**−4.1**) | Very cautious: 833 Inferences and just 6 Conflicts predicted; 22% more pairs, 28% slower to train |
+| No thresholds | Top label instead (same model) | 50.08 (−0.4) | 33.82 (+1.2) | 34 maps get an invented Conflict, against 8 |
 
-| Dev (thresholds tuned on all of dev) | General P / R / F1 | Focused P / R / F1 |
+```mermaid
+%%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#2a78d6"}}}}%%
+xychart-beta
+  title "Honest dev ARI, focused F1"
+  x-axis ["Full A1", "No context", "No hints", "No pruning", "No thresholds"]
+  y-axis "Focused F1" 0 --> 40
+  bar [32.61, 30.36, 29.78, 28.47, 33.82]
+```
+*Figure 4: focused F1 is where the components show. On general F1 all variants fall within 48.99–50.50.*
+
+**How to read it** (one training run per variant, so treat these as indicative; differences under about 0.5 general are noise):
+- **Whole-map context is the only change that helps both measures.** It confirms A1's central premise against 2024, but the gain is modest (about 1.5–2.3 points).
+- **Hints and pruning mainly help the model *find* relations.** Without them it plays safe and predicts far fewer, which leaves general unchanged but hurts focused.
+- **Pruning is a net win despite lowering the ceiling.** It trains faster, and the model learns better from less lopsided data than the extra reachable pairs are worth.
+- **Thresholds suit the headline metric (general) and protect against invented Conflicts.** The price is about 1 point of focused.
+
+## 6. How to read these numbers
+- **Dev is not test.** Test maps come from later debates (2022–23) and were chosen to be rich in arguments. Only the final run compares A1 with 2024 on equal terms.
+- **"Honest" vs "optimistic".** Thresholds tuned on all of dev and then scored on dev flatter the result a little. The honest figure tunes on 4 dev episodes and scores the 5th, in turn. Differences under about 0.5 are noise; dev has only 130 Conflicts.
+- **General vs focused.** General rewards saying "none" correctly. Focused only asks whether real relations were labelled right. A1 tuned for general, which trims focused by about 1 point.
+- **The ceiling (98.6 / 94.4) shows the pipeline isn't the problem.** Almost all of the gap is the model's judgement.
+
+## 7. What went well
+- **Trustworthy measurement.** Our scorer equals the official one, fast metrics are checked against it, and ceilings are measured before training. Bugs were caught before they could mislead: gold self-loops, a variable clash that would have spoiled two ablations, three memory failures.
+- **Whole-debate context fits and runs cheaply:** 94 min of training on a consumer GPU, and valid maps every time.
+- **The decision layer does its job:** few invented Conflicts, and stable thresholds across folds.
+- **Direction**, a named 2024 failure, is right 81% of the time.
+- **The ablations confirm the design.** Each component earns its place, and the one central to the 2024 critique (context) helps most consistently.
+
+## 8. Shortcomings
+- **ARI is far from its ceiling (50.5 vs 98.6).** Conflict recall (9%) and Inference precision (27%) are the main gaps.
+- **Pairs are decided one at a time.** A1 can't compare competing conclusions or keep a map consistent; that's 2024's failure #4, still open.
+- **Evidence so far is dev only, from one training run (one seed) per configuration.** Small differences can't be separated from noise.
+- **Limits of the small card:** base model only (large didn't fit in the time and memory available), and the 19 giant training maps, which hold 19% of all Conflict examples, were left out.
+
+## 9. Takeaways
+- **Relations are the bottleneck, as in 2024.** Whole-map context helps, by about 1.5 general and 2.3 focused, and the structural hints and pruning help the model find relations. None of these closes the gap to the ceiling.
+- **Measure the ceiling and an honest score before believing a result.** It turned "is the pipeline broken?" into "the model needs to judge better".
+- **For a macro-F1 metric, the decision layer is cheap and matters.** It's where the rare-label trap is won or lost.
+- **Next steps should add what pairwise models lack:** reasoning over the whole map at once. That's the case for A2 (a whole-map LLM) and for the planned combination, where A1 decides the confident pairs and an LLM adjudicates the rest.
+
+## 10. What we could have done better
+- **Pick checkpoints by the tuned score from the start.** The first ILO run kept a half-trained checkpoint before this lesson.
+- **Budget memory from day one.** Two runs exhausted WSL's 7 GB of RAM (millions of token ids held as Python ints), and one overflowed the GPU, all for avoidable reasons.
+- **Run each configuration with 2–3 seeds,** so small gains and losses can be told apart from noise.
+- **Plan for the giant maps early** (chunk them), instead of setting aside a fifth of the Conflict data.
+
+## 11. With more time
+- **A larger model** (ModernBERT-large or DeBERTa-v3-large with an 8-bit optimizer, about 4–5 h per run), plus **multi-seed ensembles**.
+- **More Conflict signal:** the giant maps in chunks, the transition-anchored Disagreeing examples, a focal loss.
+- **Map-level decoding:** choose the relations of a map jointly, e.g. so a premise supports its single best conclusion.
+- **LLM adjudication** of uncertain pairs (the planned combination phase), and the **final test run**.
+
+---
+<details><summary>Build log in brief (A1.1–A1.6)</summary>
+
+| Phase | Outcome | Decisions |
 |---|---|---|
-| ARI (A1) | 50.21 / 57.03 / **50.90** | 45.08 / 30.56 / **33.91** |
-| ILO (labeller v1) | 90.39 / 90.26 / **90.16** | 81.01 / 80.79 / **80.67** |
-| **Global** | 70.30 / 73.64 / **70.53** | 63.05 / 55.67 / **57.29** |
+| A1.1 Pair builder | 104,662 train / 19,644 dev pairs (k = 10); dev ceiling 98.64 / 94.44; all inputs ≤ 857 tokens | D040–D041 |
+| A1.2 Training loop | Memorises 72 pairs; 24k tokens/s, 5 GB; fixed a self-loop metric bug and a RAM kill | D042 |
+| A1.3 Training | Best at epoch 2: tuned 50.90 / 33.91; 94 min | D043 |
+| A1.4 Decision layer | Honest 50.50 / 32.61; Conflict threshold 0.65; calibration error about 1% | D044 |
+| A1.5 Full system | 225/225 maps valid; dev Global 70.53 / 57.29 (tuned on all dev) | D045 |
+| Decoding tries | Per-proposition caps ±0.5; checkpoint ensembles worse | D046 |
+| A1.6 Ablations | Context, hints and pruning all help focused; a variable clash and a RAM hang caught before training | D047–D048 |
+</details>
 
-**Honest estimate** (cross-fitted components): Global about **70.3 / 56.6**.
-
-**Reference only:** 2024's best was 67.05 / 48.25, but on the 11 test maps, which come from later (2022–23) debates and were chosen to be rich in arguments. Dev and test aren't directly comparable; only the final run decides.
-
-## Improving A1, step 1: decoding (D046)
-
-Before retraining, the free levers were tested on the saved dev predictions:
-
-| Lever | What it tests | Honest dev ARI (general / focused) |
-|---|---|---|
-| v1 as is | — | 50.50 / 32.61 |
-| **Cap: 1 outgoing relation per proposition and type** | The model attaches one proposition to several (26% vs 8% in gold for Inference) | **50.95** / 32.20 |
-| Cap: 2 per proposition and type | Same, gentler | 50.58 / **33.57** |
-| Average of checkpoints at epochs 2.0–3.0 | Ensembling within one run | 50.15 / 31.43 |
-
-- **The structural problem is real, but capping can't fix it:** the model's most confident support for a proposition isn't reliably the right one, so precision barely moves (0.27 → 0.28) while recall drops.
-- **Ensembling one run's checkpoints makes things worse:** they make the same mistakes, and the later ones overfit.
-- **The loss curve shows mild overfitting:** training loss keeps falling while dev peaks at epoch 2.
-- **Conclusion:** further gains need a better model (more data, stronger Conflict weighting, or more capacity), not better decoding. No cap stays the default.
-
-## Lessons so far
-- **ILO is strong (90 / 81) and ARI is the bottleneck (50.5 / 32.6).** That's where further work should go, as in 2024.
-- **Within ARI, Conflict recall (9%) and Inference precision (0.27) are the weakest parts.** Direction, a known 2024 failure, is right 81% of the time once a pair is found.
-- **Choosing checkpoints by the tuned score matters more for slow learners.** ARI's best was at epoch 2.
-- **Thresholds, not temperature, are A1's useful decision lever.**
-
-## Reproduce
+**Reproduce** (WSL, repo root):
 ```bash
-python -m ilo.predict --split=dev && python -m ilo.predict --split=test   # labeller links (selected run)
-python -m a1_cross_encoder.build_pairs                                     # cache/a1/*.jsonl, results/a1/pairs.json  (~2 min)
-python -m a1_cross_encoder.train --run=v1 --overfit --steps=300            # memorisation check
-python -m a1_cross_encoder.train --run=v1 --bench                          # speed and memory
-python -m a1_cross_encoder.train --run=v1                                  # A1.3 full run (~95 min, run detached)
-python -m a1_cross_encoder.tune --run=v1                                   # A1.4 thresholds + diagnostics
-python -m a1_cross_encoder.predict --run=v1 --split=dev                    # A1.5 complete maps + dev Global
+python -m ilo.predict --split=dev                        # turn links from the ILO labeller
+python -m a1_cross_encoder.build_pairs                   # pairs (+ --variant=ctx2|nomark|k99 for ablations)
+python -m a1_cross_encoder.train --run=v1                # ~95 min, run detached (abl-ctx2 | abl-nomark | abl-k99)
+python -m a1_cross_encoder.tune --run=v1                 # thresholds, honest score, diagnostics
+python -m a1_cross_encoder.predict --run=v1 --split=dev  # complete maps + dev Global
 ```

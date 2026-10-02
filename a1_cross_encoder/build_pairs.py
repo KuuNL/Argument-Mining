@@ -15,7 +15,13 @@ For every map (at most GIANT propositions, D022):
 Gate checks: relations surviving pruning; gold labels -> pairs -> AIF scores at the ceiling and
 validates; token lengths.
 
-    python -m a1_cross_encoder.build_pairs   -> cache/a1/{train,dev,test}.jsonl, results/a1/pairs.json
+    python -m a1_cross_encoder.build_pairs                  -> cache/a1/{train,dev,test}.jsonl, results/a1/pairs.json
+    python -m a1_cross_encoder.build_pairs --variant=ctx2   -> cache/a1/ctx2/{train,dev}.jsonl (A1.6 ablation)
+
+Ablation variants (A1.6, D047), each changing one lever:
+    ctx2    dialogue limited to 2 turns either side of the pair (instead of the whole map)
+    nomark  no written distance / same-speaker hints
+    k99     no pruning: every pair of propositions
 """
 import json
 import statistics as st
@@ -33,6 +39,7 @@ from a1_cross_encoder.assemble import LABELS, relation, with_relations
 
 K, MAX_LEN, GIANT, MARGIN = 10, 1024, 40, 16    # K = 10 since D041 (was 8, D018)
 CACHE = ROOT / "cache" / "a1"
+VARIANTS = {"ctx2": {"context": 2}, "nomark": {"header": False}, "k99": {"k": 99}}
 OUT = RESULTS / "a1"
 TOKENIZER = "answerdotai/ModernBERT-base"
 
@@ -51,7 +58,9 @@ class Builder:
     def ntok(self, texts):
         return [len(x) for x in self.tok(list(texts), add_special_tokens=False)["input_ids"]] if texts else []
 
-    def map_pairs(self, aif: dict, name: str, links, gold: dict | None):
+    def map_pairs(self, aif: dict, name: str, links, gold: dict | None, k: int | None = None,
+                  context: int | None = None, header: bool = True):
+        window_k = k or K            # own name: `k` below is also a turn index (that clash broke A1.6 builds)
         """Examples for one map. aif: test-format input; links: (turn, prop, ...); gold: full gold AIF or None."""
         v = view(aif, name)
         pos, how = place(v, links)
@@ -67,19 +76,24 @@ class Builder:
             for y in range(x + 1, len(props)):
                 a, b = sorted((props[x], props[y]), key=lambda p: key[p])
                 placed = a in pos and b in pos
-                if placed and abs(pos[a] - pos[b]) > K:
+                if placed and abs(pos[a] - pos[b]) > window_k:
                     continue
                 d = abs(pos[a] - pos[b]) if placed else None
                 same = (spk[a] == spk[b]) if placed else None
-                header = (f"distance: {d if d is not None else 'unknown'} turns; "
+                head = (f"distance: {d if d is not None else 'unknown'} turns; "
                           + {True: "same speaker", False: "different speakers", None: "speaker unknown"}[same])
                 budget = MAX_LEN - prop_tok[a] - prop_tok[b] - 40 - MARGIN   # header, markers, specials
-                lo, hi = self.window(pos.get(a), pos.get(b), turn_tok, budget)
+                if context is None:
+                    lo, hi = self.window(pos.get(a), pos.get(b), turn_tok, budget)
+                else:                                          # ablation: a fixed window around the pair
+                    placed_at = [q for q in (pos.get(a), pos.get(b)) if q is not None]
+                    lo, hi = ((max(0, min(placed_at) - context), min(len(turns), max(placed_at) + context + 1))
+                              if placed_at else (0, 0))
                 marked = []
-                for k in range(lo, hi):
-                    tags = "+".join(t for t, p in (("A", a), ("B", b)) if pos.get(p) == k)
-                    marked.append(f"[[{tags}]] {turns[k]} [[/{tags}]]" if tags else turns[k])
-                dialogue = ("… | " if lo > 0 else "") + " | ".join(marked) + (" | …" if hi < len(turns) else "")
+                for i in range(lo, hi):
+                    tags = "+".join(t for t, p in (("A", a), ("B", b)) if pos.get(p) == i)
+                    marked.append(f"[[{tags}]] {turns[i]} [[/{tags}]]" if tags else turns[i])
+                dialogue = (("… | " if lo > 0 else "") + " | ".join(marked) + (" | …" if hi < len(turns) else "")) or "-"
                 label = None
                 if gold is not None:
                     ab, ba = rel.get((a, b)), rel.get((b, a))
@@ -89,7 +103,9 @@ class Builder:
                             "a_how": how.get(a, "unplaced"), "b_how": how.get(b, "unplaced"),
                             "distance": d, "same_speaker": same, "windowed": (lo, hi) != (0, len(turns)),
                             "label": label, "label_id": LABELS.index(label) if label else None,
-                            "text_a": v.props[a], "text_b": f"{v.props[b]} {self.sep} {header} {self.sep} {dialogue}"})
+                            "text_a": v.props[a],
+                            "text_b": (f"{v.props[b]} {self.sep} {head} {self.sep} {dialogue}" if header
+                                       else f"{v.props[b]} {self.sep} {dialogue}")})
         return out, pos, how
 
     @staticmethod
@@ -117,13 +133,17 @@ def round_trip(gold: dict, inp: dict, pairs: list[dict]):
 
 
 def main():
+    import sys
+    variant = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--variant=")), None)
+    opts = VARIANTS.get(variant, {})
+    cache = CACHE / variant if variant else CACHE
     b = Builder()
-    CACHE.mkdir(parents=True, exist_ok=True)
-    report = {"k": K, "max_len": MAX_LEN, "giant_over": GIANT, "labels": LABELS}
+    cache.mkdir(parents=True, exist_ok=True)
+    report = {"variant": variant, "k": opts.get("k", K), "max_len": MAX_LEN, "giant_over": GIANT, "labels": LABELS, **opts}
     links_dev = json.loads((ROOT / "cache" / "ilo" / "links_dev.json").read_text())
     links_test = json.loads((ROOT / "cache" / "ilo" / "links_test.json").read_text())
     with timed("a1", "A1.1_build_pairs") as row:
-        for split in ("train", "dev", "test"):
+        for split in (("train", "dev") if variant else ("train", "dev", "test")):
             if split == "test":
                 maps = [(name, load_map(inp), None) for name, inp, _ in test_paths()]   # inputs only
             else:
@@ -139,7 +159,7 @@ def main():
                     continue
                 links = (view(gold, name).anchors() if split == "train" else
                          links_dev.get(name, []) if split == "dev" else links_test.get(name, []))
-                pairs, pos, how = b.map_pairs(inp, name, links, gold)
+                pairs, pos, how = b.map_pairs(inp, name, links, gold, **opts)
                 rows += pairs
                 how_count.update(how.values())
                 how_count["unplaced"] += len(view(inp, name).props) - len(pos)
@@ -155,10 +175,15 @@ def main():
                         if foc is not None:
                             rt_foc.append(foc[2])
                         invalid += bool(problems)
-            with open(CACHE / f"{split}.jsonl", "w", encoding="utf-8", newline="\n") as f:
+            with open(cache / f"{split}.jsonl", "w", encoding="utf-8", newline="\n") as f:
                 for r in rows:
                     f.write(json.dumps(r, ensure_ascii=False) + "\n")
-            lengths = sorted(len(x) for x in b.tok([r["text_a"] for r in rows], [r["text_b"] for r in rows])["input_ids"])
+            lengths = []                                   # in chunks: all-at-once exhausted WSL RAM on k99
+            for s in range(0, len(rows), 8192):
+                part = rows[s:s + 8192]
+                lengths += [len(x) for x in b.tok([r["text_a"] for r in part], [r["text_b"] for r in part],
+                                                  return_attention_mask=False)["input_ids"]]
+            lengths.sort()
             q = lambda x: lengths[min(len(lengths) - 1, int(x * len(lengths)))]
             rep = {"maps": len({r["map"] for r in rows}), "skipped_giant_maps": skipped, "pairs": len(rows),
                    "placed_by": dict(how_count),
@@ -173,7 +198,7 @@ def main():
             report[split] = rep
             row[split] = len(rows)
     OUT.mkdir(parents=True, exist_ok=True)
-    with open(OUT / "pairs.json", "w", encoding="utf-8", newline="\n") as f:
+    with open(OUT / (f"pairs_{variant}.json" if variant else "pairs.json"), "w", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(report, indent=1, ensure_ascii=False))
     print(json.dumps(report, indent=1, ensure_ascii=False))
 

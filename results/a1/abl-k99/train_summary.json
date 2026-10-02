@@ -1,0 +1,26 @@
+{
+ "run": "abl-k99",
+ "lr": 3e-05,
+ "accum_steps": 3,
+ "max_tokens": 4096,
+ "epochs": 3,
+ "patience": 99,
+ "note": "ablation: no pruning, every pair",
+ "data": "k99",
+ "event": "end",
+ "steps": 12687,
+ "epochs_run": 3.0,
+ "best_ari_tuned_general": 50.6,
+ "best_step": 6342,
+ "seconds": 7186.7,
+ "minutes_per_epoch": 39.9,
+ "tokens_per_s": 20511,
+ "peak_vram_gib": 5.0,
+ "class_weights": {
+  "None": 1.0,
+  "Inference A->B": 7.06,
+  "Inference B->A": 6.62,
+  "Conflict": 11.68,
+  "Rephrase": 5.43
+ }
+}

@@ -29,8 +29,9 @@ TH_GRID = [round(x, 2) for x in np.arange(0.05, 0.96, 0.05)] + [1.01]   # 1.01 =
 T_GRID = [round(x, 2) for x in np.arange(0.5, 3.01, 0.05)]
 
 
-def read(split):
-    with open(CACHE / f"{split}.jsonl", encoding="utf-8") as f:
+def read(split, data: str | None = None):
+    """Pair rows of a split; `data` names an ablation variant under cache/a1/<data>/."""
+    with open((CACHE / data if data else CACHE) / f"{split}.jsonl", encoding="utf-8") as f:
         return [json.loads(line) for line in f]
 
 
@@ -100,8 +101,8 @@ def decode(rows, probs, th: dict | None, cap: int | None = None) -> dict:
 
 
 class Dev:
-    def __init__(self, probs_path=None, load=True):
-        self.rows = read("dev")
+    def __init__(self, probs_path=None, load=True, data: str | None = None):
+        self.rows = read("dev", data)
         self.names = sorted({r["map"] for r in self.rows})
         self.idx = defaultdict(list)
         for k, r in enumerate(self.rows):
