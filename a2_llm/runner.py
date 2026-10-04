@@ -36,7 +36,41 @@ RUNS = {
     "smoke-repeat": {"split": "train", "maps": SMOKE[:1], "samples": 2, "k": 2, "effort": "medium", "prompt": "v0"},
     "smoke-high": {"split": "train", "maps": SMOKE[1:2], "samples": 1, "k": 2, "effort": "high", "prompt": "v0"},
     "smoke-verify": {"split": "train", "maps": SMOKE[2:], "samples": 2, "k": 2, "effort": "medium", "prompt": "v0"},
+    # Reasoning levers (D056): does anything make Sonnet 5.5 think before answering? Baseline = "smoke" (0 thinking).
+    "reason-think": {"split": "train", "maps": SMOKE, "samples": 1, "k": 2, "effort": "medium", "prompt": "v0think"},
+    "reason-ultra": {"split": "train", "maps": SMOKE, "samples": 1, "k": 2, "effort": "medium", "prompt": "v0",
+                     "user_suffix": "\n\nultrathink"},
+    "reason-xhigh": {"split": "train", "maps": SMOKE, "samples": 1, "k": 2, "effort": "xhigh", "prompt": "v0"},
+    # A2.2 sweep A: worked examples k on the 50 pilot maps, 1 sample, effort medium (no thinking, D056).
+    **{f"pilot-k{k}": {"split": "train", "maps": "pilot50", "exclude": "pilot", "samples": 1, "k": k,
+                       "effort": "medium", "prompt": "v0"} for k in (0, 2, 4, 8)},
+    # A2.2 sweep B on the 20-map pilot (D057): k = 4 (sweep A) at medium (answers reused) vs xhigh (thinks, D056).
+    "pilot20-k4": {"split": "train", "maps": "pilot", "exclude": "pilot", "samples": 1, "k": 4, "effort": "medium", "prompt": "v0"},
+    "pilot20-k4-xhigh": {"split": "train", "maps": "pilot", "exclude": "pilot", "samples": 1, "k": 4, "effort": "xhigh", "prompt": "v0"},
+    # A2.2 revision 1: sharper Rephrase / Inference boundary and the measured sparsity (prompts/system_v1.md).
+    "pilot20-k4-xhigh-v1": {"split": "train", "maps": "pilot", "exclude": "pilot", "samples": 1, "k": 4, "effort": "xhigh", "prompt": "v1"},
+    # Frozen configuration (D059): prompt v1, k = 4, effort xhigh, 3 samples. The pool is all test-like training maps.
+    "dev-v1": {"split": "dev", "maps": "dev225", "samples": 3, "k": 4, "effort": "xhigh", "prompt": "v1"},
+    "test-v1": {"split": "test", "maps": "test11", "samples": 3, "k": 4, "effort": "xhigh", "prompt": "v1"},
+    # Reasoning ablation (D053, D056): the effort not chosen (medium: no thinking), 1 sample; vs sample 0 of dev-v1.
+    "dev-medium": {"split": "dev", "maps": "dev225", "samples": 1, "k": 4, "effort": "medium", "prompt": "v1"},
 }
+
+
+def resolve(cfg) -> dict:
+    """Named map lists: 'dev225' = the 225 dev maps A1 also uses (at most GIANT propositions), 'test11' = the
+    test inputs; 'pilot' / 'pilot50' in maps, and 'pilot' in exclude, mean the lists in results/a2/pilot_maps.json
+    (a2_llm.pilot --choose): the 20-map pilot (D057), its 50-map parent (sweep A), the excluded pool maps."""
+    if cfg.get("maps") == "dev225":
+        from a2_llm.prompt import GIANT
+        return {**cfg, "maps": [p.stem for p in load_split("dev") if len(view(load_map(p), p.stem).props) <= GIANT]}
+    if cfg.get("maps") == "test11":
+        return {**cfg, "maps": [name for name, _, _ in test_paths()]}
+    if not {"pilot", "pilot50"} & {cfg.get("maps"), cfg.get("exclude")}:
+        return cfg
+    pilot = json.loads((OUT / "pilot_maps.json").read_text())
+    maps = {"pilot": pilot["maps"], "pilot50": pilot["maps_50"]}.get(cfg["maps"], cfg["maps"])
+    return {**cfg, "maps": maps, "exclude": pilot["pool_exclude"] if cfg.get("exclude") == "pilot" else cfg.get("exclude", [])}
 
 
 def evaluate(res: dict, s) -> str | None:
@@ -82,12 +116,13 @@ def targets(cfg) -> list[tuple[str, dict, list]]:
 
 def jobs(cfg):
     """One job per (map, sample): everything needed to send it, plus its cache key."""
+    cfg = resolve(cfg)
     system = system_file(cfg["prompt"]).read_text(encoding="utf-8")
     pool = Pool(set(cfg.get("exclude", ()))) if cfg["k"] else None
     for name, inp, links in targets(cfg):
         s = serialise(inp, name, links)
         ex = pool.nearest(inp, name, cfg["k"]) if pool else []
-        user = user_message(s, [pool.example(e) for e in ex])
+        user = user_message(s, [pool.example(e) for e in ex]) + cfg.get("user_suffix", "")
         sch = schema(s)
         for i in range(cfg["samples"]):
             key = hashlib.sha256(json.dumps([claude_cli.MODEL, cfg["effort"], system, user, sch, i]).encode()).hexdigest()

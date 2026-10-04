@@ -1,7 +1,7 @@
 # A2 — A whole-map language model for argument relations
 
 > **What this is:** the report on approach A2, written for readers new to the project. Terms are explained where they first appear, and §3 collects them. It starts as the plan and the reasons behind it, and results are added as each phase finishes.
-> **Status:** A2.1 (setup) passed 2026-10-04 (§9). Next: A2.2 (prompt development), on the user's go.
+> **Status:** A2.1 (setup) and A2.2 (prompt development) passed (§9). Next: A2.3, the dev run, on the user's go.
 > **Evidence (as phases finish):** [`../results/a2/`](../results/a2/). Decisions D051–D054 are in [`../decisionlog.md`](../decisionlog.md).
 
 ## In one minute
@@ -125,7 +125,7 @@ T3  Minister: they worked through the pandemic
 | **Worked examples** ("few-shot") | Solved maps shown before the target, so the model copies the annotators' style rather than its own idea of "argument". |
 | **Retrieval** | Choosing the k examples most similar to the target: TF-IDF word vectors of each map's text, compared by cosine similarity. |
 | **Structured output** | The answer is forced to match a JSON Schema. Allowed proposition IDs are listed per map (an *enum*), so an invalid ID can't be written. |
-| **Reasoning effort** | How much the model thinks before answering: `low`, `medium` or `high` (the higher levels exist but cost more). Sonnet 5.5 can't switch thinking off entirely in our setup; `low` is the minimum. |
+| **Reasoning effort** | How much the model may think before answering (`low` … `max`). Sonnet 5.5 decides for itself per step. On this task it didn't think at all at `medium` or `high`, and thought on every map only at `xhigh` (D056). |
 | **Sampling / self-consistency** | Asking the same prompt several times. Answers differ slightly, and agreement between them measures confidence. Sonnet 5.5 doesn't accept a temperature or seed, so its built-in randomness provides the variation. |
 | **Confidence-weighted vote** | A relation's score = the average of its stated confidence over the 3 samples (0 when a sample doesn't list it). |
 | **Decision layer / thresholds** | Per-type minimum scores (Inference, Conflict, Rephrase) chosen to maximise the per-map metric; the guard against the rare-label trap. |
@@ -222,7 +222,7 @@ Each phase ends with a **gate** that must pass before the next starts. Code goes
 **Goal:** fix the prompt and settings on training maps, leaving dev untouched.
 1. **Pilot set:** 3 training episodes picked by a fixed seed, giving about 50 maps (at most 40 propositions, fully annotated), stratified by size. They're saved to `results/a2/pilot_maps.json`, and their episodes are removed from the example pool.
 2. **Examples (`a2_llm/examples.py`):** the pool is the other training maps with their gold answers. Each map gets a TF-IDF vector (scikit-learn) of its turns and propositions, and the k most similar maps become the worked examples. The choice is deterministic.
-3. **System prompt v1 (`a2_llm/prompts/system_v1.md`):**
+3. **Starting system prompt (`a2_llm/prompts/system_v0.md`; the revisions in step 6 become v1 and v2):**
    - the task, the relation definitions and direction rules, and linked / convergent / divergent arguments;
    - answers rephrase questions;
    - one-line definitions of the 7 turn types;
@@ -231,10 +231,10 @@ Each phase ends with a **gate** that must pass before the next starts. Code goes
    - "list a relation only if an annotator would".
    - *Sources:* the 2-page annotation guide, the data-format spec and the project's exploratory analysis.
 4. **Sweep A, examples:** k ∈ {0, 2, 4, 8}, effort medium, 1 sample per map: 200 calls.
-5. **Sweep B, effort:** the best k at effort low and high: 100 calls.
+5. **Sweep B, reasoning:** the best k at effort `xhigh`, on a 20-map size-stratified subset of the pilot (D057): 20 calls. A test showed only `xhigh` makes Sonnet 5.5 think on this task, while medium and high skip thinking (D056), so this is a no-thinking vs thinking comparison.
 6. **Read the errors and revise:**
    - sort 10 pilot maps' errors by kind (missed Conflict, wrong direction, Inference vs Rephrase, over-linking, …) and revise the prompt;
-   - at most 2 rounds, each re-running the pilot once: ≤ 100 calls;
+   - at most 2 rounds, each re-running the 20-map pilot once: ≤ 40 calls;
    - then **freeze** the prompt. Capping the rounds limits overfitting to 50 maps.
 7. **Choose** by pilot ARI, general and focused (1 sample; every listed relation counts). When two settings are within about 3 points, which is within pilot noise, the cheaper one wins.
 
@@ -292,8 +292,8 @@ Each one switches off a single component and re-scores on dev. The first six onl
 | Whole-map reach | Drop relations more than 10 turns apart | Do the long-range relations the LLM finds count? | 0 |
 | LLM vs labeller turn types | Task B with and without the LLM's types | Does the LLM type turns better? | 0 |
 | Worked examples k = 0 / 2 / 4 / 8 | Pilot sweep | How much do examples help? | in pilot |
-| Effort low / medium / high | Pilot sweep | How much reasoning pays? | in pilot |
-| **Minimal reasoning (dev)** | Effort `low` on all of dev, 1 sample, compared with sample 1 of the main run | **Does reasoning fix direction and Conflict?** The core A2 question | 225 (90 if quota is tight) |
+| Effort medium vs xhigh | Pilot sweep (only `xhigh` makes it think, D056) | How much reasoning pays? | in pilot |
+| **Reasoning on / off (dev)** | The dev pass at whichever of medium (no thinking) or `xhigh` (thinking) the pilot did not choose, 1 sample, compared with sample 1 of the main run | **Does reasoning fix direction and Conflict?** The core A2 question | 225 (90 if quota is tight) |
 
 *Not run (user decision, 2026-10-04):* removing the written definitions, random instead of retrieved examples, and a memorisation probe for contamination. The free dev → test check in A2.5 stands in for the last.
 
@@ -340,6 +340,39 @@ Evidence: [`../results/a2/check.json`](../results/a2/check.json), [`../results/a
 - **Prompt caching is partial.** Claude Code caches only the system prompt and schema, not the user message, so repeated samples re-read most of the input.
 - **A mistake, fixed.** The first version also retried an answer that failed the strict "Sonnet only" check. That failure was certain to repeat, so 6 of the 12 calls were wasted. Retries now cover only transient failures, and acceptance is judged from the saved answer.
 
+### A2.2 Prompt development — passed (2026-10-05)
+Evidence: [`../results/a2/pilot_table.json`](../results/a2/pilot_table.json), `results/a2/pilot_errors_*.md`, [`../results/a2/pilot_maps.json`](../results/a2/pilot_maps.json).
+The pilot is 3 training episodes (11, 12, 26). Their debates and speakers are kept out of the example pool. The scores below are on training maps with gold turn links and 1 sample, so they compare *settings*; they aren't comparable with A1's dev score.
+
+**What makes Sonnet reason?** (3 maps, 9 calls) Only effort `xhigh` did, on all 3 maps. Effort medium or high, a think-first instruction and the `ultrathink` keyword produced no reasoning, or only sometimes.
+
+**Worked examples** (50 maps, effort medium):
+
+| k | ARI, every listed relation | ARI, medium + high only | Input tokens |
+|---|---|---|---|
+| 0 | 45.0 / 26.4 | 48.5 / 24.3 | 3.6k |
+| 2 | 47.6 / 30.5 | 50.8 / 29.2 | 6.8k |
+| **4** | **49.5 / 30.6** | **51.2 / 29.1** | 10.1k |
+| 8 | 50.7 / 31.5 | 52.2 / 30.3 | 16.5k |
+
+Examples help, with shrinking gains. k = 4 is within noise of k = 8 at 40% fewer tokens.
+
+**Reasoning, and the prompt revision** (20 maps, k = 4):
+
+| Setting | ARI, every listed relation | ARI, medium + high only | Inference direction | Seconds per call |
+|---|---|---|---|---|
+| Effort medium (no thinking), prompt v0 | 50.5 / 32.5 | 52.7 / 30.4 | 79% | 5.4 |
+| Effort `xhigh` (~1k thinking tokens), prompt v0 | 55.0 / 44.0 | 58.9 / 39.5 | 88% | 12.7 |
+| **Effort `xhigh`, prompt v1** | **57.2 / 42.8** | **61.9 / 42.0** | 88% | 13.7 |
+
+- **Reasoning is the biggest lever found so far:** +4.5 general and +11.5 focused, and Inference direction rises from 79% to 88%. This is direct early evidence for A2's central question.
+- **Prompt v1** comes from reading the errors:
+  - the model read 47 of the annotators' Rephrases as Inference, so Rephrase now explicitly covers restating, narrowing or a sharper version of the same point, and Inference needs a *different* point;
+  - it invented far more Inferences than it got right, and in gold about half of all propositions start no relation (only 5% start two or more), so these facts are now in the prompt.
+  - Invented Inferences fell from 64 to 52.
+- **Turn types:** 97% right overall, and 19 of 25 non-Asserting turns. The ILO labeller never predicts the rare types, so A2.4's turn-type check looks promising.
+- **Frozen for the dev and test runs:** prompt v1, k = 4, effort `xhigh`, 3 samples. Pilot cost: 249 calls, $0 spent, no usage limit hit.
+
 ---
 <details><summary>Decisions and build log</summary>
 
@@ -347,6 +380,7 @@ Evidence: [`../results/a2/check.json`](../results/a2/check.json), [`../results/a
 |---|---|---|
 | Plan | Whole-map Sonnet 5.5 on a Claude Pro subscription, $0; 3 samples; cross-fitted thresholds; one paid ablation | D051–D054 |
 | A2.1 Setup | Round trip 98.92 / 96.51; Sonnet-only after disabling the title request; 4–9 s and ~$0.03 per answer; no thinking by default | D055 |
+| A2.2 Prompt | Only `xhigh` makes Sonnet reason (+11.5 focused on the pilot); k = 4; prompt v1 | D056–D059 |
 </details>
 
 **Reproduce:** *added when A2 is complete.*

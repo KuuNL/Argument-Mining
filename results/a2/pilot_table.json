@@ -1,0 +1,247 @@
+{
+ "pilot-k0": {
+  "run": "pilot-k0",
+  "settings": {
+   "k": 0,
+   "effort": "medium",
+   "prompt": "v0",
+   "samples": 1
+  },
+  "maps_scored": 50,
+  "missing": [],
+  "ari_all listed": {
+   "general": 45.0,
+   "focused": 26.38
+  },
+  "ari_medium+": {
+   "general": 48.48,
+   "focused": 24.31
+  },
+  "relations_per_map": {
+   "listed": 9.78,
+   "gold": 7.92
+  },
+  "inference_direction_right": 0.795,
+  "turn_types": {
+   "accuracy": 0.966,
+   "non_asserting_right": "40/57"
+  },
+  "per_answer": {
+   "seconds": 5.22,
+   "input_tokens": 3577.7,
+   "output_tokens": 655.64,
+   "thinking_tokens": 0,
+   "api_usd": 0.0171
+  }
+ },
+ "pilot-k2": {
+  "run": "pilot-k2",
+  "settings": {
+   "k": 2,
+   "effort": "medium",
+   "prompt": "v0",
+   "samples": 1
+  },
+  "maps_scored": 50,
+  "missing": [],
+  "ari_all listed": {
+   "general": 47.61,
+   "focused": 30.52
+  },
+  "ari_medium+": {
+   "general": 50.81,
+   "focused": 29.18
+  },
+  "relations_per_map": {
+   "listed": 9.96,
+   "gold": 7.92
+  },
+  "inference_direction_right": 0.825,
+  "turn_types": {
+   "accuracy": 0.963,
+   "non_asserting_right": "39/57"
+  },
+  "per_answer": {
+   "seconds": 5.29,
+   "input_tokens": 6824.44,
+   "output_tokens": 661.06,
+   "thinking_tokens": 0,
+   "api_usd": 0.0263
+  }
+ },
+ "pilot-k4": {
+  "run": "pilot-k4",
+  "settings": {
+   "k": 4,
+   "effort": "medium",
+   "prompt": "v0",
+   "samples": 1
+  },
+  "maps_scored": 50,
+  "missing": [],
+  "ari_all listed": {
+   "general": 49.5,
+   "focused": 30.62
+  },
+  "ari_medium+": {
+   "general": 51.18,
+   "focused": 29.14
+  },
+  "relations_per_map": {
+   "listed": 9.7,
+   "gold": 7.92
+  },
+  "inference_direction_right": 0.805,
+  "turn_types": {
+   "accuracy": 0.964,
+   "non_asserting_right": "39/57"
+  },
+  "per_answer": {
+   "seconds": 5.36,
+   "input_tokens": 10100.8,
+   "output_tokens": 655.04,
+   "thinking_tokens": 0,
+   "api_usd": 0.0394
+  }
+ },
+ "pilot-k8": {
+  "run": "pilot-k8",
+  "settings": {
+   "k": 8,
+   "effort": "medium",
+   "prompt": "v0",
+   "samples": 1
+  },
+  "maps_scored": 50,
+  "missing": [],
+  "ari_all listed": {
+   "general": 50.7,
+   "focused": 31.54
+  },
+  "ari_medium+": {
+   "general": 52.21,
+   "focused": 30.29
+  },
+  "relations_per_map": {
+   "listed": 9.72,
+   "gold": 7.92
+  },
+  "inference_direction_right": 0.847,
+  "turn_types": {
+   "accuracy": 0.959,
+   "non_asserting_right": "36/57"
+  },
+  "per_answer": {
+   "seconds": 5.49,
+   "input_tokens": 16472.62,
+   "output_tokens": 655.84,
+   "thinking_tokens": 0,
+   "api_usd": 0.0649
+  }
+ },
+ "pilot20-k4": {
+  "run": "pilot20-k4",
+  "settings": {
+   "k": 4,
+   "effort": "medium",
+   "prompt": "v0",
+   "samples": 1
+  },
+  "maps_scored": 20,
+  "missing": [],
+  "ari_all listed": {
+   "general": 50.5,
+   "focused": 32.48
+  },
+  "ari_medium+": {
+   "general": 52.71,
+   "focused": 30.42
+  },
+  "relations_per_map": {
+   "listed": 9.55,
+   "gold": 7.85
+  },
+  "inference_direction_right": 0.789,
+  "turn_types": {
+   "accuracy": 0.968,
+   "non_asserting_right": "18/25"
+  },
+  "per_answer": {
+   "seconds": 5.36,
+   "input_tokens": 10105.65,
+   "output_tokens": 646.65,
+   "thinking_tokens": 0,
+   "api_usd": 0.0393
+  }
+ },
+ "pilot20-k4-xhigh": {
+  "run": "pilot20-k4-xhigh",
+  "settings": {
+   "k": 4,
+   "effort": "xhigh",
+   "prompt": "v0",
+   "samples": 1
+  },
+  "maps_scored": 20,
+  "missing": [],
+  "ari_all listed": {
+   "general": 55.03,
+   "focused": 44.0
+  },
+  "ari_medium+": {
+   "general": 58.9,
+   "focused": 39.49
+  },
+  "relations_per_map": {
+   "listed": 10.35,
+   "gold": 7.85
+  },
+  "inference_direction_right": 0.875,
+  "turn_types": {
+   "accuracy": 0.975,
+   "non_asserting_right": "19/25"
+  },
+  "per_answer": {
+   "seconds": 12.73,
+   "input_tokens": 10567.5,
+   "output_tokens": 1653.2,
+   "thinking_tokens": 969.05,
+   "api_usd": 0.0496
+  }
+ },
+ "pilot20-k4-xhigh-v1": {
+  "run": "pilot20-k4-xhigh-v1",
+  "settings": {
+   "k": 4,
+   "effort": "xhigh",
+   "prompt": "v1",
+   "samples": 1
+  },
+  "maps_scored": 20,
+  "missing": [],
+  "ari_all listed": {
+   "general": 57.15,
+   "focused": 42.75
+  },
+  "ari_medium+": {
+   "general": 61.86,
+   "focused": 42.01
+  },
+  "relations_per_map": {
+   "listed": 9.5,
+   "gold": 7.85
+  },
+  "inference_direction_right": 0.879,
+  "turn_types": {
+   "accuracy": 0.971,
+   "non_asserting_right": "19/25"
+  },
+  "per_answer": {
+   "seconds": 13.66,
+   "input_tokens": 10302.95,
+   "output_tokens": 1719.35,
+   "thinking_tokens": 1070.1,
+   "api_usd": 0.0536
+  }
+ }
+}

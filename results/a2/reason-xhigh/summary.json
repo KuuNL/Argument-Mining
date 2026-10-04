@@ -1,0 +1,88 @@
+{
+ "run": "reason-xhigh",
+ "settings": {
+  "split": "train",
+  "maps": [
+   "nodeset18266",
+   "nodeset18274",
+   "nodeset23907"
+  ],
+  "samples": 1,
+  "k": 2,
+  "effort": "xhigh",
+  "prompt": "v0"
+ },
+ "cli": "2.1.283 (Claude Code)",
+ "stopped_at_usage_limit": null,
+ "jobs": 3,
+ "ok": 3,
+ "failed": 0,
+ "calls_made": 3,
+ "api_equivalent_usd": 0.1284,
+ "claude_code_reported_usd": 0.2556,
+ "calls_with_side_models": {},
+ "per_answer": {
+  "seconds": {
+   "p50": 16.1,
+   "max": 19.4
+  },
+  "input_tokens_total": {
+   "p50": 7520,
+   "max": 7869
+  },
+  "output_tokens": {
+   "p50": 2516,
+   "max": 2770
+  },
+  "thinking_tokens": {
+   "p50": 1165,
+   "max": 1435
+  },
+  "cache_read_tokens_total": 6120,
+  "num_turns": [
+   2
+  ],
+  "chars_per_input_token": 2.01
+ },
+ "answers": [
+  {
+   "map": "nodeset18266",
+   "sample": 0,
+   "attempt": 0,
+   "chars": 12893,
+   "input_total": 6325,
+   "cache_read": 1905,
+   "output": 1197,
+   "thinking": 805,
+   "seconds": 11.4,
+   "usd": 0.030027,
+   "relations": 5
+  },
+  {
+   "map": "nodeset18274",
+   "sample": 0,
+   "attempt": 0,
+   "chars": 15545,
+   "input_total": 7520,
+   "cache_read": 2010,
+   "output": 2516,
+   "thinking": 1165,
+   "seconds": 16.1,
+   "usd": 0.047598,
+   "relations": 11
+  },
+  {
+   "map": "nodeset23907",
+   "sample": 0,
+   "attempt": 0,
+   "chars": 15265,
+   "input_total": 7869,
+   "cache_read": 2205,
+   "output": 2770,
+   "thinking": 1435,
+   "seconds": 19.4,
+   "usd": 0.050793,
+   "relations": 22
+  }
+ ]
+}

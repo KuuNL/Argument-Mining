@@ -23,7 +23,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A1.6 | Ablations | −context · −speaker/TA features · −pruning · argmax · (DeBERTa vs ModernBERT) | One lever off per run, re-scored on dev | A1 | **Passed (D047–D048)** |
 | A1.7 | Test run | Final A1 row | Run once only, on the user's go | Final run | **Done (D050): test Global 72.01 / 57.53, beating 2024's 67.05 / 48.25** |
 | A2.1 | Setup | `common/serialise.py` (map → text, shared with A3/A4); `a2_llm/`: per-map JSON schema, Claude Code caller (`claude -p`, Sonnet 5.5, Pro login), resumable runner with on-disk answer cache, parser → A1's pair format | Gold relations → JSON → parser → scorer gives the no-pruning ceiling (98.92 / 96.51); ~5 live calls valid, Sonnet 5.5 only, no hidden context; tokens, seconds and API-equivalent $ per call measured | A2 | **Passed (D055)**: round trip 98.92 / 96.51; Sonnet-only; ~$0.03 per answer API-equivalent |
-| A2.2 | Prompt development | Pilot (~50 train maps, 3 episodes), TF-IDF example retrieval, system prompt; sweeps at 1 sample: examples k ∈ {0,2,4,8}, effort low/medium/high; ≤ 2 revision rounds | Prompt and settings frozen from a pilot table; timeline projected from measured calls per usage window | A2 | Approved (D051–D053) |
+| A2.2 | Prompt development | Pilot (~50 train maps, 3 episodes), TF-IDF example retrieval, system prompt; sweeps at 1 sample: examples k ∈ {0,2,4,8}, effort low/medium/high; ≤ 2 revision rounds | Prompt and settings frozen from a pilot table; timeline projected from measured calls per usage window | A2 | **Passed (D056–D059): frozen = prompt v1, k = 4, effort `xhigh`; reasoning +11 focused on the pilot** |
 | A2.3 | Dev run + decision layer | Frozen settings, 3 samples × 225 dev maps (D054); per-type thresholds on confidence-weighted votes, cross-fitted | Honest dev ARI vs A1 (50.50 / 32.61); per-type P/R, direction, invented-Conflict maps; overlap of A1 and A2 errors | A2 | Approved (D051–D053) |
 | A2.4 | Assemble + ablations | Valid maps and dev Global; LLM turn types adopted only if they beat the labeller; free ablations + the minimal-reasoning dev pass | 225/225 valid; ablation table | A2 | Approved (D051–D053) |
 | A2.5 | Test run + report | Final A2 row; `reports/A2-whole-map-llm.md` | Run once, on the user's go | Final run | Approved (D051–D053) |
@@ -620,4 +620,61 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - the samples vary (19 vs 21 relations on one map);
   - it over-links (13 and 19–21 relations listed against 11 and 12 in gold);
   - the whole plan is only a few hours of calls; Pro quota is the bottleneck.
-- *Proposed for A2.2* (adds 3 settings to the pilot sweep): before the effort sweep, test what makes Sonnet reason: a think-first instruction in the system prompt, the `ultrathink` keyword, and effort `xhigh`. If none of them does, the minimal-reasoning ablation (D053) has nothing to compare against and is replaced by a comparison of these levers.
+- *Proposed for A2.2* (adds 3 settings to the pilot sweep): before the effort sweep, test what makes Sonnet reason: a think-first instruction in the system prompt, the `ultrathink` keyword, and effort `xhigh`. If none of them does, the minimal-reasoning ablation (D053) has nothing to compare against and is replaced by a comparison of these levers. *Tested at once (user's request): D056.*
+
+### D056 — Only effort `xhigh` makes Sonnet 5.5 reason; the effort sweep becomes medium vs xhigh
+- **2026-10-04 · A2.2 · test requested by user, result by Claude · Finding + Done** (`results/a2/reason-*/`; 9 calls, $0.33 API-equivalent)
+- *Test:* the 3 smoke maps, k = 2, 1 sample each, against the medium baseline (0 thinking tokens on 3/3).
+
+  | Lever | Answers that thought | Thinking tokens | Seconds |
+  |---|---|---|---|
+  | Think-first instruction in the system prompt (`system_v0think.md`) | 0 / 3 | 0 | 6–8 |
+  | `ultrathink` keyword in the user message | 1 / 3 | 0–667 | 4–11 |
+  | **Effort `xhigh`** | **3 / 3** | 805–1,435 | 11–19 |
+
+- *Consequences:*
+  - **Sweep B is now effort `xhigh` against medium.** Medium comes from sweep A, so only 50 new calls are needed. Low and high would reason no more than medium, so they're dropped (100 calls saved).
+  - **The minimal-reasoning ablation (D053)** is now a dev pass at whichever of medium / xhigh is *not* chosen: thinking off vs on.
+  - The think-first instruction and `ultrathink` are not used.
+
+### D057 — The pilot shrinks to 20 maps from sweep B on
+- **2026-10-04 · A2.2 · by user · Approved** ("this is taking too long … can try 20 maybe")
+- **Sweep A** (k = 0/2/4/8, effort medium) was almost done when the user asked, so it finished and is scored on all 50 maps (`maps_50`).
+- **Every later pilot run uses 20 maps** (`maps` in `results/a2/pilot_maps.json`): sweep B (`xhigh`) and the prompt revisions.
+  - The 20 are a size-stratified subset of the 50 (4–26 propositions, median 14), so sweep A's answers on them are reused for the medium vs xhigh comparison.
+  - Pilot calls from here on: ≤ 20 per setting (≤ 60 for sweep B and two revisions, instead of ≤ 150).
+- *Cost:* comparisons on 20 maps only separate large differences (roughly 5+ points). Close calls go to the cheaper setting, as before.
+
+### D058 — Pilot sweeps: k = 4 worked examples, effort `xhigh`; reasoning adds ~11 focused points
+- **2026-10-04 · A2.2 · by Claude (pre-set rules) · Done** (`results/a2/pilot_table.json`; 1 sample per map, scored with every listed relation kept, and with medium + high only)
+- **Sweep A, examples** (50 maps, effort medium, prompt v0; 200 calls):
+
+  | k | ARI all listed | ARI medium+ | Inference direction | Input tokens |
+  |---|---|---|---|---|
+  | 0 | 45.0 / 26.4 | 48.5 / 24.3 | 80% | 3.6k |
+  | 2 | 47.6 / 30.5 | 50.8 / 29.2 | 83% | 6.8k |
+  | 4 | 49.5 / 30.6 | 51.2 / 29.1 | 81% | 10.1k |
+  | 8 | 50.7 / 31.5 | 52.2 / 30.3 | 85% | 16.5k |
+
+  More examples help, with shrinking gains. k = 8 leads k = 4 by 1.2 / 0.9, within noise, so **k = 4**: 40% fewer input tokens.
+- **Sweep B, reasoning** (20 maps, k = 4, prompt v0; 20 calls). Medium scores 50.5 / 32.5 (all listed) and 52.7 / 30.4 (medium+), with 79% direction and 0 thinking tokens. **`xhigh` scores 55.0 / 44.0 and 58.9 / 39.5, with 88% direction** and ~970 thinking tokens, at 12.7 s and ~$0.05 per call. **Effort `xhigh`** is chosen: +4.5 general and +11.5 focused is well beyond noise.
+- *Errors* (k = 4, medium, 50 maps, `results/a2/pilot_errors_pilot-k4.md`):
+  - Inference: 167 invented against 99 right; invented relations sit further apart (median 2 turns vs 1);
+  - 47 gold Rephrases read as Inference;
+  - Conflict: 18 invented, 14 missed, 7 right.
+  - Gold is sparse: 48% of propositions start no relation, 48% start one, and 5% start two or more.
+- *Revision 1* (`system_v1.md`): Rephrase covers restating, narrowing or a sharper version of the same point; Inference needs a *different* point as reason or evidence; the sparsity facts are added. Conflict is unchanged (the thresholds handle it).
+
+### D059 — A2.2 result: frozen configuration = prompt v1, k = 4 retrieved examples, effort `xhigh`
+- **2026-10-05 · A2.2 · by Claude (pre-set rules) · Done**
+- *Revision 1* (20 maps, k = 4, xhigh; 20 calls):
+
+  | Prompt | ARI all listed | ARI medium+ | Invented Inferences | Rephrases read as Inference |
+  |---|---|---|---|---|
+  | v0 | 55.0 / 44.0 | 58.9 / 39.5 | 64 | 20 |
+  | **v1** | **57.2** / 42.8 | **61.9 / 42.0** | 52 | 13 |
+
+  v1 is better on 3 of 4 scores and fixes what it targeted. **No second revision:** the remaining gaps are within the noise of 20 maps, and over-linking is left to the 3-sample thresholds.
+- **Frozen for A2.3–A2.5:** Sonnet 5.5, `system_v1.md`, 4 TF-IDF-retrieved worked examples, effort `xhigh`, 3 samples.
+- *Pilot cost:* 249 calls (sweep A 200, sweep B 20 + 20 reused, revision 20, reasoning test 9) and no usage limit hit. A2.3 is 675 calls at ~13 s ≈ 2.5 h of calls.
+- *Caveat:* pilot scores are on *training* maps with gold links and 1 sample, so they are not comparable with A1's dev numbers. A2.3 gives the comparable score.
