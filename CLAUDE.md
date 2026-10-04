@@ -159,10 +159,12 @@ We fine-tune it in PyTorch on our pairs.
 - *Per-class thresholds*, tuned on dev for the per-map macro-F1, avoid the rare-label trap.
 - **Why:** it fixes failures 1, 2 and 4-lite cheaply on the local GPU. It's the strongest known baseline, modernised.
 
-**A2 — Whole-map LLM, no training.** A frontier reasoning model reads the *entire* map at once and returns every relation
-as schema-constrained JSON, with similar training maps as examples (few-shot). *Self-consistency* samples several answers and votes.
+**A2 — Whole-map LLM, no training.** Claude Sonnet 5.5 reads the *entire* map at once and returns every relation
+as schema-constrained JSON, with similar training maps as examples (few-shot). *Self-consistency* samples 3 answers and votes.
+It runs through Claude Code's scripted mode (`claude -p`) on the user's Claude Pro login, so it costs $0 but is bounded by usage limits (D052).
 - **Why:** it attacks failures 3 and 4 directly. Direction and convergent vs divergent are global, multi-step judgements, which is where reasoning models are strong.
-- **Risks:** it gives no calibrated probabilities, costs money, and may have seen QT30 during training.
+- **Risks:** it gives no calibrated probabilities (votes stand in for them), it is slow under Pro's limits, and it may have seen QT30 during training.
+- **Plan and status:** `reports/A2-whole-map-llm.md` and the phase map (A2.1–A2.5).
 
 **A3 — Fine-tuned open LLM.** QLoRA (4-bit weights plus small trainable adapters) fine-tunes a 7–8B model to generate the relation list for a map.
 - **Why:** it tests whether *learning the IAT annotation style* beats a general model's size.

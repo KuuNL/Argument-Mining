@@ -82,33 +82,48 @@ the gain. Expect a solid, cheap improvement, mostly on the general score. This i
 
 ---
 
-## Approach 2 — Whole-map LLM, no training (API)
-**Idea.** A frontier reasoning model reads the *entire* map and outputs every relation at once, so each decision can see the whole structure.
+## Approach 2 — Whole-map LLM, no training (Claude Sonnet 5.5 on a Claude Pro subscription)
+**Idea.** A reasoning model reads the *entire* map and lists every relation at once, so each decision can see the whole structure.
+Full plan, concepts and the reason for each choice: [`reports/A2-whole-map-llm.md`](reports/A2-whole-map-llm.md) (D051–D053).
+
+**Model and route (D052).** Claude Sonnet 5.5 only, called through Claude Code's scripted mode (`claude -p`) on the user's Claude Pro login.
+Spend is $0; speed is bounded by Pro's usage limits. The runner pauses at a limit and resumes on the user's word. The API-equivalent $ is logged per call.
 
 **End to end:**
-1. **Serialise** the map as text: I-nodes with IDs, and the dialogue in order (speaker: locution → linked I-ID candidates).
-2. **Prompt structure:**
-   - **Definitions (static, prompt-cached):** every relation and illocution label with a one-line definition and an example;
-     IAT rules (premise → conclusion; MA and CA point to the earlier proposition; a question's answer is linked by MA; linked vs convergent);
-     "predict Conflict only when clearly contradicted".
-   - **Few-shot examples:** k training maps, each as serialised input → gold relation list.
-   - **Target map** plus a JSON schema: `{relations:[{from,to,type}], illocutions:[{locution,proposition,type}]}`.
-3. **Selecting examples:**
-   - *Retrieval:* embed every training map and take the k nearest to the target, never from the same episode.
-   - *Variant:* force at least one example containing CA.
-4. **Choosing k:** sweep k ∈ {0, 1, 2, 4, 8} on dev and plot F1 against tokens, cost and time. Pick the knee of the curve.
-   The ceiling is context length: about 2–4k tokens per map, so k=8 is about 30k tokens.
-5. **Self-consistency:** n samples (e.g. 5). Each relation's vote share acts as a **pseudo-probability**, so the Principle-2 thresholds apply here too.
-6. **Validate:** discard unknown IDs and labels; apply the same consistency repair as A1; assemble the AIF.
+1. **Serialise** (`common/serialise.py`, shared with A3/A4): turns T1… in dialogue order, each with its speaker and the proposition(s) the ILO labeller links to it (gold links on training maps).
+   Propositions are renumbered P1… so node IDs never appear (D029).
+2. **Prompt:**
+   - *System prompt:* relation and turn-type definitions, IAT direction rules, and the conventions the EDA measured (neighbouring turns, same-speaker Inference, rare Conflict, density).
+   - *User message:* k retrieved worked examples (TF-IDF over training maps), then the target map.
+3. **Output:** schema-validated JSON (`--json-schema`, with per-map ID enums). It holds relations {type, from, to, confidence} plus a type for each linked turn.
+4. **Self-consistency:** 3 samples of the same prompt (D054). Each pair's score is its confidence-weighted vote share, written in A1's 5-label pair format.
+5. **Decide:** A1's per-type thresholds, cross-fitted by dev episode. Conflict / Rephrase direction comes from dialogue order (D020).
+   The LLM's turn types replace the labeller's only if that beats it on dev.
+6. **Assemble** with A1's `build_map`, validate, then score officially.
+
+**Phases:**
+- **A2.1** setup and verification;
+- **A2.2** prompt development on a ~50-map *training* pilot: k ∈ {0,2,4,8} and effort low/medium/high, ≤ 2 revision rounds, then frozen. Dev stays untouched;
+- **A2.3** 3 samples × 225 dev maps, thresholds, honest score next to A1;
+- **A2.4** complete maps and ablations;
+- **A2.5** one test run.
+- About 1,350 calls in all.
 
 **Why it beats 2024.** The 2024 LLM attempts (Turiya prompting, Pokemon's LLaMA) used weaker models, short contexts and free-text
 parsing, and they lost to encoders. Current models reason over long contexts, follow schemas reliably, and see the whole map. That
 targets 2024's worst failures directly: **direction** and **convergent vs divergent** structure are global, multi-step judgements.
 
-**Ablations:** k sweep · −definitions (examples only) · retrieval vs random examples · n=1 vs n=5 · with vs without reasoning mode.
-**Timing/cost:** tokens and $ per map; latency; prompt-iteration time on dev.
-**Risks:** no native probabilities (mitigated by voting); run-to-run variance (fix the seed/temperature; report the spread);
-**contamination** (QT30 has been public since 2022; note it, and compare performance on more versus less "famous" episodes if feasible).
+**Ablations (D053):**
+- *Free, re-scored from saved answers:* 1/2/3 samples · votes vs stated confidence · thresholds vs majority vote · direction rule vs the model's own · relations > 10 turns apart dropped · LLM vs labeller turn types.
+- *From the pilot:* k sweep · effort sweep.
+- *With new calls:* **minimal reasoning** (effort low) on dev.
+**Timing/cost:** seconds, tokens and API-equivalent $ per call; calls per usage window; spend $0.
+**Risks:**
+- usage limits (measured early; the paid ablation shrinks first);
+- hidden context or another model answering inside Claude Code (checked on every answer);
+- samples that barely differ (stated confidence still grades);
+- no seed (raw answers committed);
+- **contamination**: QT30 has been public since 2022, so it is reported as a caveat, with the dev → test shift compared against A1's.
 
 ---
 

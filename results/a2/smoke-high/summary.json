@@ -1,0 +1,62 @@
+{
+ "run": "smoke-high",
+ "settings": {
+  "split": "train",
+  "maps": [
+   "nodeset18274"
+  ],
+  "samples": 1,
+  "k": 2,
+  "effort": "high",
+  "prompt": "v0"
+ },
+ "cli": "2.1.283 (Claude Code)",
+ "stopped_at_usage_limit": null,
+ "jobs": 1,
+ "ok": 1,
+ "failed": 0,
+ "calls_made": 1,
+ "api_equivalent_usd": 0.0301,
+ "claude_code_reported_usd": 0.0646,
+ "calls_with_side_models": {
+  "claude-haiku-4-5-20251001": 1
+ },
+ "per_answer": {
+  "seconds": {
+   "p50": 6.8,
+   "max": 6.8
+  },
+  "input_tokens_total": {
+   "p50": 7519,
+   "max": 7519
+  },
+  "output_tokens": {
+   "p50": 767,
+   "max": 767
+  },
+  "thinking_tokens": {
+   "p50": 0,
+   "max": 0
+  },
+  "cache_read_tokens_total": 2010,
+  "num_turns": [
+   2
+  ],
+  "chars_per_input_token": 2.07
+ },
+ "answers": [
+  {
+   "map": "nodeset18274",
+   "sample": 0,
+   "attempt": 0,
+   "chars": 15545,
+   "input_total": 7519,
+   "cache_read": 2010,
+   "output": 767,
+   "thinking": 0,
+   "seconds": 6.8,
+   "usd": 0.030104,
+   "relations": 13
+  }
+ ]
+}

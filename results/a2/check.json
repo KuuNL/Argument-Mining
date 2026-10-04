@@ -1,0 +1,57 @@
+{
+ "round_trip": {
+  "maps": 225,
+  "ari_general": 98.92,
+  "ari_focused": 96.51,
+  "expected": [
+   98.92,
+   96.51
+  ],
+  "invalid_maps": [],
+  "answers_failing_schema": []
+ },
+ "samples": {
+  "unplaced": "nodeset17921",
+  "two_per_turn": "nodeset17938",
+  "median": "nodeset17975"
+ },
+ "prompt_chars": {
+  "k0": {
+   "dev": {
+    "p50": 5542,
+    "p90": 6864,
+    "max": 8755
+   },
+   "test": {
+    "p50": 5959,
+    "p90": 6377,
+    "max": 7817
+   }
+  },
+  "k4": {
+   "dev": {
+    "p50": 21543,
+    "p90": 25190,
+    "max": 29291
+   },
+   "test": {
+    "p50": 21516,
+    "p90": 25235,
+    "max": 25819
+   }
+  },
+  "k8": {
+   "dev": {
+    "p50": 37569,
+    "p90": 42740,
+    "max": 48934
+   },
+   "test": {
+    "p50": 39322,
+    "p90": 41038,
+    "max": 43900
+   }
+  }
+ },
+ "pool_maps": 1231
+}

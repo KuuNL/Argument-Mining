@@ -22,7 +22,12 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A1.5 | Assemble + dev score | `predict.py` → valid AIF with S-nodes and YAs | Validator passes; dev ARI / ILO / Global table next to 2024 | A1 | **Passed (D045): 225/225 valid; dev Global ≈ 70.3 / 56.6** |
 | A1.6 | Ablations | −context · −speaker/TA features · −pruning · argmax · (DeBERTa vs ModernBERT) | One lever off per run, re-scored on dev | A1 | **Passed (D047–D048)** |
 | A1.7 | Test run | Final A1 row | Run once only, on the user's go | Final run | **Done (D050): test Global 72.01 / 57.53, beating 2024's 67.05 / 48.25** |
-| A2 · A3 · A4 | Other approaches | Phased (A2.1, …) when each starts | — | A2 / A3 / A4 | Not started |
+| A2.1 | Setup | `common/serialise.py` (map → text, shared with A3/A4); `a2_llm/`: per-map JSON schema, Claude Code caller (`claude -p`, Sonnet 5.5, Pro login), resumable runner with on-disk answer cache, parser → A1's pair format | Gold relations → JSON → parser → scorer gives the no-pruning ceiling (98.92 / 96.51); ~5 live calls valid, Sonnet 5.5 only, no hidden context; tokens, seconds and API-equivalent $ per call measured | A2 | **Passed (D055)**: round trip 98.92 / 96.51; Sonnet-only; ~$0.03 per answer API-equivalent |
+| A2.2 | Prompt development | Pilot (~50 train maps, 3 episodes), TF-IDF example retrieval, system prompt; sweeps at 1 sample: examples k ∈ {0,2,4,8}, effort low/medium/high; ≤ 2 revision rounds | Prompt and settings frozen from a pilot table; timeline projected from measured calls per usage window | A2 | Approved (D051–D053) |
+| A2.3 | Dev run + decision layer | Frozen settings, 3 samples × 225 dev maps (D054); per-type thresholds on confidence-weighted votes, cross-fitted | Honest dev ARI vs A1 (50.50 / 32.61); per-type P/R, direction, invented-Conflict maps; overlap of A1 and A2 errors | A2 | Approved (D051–D053) |
+| A2.4 | Assemble + ablations | Valid maps and dev Global; LLM turn types adopted only if they beat the labeller; free ablations + the minimal-reasoning dev pass | 225/225 valid; ablation table | A2 | Approved (D051–D053) |
+| A2.5 | Test run + report | Final A2 row; `reports/A2-whole-map-llm.md` | Run once, on the user's go | Final run | Approved (D051–D053) |
+| A3 · A4 | Other approaches | Phased (A3.1, …) when each starts | — | A3 / A4 | Not started |
 | — | Combination · Final run | — | — | Combination / Final run | Not started |
 
 ---
@@ -528,3 +533,91 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   Inference direction is right for 78% of the 23 found. No invented Conflict in any map; one map has an invented Rephrase.
 - *Variance:* per-map ARI general ranges **23.5 to 77.0**, so each of the 11 maps moves the average by about 9%. Per-map ILO is perfect (100 / 100) on 7 maps; maps 1, 2 and 9 sit around 73 general.
 - *Cost:* A1 test inference 10.4 s for all 11 maps (0.94 s per map); the ILO labeller takes about 0.21 s per map.
+
+### D051 — A2 plan: whole-map Claude, sampled confidence, dev kept clean
+- **2026-10-04 · A2 · by Claude · Approved by user 2026-10-04, amended by D052–D053** (model, route, budget and ablations changed; the rest stands). Full plan: [`reports/A2-whole-map-llm.md`](reports/A2-whole-map-llm.md).
+- *Goal:* fix what A1 can't, because A1 judges each pair alone: choosing between conclusions, direction, and Conflict (recall 9–15%). Do it at a measured cost, and save per-pair outputs that the Combination can reuse without new API calls.
+- *Design:*
+  - **Model:** Claude Opus 5.5 (`claude-opus-5-5`, $4 / $20 per MTok; thinking can't be turned off, so effort is set explicitly). The pilot also tries Sonnet 5.5 (half the price) and Fable 5.1 (2.5×) to see whether model capability matters.
+  - **Input:** the whole dialogue in order. Each turn shows its speaker, its text and the proposition(s) the ILO labeller links to it. IDs are renumbered P1… / T1… in dialogue order, so node IDs never leak (D029). Train maps use gold links (D040).
+  - **Output:** structured outputs, with a JSON schema whose ID enums come from the map. The output holds relations {type, from, to, confidence} plus an illocution type for each linked turn.
+  - **Confidence:** 5 samples per map, scored as a confidence-weighted vote share. Opus 5.5 doesn't accept a temperature setting, so the stated confidence covers the case where samples barely differ.
+  - **Decision layer:** A1's (per-type thresholds, leave-one-episode-out). Conflict and Rephrase direction comes from dialogue order (D020).
+  - **ILO:** links stay with the labeller. The LLM's types replace the labeller's only if that beats 90.08 cross-fitted.
+  - **Prompt development uses train-split maps** (about 50, from 3 episodes, kept out of the example pool). Dev is then used only for the thresholds, and stays an honest, A1-comparable estimate.
+  - **Reproducibility:** every response is cached on disk by a hash of the request, and all scores are recomputed from the cache.
+- *Changes to PLAN.md's A2 section (applied on approval):*
+  - the pilot runs on train maps, not dev;
+  - "reasoning off" becomes low effort, because Opus 5.5 can't disable thinking;
+  - stated confidence is added to the votes;
+  - n is swept for free, by subsampling the 5 stored samples;
+  - a contamination probe is added;
+  - outputs are saved in A1's pair format for the Combination.
+- *Estimated cost:* about $150–200 on Opus 5.5: about $1 smoke test, $50 pilot, $75 dev (5 samples, Batch API), $50 ablations and $5 test. Thinking tokens are the main unknown, and A2.1 measures them.
+- *Prerequisite:* an Anthropic API key (none is set in Windows or WSL). *Superseded by D052: no key is needed.*
+
+### D052 — A2 runs Claude Sonnet 5.5 on the user's Claude Pro subscription, at $0
+- **2026-10-04 · A2 · by user · Approved**
+- **Model:** Claude Sonnet 5.5 (`claude-sonnet-5-5`) only, with no other model in any phase ("good enough for simple decisions such as these"). This replaces D051's Opus 5.5, its pilot comparison with Sonnet 5.5 and Fable 5.1, and any refusal fallback to another model.
+- **Route:** no API spend. Calls go through Claude Code's scripted mode (`claude -p`) on the user's existing Claude Pro login.
+  - Already installed and logged in: Claude Code 2.1.283 on Windows, reachable from WSL through interop; `claude auth status` shows `authMethod: claude.ai`, `subscriptionType: pro`.
+  - *Flags:*
+    - `--safe-mode`, because `--bare` ignores subscription logins;
+    - `--tools ""` and `--disallowedTools "mcp__*"`;
+    - `--system-prompt-file`, `--json-schema`, `--effort`, `--output-format json`;
+    - `--no-session-persistence`.
+  - *Alternatives considered:* the paid API (≈ $75–100 for this plan); other providers' free tiers (Gemini API, GitHub Models, OpenRouter free models, Groq / Cerebras), which mean a different model with changing limits; a local open model on the 8 GB GPU, which is far weaker and is A3's no-fine-tuning baseline.
+- *Consequences:*
+  - **No Batch API** and no API key.
+  - **Speed is bounded by Pro's usage limits** (5-hour and weekly windows, shared with the user's own Claude use).
+  - Spend is $0. The API-equivalent cost is still logged per call (`total_cost_usd`), as PLAN Principle 4 asks.
+  - Every answer's `modelUsage` must show Sonnet 5.5 only; anything else is discarded.
+- **At a usage limit the runner pauses** and the user restarts it ("resume when I say"). The on-disk answer cache makes restarts lossless.
+- **The 5 samples use the same prompt** (approved; *3 samples since D054*). Confidence = the average stated confidence over the samples.
+- **Raw answers are committed**, gzipped, per run (`results/a2/<run>/responses.jsonl.gz`), because runs can't be regenerated exactly.
+- *Key storage* (asked before the route changed; the user chose WSL `~/.profile`): it now applies only to the fallback. If interop fails, Claude Code is installed in WSL, and the token from `claude setup-token` goes in `~/.profile` as `CLAUDE_CODE_OAUTH_TOKEN`.
+
+### D053 — A2 ablations: the free set plus one paid ablation (minimal reasoning)
+- **2026-10-04 · A2 · by user (selection) / Claude (list) · Approved**
+- *Free* (re-scored from saved answers, always run):
+  - 1 / 3 / 5 samples;
+  - votes vs stated confidence;
+  - thresholds vs majority vote;
+  - direction rule vs the model's own direction;
+  - relations more than 10 turns apart dropped;
+  - LLM vs labeller turn types.
+  - The pilot sweeps also give k = 0/2/4/8 and effort low/medium/high on pilot maps.
+- *With new calls:* **minimal reasoning only.** A dev pass at effort `low`, with 1 sample, compared with sample 1 of the main run (225 calls, or 90 on 2 dev episodes if quota is tight).
+- *Dropped by the user:* no-definitions, random examples, and the contamination (memorisation) probe. Contamination is reported as a caveat, with the free dev → test comparison against A1 in A2.5.
+- *Expected total:* about 1,800 model calls, at $0 spend and an estimated $50–150 API-equivalent. *Updated by D054: about 1,350 calls.*
+
+### D054 — 3 samples per map instead of 5
+- **2026-10-04 · A2 · by user · Approved**
+- Every A2 run asks the model 3 times per map (dev 675 calls, test 33); the free sample ablation becomes 1 / 2 / 3, and majority vote becomes ≥ 2 of 3.
+- Total ≈ 1,350 calls (≈ $40–110 API-equivalent, $0 spent). Scores are coarser, which matters most for the rare-label thresholds; stated confidence still grades them.
+
+### D055 — A2.1 result: the harness is lossless and Sonnet-only; Sonnet doesn't think by default
+- **2026-10-04 · A2.1 · by Claude · Finding** (`results/a2/check.json`, `results/a2/smoke*/`; report §9)
+- *Built:*
+  - `common/serialise.py`;
+  - in `a2_llm/`: `schema.py`, `prompt.py` (TF-IDF example pool), `claude_cli.py`, `runner.py` (content-addressed answer cache, re-judging, pause at the usage limit), `parse.py` and `check.py`;
+  - the draft prompt `prompts/system_v0.md`.
+- *Gate:*
+  - **round trip 98.92 / 96.51** on 225 dev maps, exactly the no-pruning ceiling, with 0 invalid maps;
+  - 3 samples were read by eye;
+  - prompts are 5.5k / 21.5k / 37.6k characters (median) at k = 0 / 4 / 8;
+  - 8 valid answers;
+  - a re-run sends 0 calls.
+- *Two fixes found by the smoke test:*
+  1. Claude Code sends a side request to **Haiku 4.5 to name the session**. `CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1` removes it: it must be forwarded with `WSLENV=…/w` (`/u` forwards the wrong way, which was the first attempt's bug). Effort is pinned the same way, through `CLAUDE_CODE_EFFORT_LEVEL`, because the user's global settings set `effortLevel: medium`. The verification call shows Sonnet 5.5 only. The 3 earlier answers are kept: Sonnet wrote them, and Haiku only wrote a ~15-token title.
+  2. The runner **retried a failure that was certain to repeat** (the strict model check), wasting 6 of the 12 calls. Now only transient failures are retried, and acceptance is re-judged from the saved results.
+- *Measured:*
+  - 12 calls, 4–9 s each;
+  - ~6–8k input tokens at k = 2, of which the cached prefix is ~2k (system prompt + schema tool, no Claude Code prompt);
+  - **$0.374 API-equivalent** in total (Claude Code reports $0.795, with `costBasis: unknown` for Sonnet 5.5); $0 spent.
+- *Findings for A2.2:*
+  - **thinking tokens were 0 at effort medium and high.** Sonnet 5.5's adaptive thinking chose not to reason before writing the structured answer, and it can't be forced on or off;
+  - the samples vary (19 vs 21 relations on one map);
+  - it over-links (13 and 19–21 relations listed against 11 and 12 in gold);
+  - the whole plan is only a few hours of calls; Pro quota is the bottleneck.
+- *Proposed for A2.2* (adds 3 settings to the pilot sweep): before the effort sweep, test what makes Sonnet reason: a think-first instruction in the system prompt, the `ultrathink` keyword, and effort `xhigh`. If none of them does, the minimal-reasoning ablation (D053) has nothing to compare against and is replaced by a comparison of these levers.

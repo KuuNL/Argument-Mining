@@ -1,0 +1,140 @@
+T1  Helle Thorning-Schmidt: Fog fog you are not keen on wearing masks
+    [P1] Unknown Speaker is not keen on wearing masks
+T2  Helle Thorning-Schmidt: Fog fog would you rather be served by someone wearing a face mask
+    [P2] Unkown Speaker would or would not prefer to be served by someone wearing a face mask
+T3  James Graham: I just can't wait to be served by someone
+    [P3] James Graham just can't wait to be served by someone
+T4  James Graham: A pint would go down baling
+    [P4] a pint would go down well for James Graham
+T5  James Graham: I this it would become the new normal
+    [P5] James Graham thinks that being served with a mask would become the new normal
+T6  James Graham: I think it is individual choice
+    [P6] James Graham thinks wearing a mask is an individual choice
+T7  James Graham: I don't know how you would legislate for it
+    [P7] James Graham doesn't know how you would legislate for the wearing of a mask
+T8  Fiona Bruce: Andy, where do you stand on the discussion about face coverings or face masks
+    [P8] Andy Burnham believes xxx on the discussion about face coverings or face masks
+T9  Andy Burnham: I think we are going to have to work quite hard to build confidence in the public to go back into the industries and support the cultural venues and restaurant and bars
+    [P9] Andy Burnham thinks the UK governement are going to have to work quite hard to build confidence in the public to go back into the industries and support the cultural venues and restaurant and bars
+T10  Andy Burnham: If they can help build that confidence, then why not
+    [P10] if masks can help build confidence in the public to go back into industries then there is no harm in wearing them
+T11  Andy Burnham: sometimes people can see a face mask and think it is someone being distruct if you will around them
+    [P11] sometimes people can see a face mask and think it is someone being distrustful of those around them
+T12  Andy Burnham: As James said, it is the opposite
+T13  James Graham: it is the opposite
+T14  Andy Burnham: It is quite a public spirited thing to do
+    [P12] wearing a mask is quite a public spirited thing to do
+T15  Andy Burnham: It is reducing the risk of you giving the infection to other people
+    [P13] wearing a mask is reducing the risk of you giving the Coronavirus to other people
+Propositions not placed at any turn:
+    [P14] people are not being distrustful of those around them when they wear a mask
+
+Links to type: T1-P1, T2-P2, T3-P3, T4-P4, T5-P5, T6-P6, T7-P7, T8-P8, T9-P9, T10-P10, T11-P11, T14-P12, T15-P13
+
+Gold answer:
+{
+ "illocutions": [
+  {
+   "link": "T1-P1",
+   "type": "Asserting"
+  },
+  {
+   "link": "T2-P2",
+   "type": "Pure Questioning"
+  },
+  {
+   "link": "T3-P3",
+   "type": "Asserting"
+  },
+  {
+   "link": "T4-P4",
+   "type": "Asserting"
+  },
+  {
+   "link": "T5-P5",
+   "type": "Asserting"
+  },
+  {
+   "link": "T6-P6",
+   "type": "Asserting"
+  },
+  {
+   "link": "T7-P7",
+   "type": "Asserting"
+  },
+  {
+   "link": "T8-P8",
+   "type": "Pure Questioning"
+  },
+  {
+   "link": "T9-P9",
+   "type": "Asserting"
+  },
+  {
+   "link": "T10-P10",
+   "type": "Rhetorical Questioning"
+  },
+  {
+   "link": "T11-P11",
+   "type": "Asserting"
+  },
+  {
+   "link": "T14-P12",
+   "type": "Asserting"
+  },
+  {
+   "link": "T15-P13",
+   "type": "Asserting"
+  }
+ ],
+ "relations": [
+  {
+   "type": "Rephrase",
+   "from": "P3",
+   "to": "P2",
+   "confidence": "high"
+  },
+  {
+   "type": "Rephrase",
+   "from": "P4",
+   "to": "P3",
+   "confidence": "high"
+  },
+  {
+   "type": "Inference",
+   "from": "P7",
+   "to": "P6",
+   "confidence": "high"
+  },
+  {
+   "type": "Rephrase",
+   "from": "P9",
+   "to": "P8",
+   "confidence": "high"
+  },
+  {
+   "type": "Inference",
+   "from": "P10",
+   "to": "P9",
+   "confidence": "high"
+  },
+  {
+   "type": "Inference",
+   "from": "P12",
+   "to": "P14",
+   "confidence": "high"
+  },
+  {
+   "type": "Inference",
+   "from": "P13",
+   "to": "P12",
+   "confidence": "high"
+  },
+  {
+   "type": "Conflict",
+   "from": "P14",
+   "to": "P11",
+   "confidence": "high"
+  }
+ ]
+}

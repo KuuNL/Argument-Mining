@@ -1,0 +1,139 @@
+T1  Fiona Bruce: Do you think we could be doing that kind of thing here
+    [P1] Helle Thorning-Schmidt does or does not think we could be doing similar innovative education like Denmark
+T2  Helle Thorning-Schmidt: Why not?
+T3  Helle Thorning-Schmidt: We have empty museums, empty theatres, empty sports facilities
+    [P2] we have empty museums, empty theatres, empty sports facilities
+T4  Helle Thorning-Schmidt: Why not use those facilities and give of a different kind of education?
+    [P3] we should use those empty facilities and give of a different kind of education
+T5  Helle Thorning-Schmidt: What I am seeing in Danish schools, yesterday I just saw a report, children were getting sailing education in the sea
+    [P4] Danish children were getting sailing education in the sea
+T6  Helle Thorning-Schmidt: So why not actually use this time to think differently about education and team up
+    [P5] we should actually use this time to think differently about education and team up to create innovative education like Denmark
+T7  Helle Thorning-Schmidt: it can only be done by local authorities
+    [P6] creating innovative education like Denmark can only be done by local authorities
+T8  Helle Thorning-Schmidt: It can't be dictated by the government
+    [P7] creating innovative education like Denmark can't be dictated by the government
+T9  Helle Thorning-Schmidt: That's another reason why I think the government needs to have much more consultation with the four nations of this country
+    [P8] local authorities creating innovative education instead of the government is another reason why Helle Thorning-Schmidth thinks the government needs to have much more consultation with the four nations of this country
+T10  Helle Thorning-Schmidt: with local authorities, with cities
+    [P9] the government needs to have much more consultation with the local authorities and cities of this country
+T11  Helle Thorning-Schmidt: to make sure this can happen in a smooth way
+    [P10] the government needs to have much more consultation with the local authorities to make sure creating innovative education like Denmark can happen in a smooth way
+T12  Helle Thorning-Schmidt: I would really advise to take the heat out of this
+    [P11] Helle Thorning-Schmidt would really advise to take the heat out of this disagreement between the government and local authorities
+T13  Helle Thorning-Schmidt: nothing good comes from this row that we have seen over the last week
+    [P12] nothing good comes from this row between the government and local authorities about innovative education that we have seen over the last week
+Propositions not placed at any turn:
+    [P13] we should be doing innovative education like Denmark here
+
+Links to type: T1-P1, T3-P2, T4-P3, T5-P4, T6-P5, T7-P6, T8-P7, T9-P8, T10-P9, T11-P10, T12-P11, T13-P12
+
+Gold answer:
+{
+ "illocutions": [
+  {
+   "link": "T1-P1",
+   "type": "Asserting"
+  },
+  {
+   "link": "T3-P2",
+   "type": "Asserting"
+  },
+  {
+   "link": "T4-P3",
+   "type": "Asserting"
+  },
+  {
+   "link": "T5-P4",
+   "type": "Asserting"
+  },
+  {
+   "link": "T6-P5",
+   "type": "Asserting"
+  },
+  {
+   "link": "T7-P6",
+   "type": "Asserting"
+  },
+  {
+   "link": "T8-P7",
+   "type": "Asserting"
+  },
+  {
+   "link": "T9-P8",
+   "type": "Asserting"
+  },
+  {
+   "link": "T10-P9",
+   "type": "Asserting"
+  },
+  {
+   "link": "T11-P10",
+   "type": "Asserting"
+  },
+  {
+   "link": "T12-P11",
+   "type": "Asserting"
+  },
+  {
+   "link": "T13-P12",
+   "type": "Asserting"
+  }
+ ],
+ "relations": [
+  {
+   "type": "Inference",
+   "from": "P2",
+   "to": "P13",
+   "confidence": "high"
+  },
+  {
+   "type": "Inference",
+   "from": "P3",
+   "to": "P13",
+   "confidence": "high"
+  },
+  {
+   "type": "Inference",
+   "from": "P4",
+   "to": "P3",
+   "confidence": "high"
+  },
+  {
+   "type": "Rephrase",
+   "from": "P6",
+   "to": "P5",
+   "confidence": "high"
+  },
+  {
+   "type": "Inference",
+   "from": "P6",
+   "to": "P10",
+   "confidence": "high"
+  },
+  {
+   "type": "Rephrase",
+   "from": "P7",
+   "to": "P6",
+   "confidence": "high"
+  },
+  {
+   "type": "Rephrase",
+   "from": "P9",
+   "to": "P8",
+   "confidence": "high"
+  },
+  {
+   "type": "Inference",
+   "from": "P12",
+   "to": "P11",
+   "confidence": "high"
+  },
+  {
+   "type": "Rephrase",
+   "from": "P13",
+   "to": "P1",
+   "confidence": "high"
+  }
+ ]
+}

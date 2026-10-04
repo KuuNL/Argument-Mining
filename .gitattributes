@@ -1,3 +1,4 @@
 # Store text with LF line endings so Windows git and WSL git agree on file contents.
 * text=auto eol=lf
 *.pdf binary
+*.gz binary
