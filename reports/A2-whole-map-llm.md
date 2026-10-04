@@ -1,22 +1,25 @@
 # A2 — A whole-map language model for argument relations
 
-> **What this is:** the report on approach A2, written for readers new to the project. Terms are explained where they first appear, and §3 collects them. It starts as the plan and the reasons behind it, and results are added as each phase finishes.
-> **Status:** A2.1 (setup) and A2.2 (prompt development) passed (§9). Next: A2.3, the dev run, on the user's go.
-> **Evidence (as phases finish):** [`../results/a2/`](../results/a2/). Decisions D051–D054 are in [`../decisionlog.md`](../decisionlog.md).
+> **What this is:** the report on approach A2, written for readers new to the project. Terms are explained where they first appear, and §3 collects them.
+> **Status:** A2.1 (setup) and A2.2 (prompt development) are done. Next is A2.3, the dev run (675 calls, about 2.5 hours), on the user's go.
+> **Evidence:** [`../results/a2/`](../results/a2/) (summaries, scores and every raw model answer). Decisions D051–D059 are in [`../decisionlog.md`](../decisionlog.md).
 
 ## In one minute
-- **The task.** A televised debate is turned into a *map*: **propositions** (claims, each a cleaned-up version of something said) and **turns** (who said what, in order). A system must say which propositions **support** (Inference), **attack** (Conflict) or **restate** (Rephrase) which others. It must also say *how* each turn was said (asserting, questioning, …).
-- **Why A2.** Our first system (A1, a fine-tuned classifier) judges one pair of propositions at a time. It wins overall, but at finding relations it is no better than the best 2024 systems. It misses most attacks, and it can't weigh competing conclusions against each other.
-- **The idea.** Give a strong language model, **Claude Sonnet 5.5**, the *whole* map and have it list every relation at once, reasoning across the map. Ask it 3 times. How often, and how confidently, a relation is listed becomes its score, and tuned thresholds turn scores into decisions.
-- **Cost: $0.** Calls run on an existing Claude Pro subscription through Claude Code's scripted mode. The price is speed, because the subscription has usage limits. The cost on the paid API is still measured and reported.
-- **Plan.** Five gated phases: setup → prompt development on training maps → full dev run → assembly and ablations → one test run.
+- **The task.** A televised debate is turned into a *map*: **propositions** (claims) and **turns** (who said what, in order). A system must say which propositions **support** (Inference), **attack** (Conflict) or **restate** (Rephrase) which others, and *how* each turn was said (asserting, questioning, …).
+- **Why A2.** Our first system, A1, judges one pair of propositions at a time. It wins overall, but at finding relations it is no better than the best 2024 systems. It misses most attacks, and it can't weigh competing conclusions against each other.
+- **The idea.** Give **Claude Sonnet 5.5** the *whole* map and have it list every relation at once. Ask 3 times. How often, and how confidently, a relation is listed becomes its score, and tuned thresholds turn scores into decisions.
+- **Cost: $0.** Calls go through Claude Code on an existing Claude Pro subscription. The API-equivalent price is measured: $10 so far.
+- **Found so far:**
+  - **Reasoning is the strongest lever.** Sonnet only reasons before answering at effort `xhigh`, and that adds about 11 points of focused F1 on the pilot.
+  - **Worked examples help** (+4–5 points), and **a prompt revision** driven by the errors fixed the main confusion (Rephrase read as Inference).
+  - **The configuration is now frozen:** prompt v1, 4 worked examples, effort `xhigh`, 3 samples.
 
 ---
 
 ## 1. The problem
 
 ### 1.1 Debate maps
-Maps come from BBC *Question Time* and follow Inference Anchoring Theory (IAT), which keeps *what was said* apart from *what it means*:
+Maps come from BBC *Question Time*. They follow Inference Anchoring Theory (IAT), which keeps *what was said* apart from *what it means*:
 
 ```mermaid
 flowchart RL
@@ -39,20 +42,19 @@ flowchart RL
   classDef given fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
   class T1,T2,T3,P1,P2,P3 given
 ```
-*Figure 1: a three-turn map. Blue boxes are the input. The arrows between propositions (Task A) and the dotted arrows from turns (Task B) are what a system must predict.*
+*Figure 1: a three-turn map (illustrative). Blue boxes are the input. The arrows between propositions (Task A) and the dotted arrows from turns (Task B) are what a system must predict.*
 
-- **Input:** the turns in order, with speakers, and the propositions, unconnected.
 - **Task A, relations (ARI):** for every pair of propositions, the relation and its direction.
-  - *Inference* points premise → conclusion. Its direction varies: 53% point back to something said earlier, 47% forward.
-  - *Conflict* and *Rephrase* point from the later statement to the earlier one in 98% of cases.
-  - An answer to a question counts as a *Rephrase* of the question.
+  - *Inference* points premise → conclusion, either way in time (53% back, 47% forward).
+  - *Conflict* and *Rephrase* point from the later statement to the earlier one (98%).
+  - An answer counts as a *Rephrase* of its question.
 - **Task B, illocutions (ILO):** which turn expresses which proposition, and how (Asserting, Pure / Assertive / Rhetorical Questioning, Agreeing, …).
-- **Data:** 1,478 annotated maps from 30 episodes (2020–21), with about 16 propositions each, plus 11 test maps (2020–23) whose answers stay sealed until a final run. The training maps are split **by episode** into train (1,250) and dev (228, from 5 episodes), so the same debate never sits on both sides.
+- **Data:** 1,478 annotated maps from 30 episodes (2020–21), about 16 propositions each. They're split **by episode** into train (1,250) and dev (228), so no debate sits on both sides. There are also 11 test maps whose answers stay sealed until a single final run.
 
 ### 1.2 How it is scored
-- **Pairs, not graphs.** Every ordered pair of propositions (about 240 per map) gets one label: Inference, Conflict, Rephrase or None. The official scorer compares labels pair by pair, computes **macro-F1 per map** (every label present counts equally), then averages over maps.
-- **General** F1 includes the None pairs. **Focused** F1 counts only pairs that have a true relation. **Global** is the mean of the Task A and Task B scores.
-- **The rare-label trap.** Conflict is absent from 57% of maps. In such a map, one invented Conflict adds a label that scores 0 and cuts that map's score from 100 to about 74. So rare labels may only be predicted with confidence.
+- **Pairs, not graphs.** Every ordered pair of propositions (about 240 per map) gets one label: Inference, Conflict, Rephrase or None. The official scorer computes **macro-F1 per map** (every label present counts equally), then averages over maps.
+- **General** F1 includes None pairs. **Focused** F1 counts only pairs with a true relation. **Global** is the mean of Tasks A and B.
+- **The rare-label trap.** 57% of maps have no Conflict. One invented Conflict there adds a zero-scoring label and cuts the map from 100 to about 74. Rare labels need confidence.
 
 ### 1.3 What came before
 
@@ -61,22 +63,24 @@ flowchart RL
 | Best 2024 entries | 55.3 / 35.9 | 81.2 / 72.1 | 67.05 / 48.25 |
 | Ours so far: A1 + ILO labeller | 51.4 / 30.8 | **92.6 / 84.3** | **72.01 / 57.53** |
 
-- **A trained ILO labeller** already links turns to propositions, finding 98.3% of links at 99.6% precision on dev, and types them well. A2 reuses its links.
-- **A1** is a fine-tuned ModernBERT that reads one pair plus the whole dialogue. On dev it finds 9% of Conflicts, and only 27% of the Inferences it predicts are right. Its limit is structural: it never sees its other decisions, so it can't compare candidate conclusions or keep a map consistent.
-- **The 2024 LLM entries** lost to fine-tuned encoders. They used weaker models and short contexts, and their free-text answers had to be parsed.
+- **The ILO labeller** (a trained ModernBERT) links turns to propositions: 98.3% of links found at 99.6% precision on dev. A2 reuses these links.
+- **A1** (a fine-tuned ModernBERT, one pair at a time) finds 9% of dev Conflicts, and only 27% of its Inferences are right. It never sees its other decisions.
+- **The 2024 LLM entries** lost to fine-tuned encoders: weaker models, short contexts, and free-text answers that had to be parsed.
 
 **A2's question:** does a current model that reasons over the whole map find relations, especially attacks and directions, better than a pairwise classifier?
 
 ---
 
-## 2. The approach
+## 2. How A2 works
+
+### 2.1 The pipeline
 
 ```mermaid
 flowchart LR
   map_in[("Debate map<br/>turns + propositions")] --> lab["ILO labeller<br/>links turns to propositions"]
   lab --> ser["Write the map as text<br/>T1… turns, P1… propositions"]
-  pool[("Training maps<br/>with answers")] --> ex["Pick k similar<br/>worked examples"]
-  ser --> llm["Claude Sonnet 5.5<br/>3 samples per map"]
+  pool[("Training maps<br/>with answers")] --> ex["Pick 4 similar<br/>worked examples"]
+  ser --> llm["Claude Sonnet 5.5<br/>3 answers per map"]
   ex --> llm
   llm --> sc["Score each pair<br/>confidence-weighted votes"]
   sc --> dec["Thresholds<br/>per relation type"]
@@ -92,27 +96,77 @@ flowchart LR
 ```
 *Figure 2: the A2 pipeline. Yellow = models, green = deterministic steps, blue = data.*
 
-1. **Write the map as text.** Turns become T1, T2, … in dialogue order. Each turn shows its speaker, its words and the proposition(s) the ILO labeller linked to it. Propositions are renumbered P1, P2, … so the original node IDs, which leak the answer, never appear.
-2. **Prompt.** A fixed *system prompt* (the rules) plus a *user message* holding k worked examples (similar training maps with their answers) and then the target map.
-3. **Call the model 3 times** with the same prompt. Each answer is JSON forced to match a schema: a list of relations, each with a confidence, and a type for each linked turn.
-4. **Score each pair:** the average over the 3 answers of the stated confidence (high 1, medium ⅔, low ⅓, absent 0).
-5. **Decide:** a pair keeps its best-scoring relation only if that score clears its type's threshold, tuned on dev. Conflict and Rephrase direction comes from dialogue order (later → earlier).
-6. **Assemble** a complete, valid map and score it with the official logic.
+### 2.2 One model call: what goes in, what comes out
+**In** (about 10k tokens), as two parts:
+1. **The system prompt** ([`system_v1.md`](../a2_llm/prompts/system_v1.md), 3.6k characters, the same for every map). It holds the task, definitions of the 3 relations and 7 turn types, the direction rules, the annotators' habits as measured on 1,250 maps, and what each confidence level means.
+2. **The user message**: 4 worked examples, then the map to annotate. Every map is written the same way (shown with the illustrative map of Figure 1):
 
-**What the model sees and returns** (a shortened example):
 ```text
-T1  Host: should NHS staff get a pay rise
-    [P1] NHS staff should get a pay rise
+# Example 1 … # Example 4      ← similar training maps, each followed by "Answer:" and the annotators' JSON
+
+# Map to annotate
+T1  Host: should NHS staff get a pay rise          ← turn, in dialogue order: "Speaker: words"
+    [P1] NHS staff should get a pay rise           ← the proposition this turn expresses (link from the ILO labeller)
 T2  Minister: yes, they deserve one
     [P2] NHS staff deserve a pay rise
 T3  Minister: they worked through the pandemic
     [P3] NHS staff worked through the pandemic
+
+Links to type: T1-P1, T2-P2, T3-P3                 ← the turn–proposition pairs whose type is asked for
 ```
+
+**Out** (about 1.7k tokens, of which ~1k is unseen reasoning; ~13 s): JSON that must match a per-map *schema*, so only this map's IDs and the allowed labels can appear:
 ```json
-{"relations":   [{"type": "Rephrase",  "from": "P2", "to": "P1", "confidence": "high"},
-                 {"type": "Inference", "from": "P3", "to": "P2", "confidence": "high"}],
- "illocutions": [{"turn": "T1", "proposition": "P1", "type": "Pure Questioning"}, …]}
+{"illocutions": [{"link": "T1-P1", "type": "Pure Questioning"}, {"link": "T2-P2", "type": "Asserting"}, …],
+ "relations":   [{"type": "Rephrase",  "from": "P2", "to": "P1", "confidence": "high"},
+                 {"type": "Inference", "from": "P3", "to": "P2", "confidence": "medium"}]}
 ```
+
+**Then, in Python:**
+1. **Check the answer:** Sonnet 5.5 wrote it, and it fits the schema.
+2. **Save it** as one file.
+3. **Map the P / T labels back** to the original node IDs.
+4. **Score each pair:** high = 1, medium = ⅔, low = ⅓, averaged over the 3 answers.
+5. **Apply the thresholds** and build the completed map.
+
+### 2.3 Where it runs, and why
+
+```mermaid
+flowchart LR
+  subgraph PC ["Windows PC"]
+    files[("Project folder<br/>maps, prompts, saved answers")]
+    subgraph WSL ["WSL: Ubuntu inside Windows"]
+      py["Python pipeline<br/>a2_llm/"]
+    end
+    cc["claude.exe<br/>Claude Code, logged in to Pro"]
+  end
+  api[["Anthropic<br/>Claude Sonnet 5.5"]]
+  files --> py
+  py -->|"prompt"| cc
+  cc -->|"request"| api
+  api -->|"answer"| cc
+  cc -->|"result JSON"| py
+  py -->|"answer, scores"| files
+```
+*Figure 3: one call's path. Everything except the model itself runs on the local PC.*
+
+- **Why WSL.** The project's Python runs inside WSL (Ubuntu running inside Windows), because Windows Smart App Control blocks PyTorch's unsigned libraries. A2 itself needs no GPU, but it reuses the project's loader, scorer and A1's decision and map-assembly code, which live in that environment.
+- **Why Claude Code.** Calling the model through Claude Code (`claude -p`, its scripted mode) uses the user's Claude Pro subscription instead of paid API credit.
+  - With all tools switched off (`--tools ""`), our own system prompt (`--system-prompt-file`) and project files ignored (`--safe-mode`), it is a plain model call.
+  - `--json-schema` enforces the answer format.
+  - `--effort` sets the reasoning level.
+- **How Python reaches it.** WSL can start Windows programs directly. Python launches `claude.exe` once per call, passes the user message on its input and reads one JSON result back. That result holds the answer, token counts, timing and the model that answered.
+  - Two settings go along as environment variables. One switches off a side request in which Claude Code asks a smaller model to title the session; the other pins the effort level. Variables only cross from WSL to Windows when listed in `WSLENV` with `/w`.
+- **Saving and resuming.** Each answer is saved as one file named by a fingerprint (hash) of the exact request. A request already answered is never sent again, so a stopped run restarts where it left off. If the subscription's usage limit is reached, the run stops and waits for the user. Each run's answers are also exported to `results/a2/<run>/responses.jsonl.gz` and committed: without a seed, they are the only exact record.
+
+### 2.4 Which data feeds which step
+
+| Data | Used as | Does the model see its answers? |
+|---|---|---|
+| Training maps (1,231 usable) | **Worked examples**, with their answers | Yes: that's what examples are for |
+| Pilot: maps from 3 training episodes | **Targets** for prompt development (§5, A2.2) | No; answers are only used to score. Their debates and speakers are removed from the example pool |
+| Dev maps (225) | **Targets** for the honest score and thresholds (A2.3) | No; turn links come from the ILO labeller, as on test |
+| Test inputs (11) | **Targets**, once (A2.5) | No |
 
 ---
 
@@ -120,20 +174,22 @@ T3  Minister: they worked through the pandemic
 
 | Term | Meaning here |
 |---|---|
-| **Language model (LLM)** | A model that reads text and writes text. Sonnet 5.5 is Anthropic's mid-size current model; it can reason internally before answering. |
-| **System prompt / user message** | The fixed instructions (same for every map) vs. the per-map content (examples + the map). |
+| **LLM** | A model that reads and writes text. Sonnet 5.5 is Anthropic's mid-size current model and can reason internally before answering. |
+| **System prompt / user message** | The fixed rules (same for every map) vs. the per-map content (examples + the map). |
 | **Worked examples** ("few-shot") | Solved maps shown before the target, so the model copies the annotators' style rather than its own idea of "argument". |
-| **Retrieval** | Choosing the k examples most similar to the target: TF-IDF word vectors of each map's text, compared by cosine similarity. |
-| **Structured output** | The answer is forced to match a JSON Schema. Allowed proposition IDs are listed per map (an *enum*), so an invalid ID can't be written. |
-| **Reasoning effort** | How much the model may think before answering (`low` … `max`). Sonnet 5.5 decides for itself per step. On this task it didn't think at all at `medium` or `high`, and thought on every map only at `xhigh` (D056). |
-| **Sampling / self-consistency** | Asking the same prompt several times. Answers differ slightly, and agreement between them measures confidence. Sonnet 5.5 doesn't accept a temperature or seed, so its built-in randomness provides the variation. |
-| **Confidence-weighted vote** | A relation's score = the average of its stated confidence over the 3 samples (0 when a sample doesn't list it). |
-| **Decision layer / thresholds** | Per-type minimum scores (Inference, Conflict, Rephrase) chosen to maximise the per-map metric; the guard against the rare-label trap. |
-| **Cross-fitting** | Honest tuning: thresholds are tuned on 4 dev episodes and scored on the 5th, rotating, so the reported number isn't flattered by tuning on the same maps. |
-| **Claude Code scripted mode** | `claude -p`, Anthropic's coding tool run as a command. With all tools switched off and our own system prompt, it is a plain model call on the user's subscription. |
-| **Usage limits** | A Claude Pro subscription allows a certain amount of use per 5-hour window and per week, shared with the user's own Claude use. |
-| **Prompt caching** | Repeated prompt beginnings are stored on the server and re-read cheaply. The 3 samples of a map share one prefix. |
-| **Contamination** | The model may have seen the corpus, or the published 2024 test answers, during its training. |
+| **Retrieval (TF-IDF)** | Choosing the examples most similar to the target: each map becomes a vector of weighted word counts, compared by cosine similarity. |
+| **Structured output / schema** | A JSON format the answer must match. Allowed IDs are listed per map, so an invalid ID can't be written. |
+| **Reasoning effort** | How much the model may think before answering (`low` … `max`). Sonnet 5.5 decides for itself. On this task it reasoned only at `xhigh`. |
+| **Sampling / self-consistency** | Asking the same prompt several times. Answers differ, and agreement measures confidence. No temperature or seed can be set. |
+| **Confidence-weighted vote** | A relation's score: its stated confidence (high 1, medium ⅔, low ⅓) averaged over the 3 answers, with 0 when an answer omits it. |
+| **Thresholds / decision layer** | Minimum scores per relation type, tuned to maximise the per-map metric; the guard against the rare-label trap. |
+| **Cross-fitting** | Honest tuning: tune on 4 dev episodes, score the 5th, rotate. |
+| **WSL / interop** | Windows Subsystem for Linux, which runs Ubuntu inside Windows. *Interop* lets a Linux program start a Windows program. |
+| **Claude Code scripted mode** | `claude -p`: Anthropic's coding tool run as a command. With tools off and our own prompt, a plain model call on a subscription. |
+| **Usage limits** | A Pro subscription allows a certain amount of use per 5 hours and per week, shared with the user's own Claude use. |
+| **Prompt caching** | Repeated prompt beginnings are re-read cheaply. In practice Claude Code cached only the system prompt and schema (~2k tokens). |
+| **Pilot** | A small set of training maps used to choose settings and revise the prompt, so dev stays untouched. |
+| **Contamination** | The model may have seen the corpus, or the published 2024 test answers, in training. |
 | **Ablation** | Switching off one component, re-scoring, and reading off what it contributed. |
 
 ---
@@ -142,245 +198,173 @@ T3  Minister: they worked through the pandemic
 
 | Choice | Alternatives considered | Why |
 |---|---|---|
-| **Claude Sonnet 5.5 via a Claude Pro subscription** (Claude Code scripted mode) | Paid API; other providers' free tiers (Gemini, GitHub Models, OpenRouter, Groq); a local open model | $0, and it's the chosen model. Claude Code is already installed and logged in. Free tiers would mean a different, changing model; a local 8 GB model is far weaker and overlaps approach A3. Cost: speed (usage limits). |
-| **The whole map in one call** | One call per pair | The model can compare conclusions and stay consistent, which is exactly A1's blind spot. One call per map instead of ~240. |
-| **The labeller's turn links are given** | The model links turns itself | The labeller is already 98.3% / 99.6% accurate. Giving the links keeps A2's measurement on relations and shortens the prompt. |
-| **Structured output, per-map ID enums** | Free text, parsed afterwards | Unparseable output sank the 2024 LLM entries. Here every answer is valid by construction. |
-| **Retrieved worked examples**, k chosen in the pilot | No examples; fixed examples | The official annotation guide is 2 pages, too thin to define the annotation style. Examples carry the conventions, and similar maps carry the most relevant ones. |
-| **3 samples of the same prompt**, confidence-weighted | 1 sample; rotating examples per sample | Thresholds need graded scores to avoid the rare-label trap. The same prompt is cached, so samples 2–3 are cheap. Fewer samples can be tested for free by subsampling. |
-| **A1's decision layer, cross-fitted** | Plain majority vote | The same protection and the same honest estimate as A1, so the two are directly comparable. Majority vote is tested for free. |
-| **Prompt developed on training maps** (a 50-map pilot) | Developing on dev | A2 never trains, so training maps are as unseen to it as dev. Dev stays clean for thresholds and the comparison with A1. |
-| **Direction rule for Conflict / Rephrase** (later → earlier) | The model's own direction | Right 98% of the time and the same as A1. The model's own direction is a free ablation. |
-| **The LLM also types each turn**, adopted only if better | A separate call; ARI only | Turn typing is where Task B's remaining gap is (dev 90 → 97 if every type were right). It costs a few output tokens. |
-| **Raw responses committed** (gzipped) | Kept local | Without a seed, no run can be regenerated exactly. The saved answers are the evidence behind every number. |
-| **The runner pauses at a usage limit** | Auto-resume | The subscription is shared with the user's own work. The user restarts the run, and nothing is lost or re-sent. |
+| **Sonnet 5.5 via Claude Pro** (Claude Code) | Paid API; free tiers of other providers; a local open model | $0, and it's the user's chosen model. Free tiers mean a different, changing model; a local 8 GB model is far weaker and overlaps approach A3. Cost: speed. |
+| **The whole map in one call** | One call per pair | The model can compare conclusions and stay consistent, which is A1's blind spot. One call per map instead of ~240. |
+| **The labeller's turn links are given** | The model links turns itself | They're already 98.3% / 99.6% accurate. Giving them keeps A2's measurement on relations. |
+| **Structured output, per-map IDs** | Free text, parsed afterwards | Unparseable output sank the 2024 LLM entries. Here every answer is valid by construction. |
+| **4 retrieved worked examples** | 0, 2 or 8; fixed examples | The official guide is 2 pages, too thin to define the style. 4 is within noise of 8 at 40% fewer tokens (A2.2). |
+| **Effort `xhigh`** | medium, high | Only `xhigh` makes Sonnet reason on this task, worth +11 focused on the pilot (A2.2). |
+| **3 answers per map**, confidence-weighted | 1 answer; 5 answers | Thresholds need graded scores. 3 is the user's speed / quality trade-off (5 was planned). |
+| **A1's decision layer, cross-fitted** | Plain majority vote | The same protection and honest estimate as A1, so the two compare directly. Majority vote is tested for free. |
+| **Prompt developed on training maps** | Developing on dev | A2 never trains, so training maps are as unseen as dev. Dev stays clean. |
+| **Direction rule for Conflict / Rephrase** | The model's own direction | Right 98% of the time and the same as A1. The model's own direction is a free ablation. |
+| **The LLM also types each turn**, adopted only if better | ARI only | Turn typing holds Task B's remaining gap. The pilot shows 19/25 rare types right, where the labeller gets none. |
+| **Raw answers committed; pause at usage limits** | Local only; auto-resume | No seed means no exact rerun, so the answers are the evidence. The subscription is shared with the user. |
 
 ---
 
-## 5. Phased implementation plan
-Each phase ends with a **gate** that must pass before the next starts. Code goes in `a2_llm/`; the map-to-text step goes in the shared `common/`, because approaches A3 and A4 use the same text.
+## 5. Phase by phase
 
-| Phase | Builds | Gate | Model calls |
+| Phase | What | Status | Model calls |
 |---|---|---|---|
-| **A2.1 Setup** | Serialiser, schema, Claude Code caller, resumable runner, parser | Lossless round trip; 5 live calls verified | ~5 |
-| **A2.2 Prompt development** | Pilot set, example retrieval, system prompt; settings sweeps | Prompt and settings frozen from a pilot table | ≤ 400 |
-| **A2.3 Dev run** | 3 samples × 225 dev maps; thresholds; diagnostics | Honest dev ARI next to A1 | 675 |
-| **A2.4 Assembly + ablations** | Complete maps, illocution types, ablations | 225/225 valid maps; ablation table | 225 |
-| **A2.5 Test run + report** | One run on the 11 test maps | Scored once | 33 |
+| **A2.1 Setup** | Build and verify everything between a map and a score | **Done** | 12 |
+| **A2.2 Prompt development** | Choose examples and effort, and revise the prompt, on a pilot | **Done**: prompt v1, k = 4, `xhigh` | 249 |
+| **A2.3 Dev run** | 3 answers × 225 dev maps; thresholds; honest score next to A1 | Next | 675 |
+| **A2.4 Assembly + ablations** | Complete maps, turn types, ablations | Planned | 225 |
+| **A2.5 Test run** | The 11 test maps, once | Planned | 33 |
 
-### A2.1 Setup
-**Goal:** every step between a map and a score works and is verified before any real run.
-**Prerequisites:** a Claude Pro (or Max) subscription, and Claude Code ≥ 2.1.275 logged in with it (`claude auth status` shows `"authMethod": "claude.ai"`). Here that's Claude Code 2.1.283 on Windows, called from the WSL pipeline through Windows interop. No API key is needed.
+### A2.1 Setup — done
+**Built:**
+- `common/serialise.py` writes a map as text. It's shared with A3 and A4.
+- In `a2_llm/`:
+  - `schema.py`: the per-map answer format;
+  - `prompt.py`: the prompts and example retrieval;
+  - `claude_cli.py`: one call through Claude Code;
+  - `runner.py`: runs a list of calls, saves and resumes;
+  - `parse.py`: turns answers into pair scores in A1's format;
+  - `check.py`: the gate checks.
 
-1. **`common/serialise.py`:** `serialise(aif, name, links) → (text, ids)`.
-   - Turns are T1…Tn in dialogue order, written `Speaker: words`.
-   - Under each turn come its linked propositions, `[P3] text`. Propositions are numbered in dialogue order, ties broken by text. Propositions with no turn are listed last.
-   - Links are gold on training maps and the labeller's on dev and test maps.
-   - It also returns the P → node and T → node lookups.
-2. **`a2_llm/schema.py`:** the per-map JSON Schema.
-   - `relations`: a list of {`type` ∈ Inference / Conflict / Rephrase, `from`, `to` ∈ this map's P-ids, `confidence` ∈ low / medium / high}.
-   - `illocutions`: a list of {`turn`, `proposition` ∈ this map's linked pairs, `type` ∈ 7 types: Asserting, Pure / Assertive / Rhetorical Questioning, Default Illocuting, Agreeing, Challenging}.
-   - No extra fields are allowed anywhere.
-3. **`a2_llm/claude_cli.py`:** one model call:
-   `claude.exe -p --model claude-sonnet-5-5 --effort <E> --safe-mode --tools "" --disallowedTools "mcp__*" --permission-prompts none --no-session-persistence --system-prompt-file <S> --json-schema <J> --output-format json`
-   - The user message goes in on stdin. The call runs from an empty folder outside the repo.
-   - *Why these flags:*
-     - `--safe-mode` skips project files, hooks, plugins and memory. (`--bare` would too, but it can't use a subscription login.)
-     - `--tools ""` and the MCP deny make it a pure text task.
-     - `--system-prompt-file` replaces Claude Code's coding-assistant prompt entirely.
-     - `--no-session-persistence` keeps the calls out of the user's session history.
-   - **Reads** from the result JSON: `structured_output`, token `usage`, `modelUsage` (which model answered), `total_cost_usd` (the API-equivalent price), `duration_ms`, `num_turns` and `is_error`.
-   - **Failure handling:**
-     - a usage limit stops the run;
-     - a missing or invalid answer is retried up to 2 times;
-     - an answer from any model other than Sonnet 5.5 is discarded and queued again.
-4. **`a2_llm/runner.py`:** runs a named *run*: a queue of (map, sample) jobs with fixed settings.
-   - Each finished answer is saved as one file under `cache/a2/<run>/`, keyed by a hash of (model, effort, prompts, schema, sample number). A saved job is never sent again, so stopping and restarting resumes exactly.
-   - At a usage limit it prints the reset time and exits; the user restarts it.
-   - It logs time and tokens to `results/timing.csv`.
-   - `--export` writes `results/a2/<run>/responses.jsonl.gz`, which is committed.
-5. **`a2_llm/parse.py`:** turns answers into three things:
-   - (a) relations per sample, mapped back to node IDs (self-loops dropped; a pair listed twice keeps its most confident entry);
-   - (b) **pair scores in A1's format**: one row per unordered pair (A = the earlier proposition) with five scores [None, Inference A→B, Inference B→A, Conflict, Rephrase], so A1's decision code and the later combination with A1 work unchanged;
-   - (c) type votes per turn link.
-6. **`a2_llm/check.py`:** the gate checks below, with no model calls.
-7. **Smoke test:** about 5 live calls on 3 training maps.
-
-**Gate**
-- **Lossless round trip:** dev gold relations, written as if the model had answered, go through parse → assembly → official scorer and must give the pipeline ceiling, **98.92 / 96.51**. The small loss comes from the direction rule and the few pairs that carry two relations. This proves the IDs, parser and assembly lose nothing.
-- **Readable inputs:** 3 serialised maps are saved to `results/a2/samples/` and read by eye, including one with an unlinked proposition and one with a two-proposition turn.
-- **Prompt sizes:** estimated tokens for every dev and test map at k = 0, 4 and 8 examples.
-- **Smoke test:**
-  - every answer is valid;
-  - `modelUsage` shows Sonnet 5.5 only;
-  - input tokens match our prompt, so nothing hidden is added;
-  - a repeated prompt shows cache reads;
-  - re-running sends 0 new calls;
-  - seconds, tokens and API-equivalent $ per call are recorded.
-
-### A2.2 Prompt development (pilot)
-**Goal:** fix the prompt and settings on training maps, leaving dev untouched.
-1. **Pilot set:** 3 training episodes picked by a fixed seed, giving about 50 maps (at most 40 propositions, fully annotated), stratified by size. They're saved to `results/a2/pilot_maps.json`, and their episodes are removed from the example pool.
-2. **Examples (`a2_llm/examples.py`):** the pool is the other training maps with their gold answers. Each map gets a TF-IDF vector (scikit-learn) of its turns and propositions, and the k most similar maps become the worked examples. The choice is deterministic.
-3. **Starting system prompt (`a2_llm/prompts/system_v0.md`; the revisions in step 6 become v1 and v2):**
-   - the task, the relation definitions and direction rules, and linked / convergent / divergent arguments;
-   - answers rephrase questions;
-   - one-line definitions of the 7 turn types;
-   - measured conventions: most relations join neighbouring turns, 94.5% of Inferences stay within one speaker, Conflict appears in only 43% of maps, and a map has about 0.5 relations per proposition;
-   - how to use the confidence levels;
-   - "list a relation only if an annotator would".
-   - *Sources:* the 2-page annotation guide, the data-format spec and the project's exploratory analysis.
-4. **Sweep A, examples:** k ∈ {0, 2, 4, 8}, effort medium, 1 sample per map: 200 calls.
-5. **Sweep B, reasoning:** the best k at effort `xhigh`, on a 20-map size-stratified subset of the pilot (D057): 20 calls. A test showed only `xhigh` makes Sonnet 5.5 think on this task, while medium and high skip thinking (D056), so this is a no-thinking vs thinking comparison.
-6. **Read the errors and revise:**
-   - sort 10 pilot maps' errors by kind (missed Conflict, wrong direction, Inference vs Rephrase, over-linking, …) and revise the prompt;
-   - at most 2 rounds, each re-running the 20-map pilot once: ≤ 40 calls;
-   - then **freeze** the prompt. Capping the rounds limits overfitting to 50 maps.
-7. **Choose** by pilot ARI, general and focused (1 sample; every listed relation counts). When two settings are within about 3 points, which is within pilot noise, the cheaper one wins.
-
-**Gate**
-- A pilot table: for each setting, ARI general / focused, turn-typing accuracy on gold links, and tokens and seconds per call.
-- The frozen prompt and settings are committed.
-- Measured calls per usage window give a projected timeline. If it exceeds about 3 weeks, the dev ablation shrinks to 2 episodes first, and the user is asked before anything else is cut.
-
-### A2.3 Dev run and decision layer
-**Goal:** the honest dev score, directly comparable to A1.
-1. **The run:** all 225 dev maps in test-input format (no answers; the labeller's links), 3 samples each, frozen settings: 675 calls.
-2. **Pair scores** as in A2.1 step 5.
-3. **Thresholds** for Inference, Conflict and Rephrase, by coordinate ascent on mean per-map ARI general F1. This reuses A1's code (`a1_cross_encoder/decide.py`). Each pair keeps its best label if that clears its type's threshold.
-4. **Honest score:** leave-one-episode-out cross-fitting over the 5 dev episodes. The thresholds fitted on all of dev are kept for the test run.
-5. **Diagnostics:**
-   - precision, recall and F1 per type;
-   - Inference direction accuracy;
-   - maps with an invented Conflict;
-   - relations per map against gold (8.3);
-   - propositions that are the source of 2+ relations;
-   - convergent and divergent structures found;
-   - turn distances of the predicted relations.
-6. **Run-to-run spread:** each of the 3 samples is scored alone, giving a mean ± sd.
-7. **Overlap with A1:**
-   - pairs A2 gets right where A1 is wrong, and the reverse;
-   - the score if an oracle picked the better system for each pair.
-   - This is the input for the later combination of approaches.
-
-**Gate:** honest dev ARI next to A1's 50.50 / 32.61, with everything in `results/a2/v1/dev_report.json`.
-
-### A2.4 Assembly and ablations
-1. **Turn types:** for each labeller link, the LLM's type vote can replace the labeller's type when it clears a per-type threshold (cross-fitted). This is **adopted only if** honest dev ILO beats the labeller alone (90.08).
-2. **Complete maps:** relations, links and types, plus the unscored transition anchors that keep a map valid. This reuses A1's `build_map`. All 225 must pass the validator, and the official scorer gives dev ARI / ILO / Global next to A1.
-3. **Ablations:** see §6.
-
-**Gate:** 225/225 valid maps, and the ablation table.
-
-### A2.5 Test run and report
-1. **The run, on the user's go:** the 11 test inputs plus the labeller's links, 3 samples each (33 calls), with the thresholds from all of dev.
-2. **Scoring:** the maps are assembled, validated and saved **before** the answers are read. They are scored once with the official logic, and nothing is tuned afterwards.
-3. **Contamination check (free):** compare A2's dev → test change with A1's (+0.9 ARI). A much larger jump for A2 would suggest the model has seen the published test answers.
-4. **Report:** results, failure analysis against 2024's known failures, cost and time, and how to reproduce.
-
----
-
-## 6. Ablations
-Each one switches off a single component and re-scores on dev. The first six only re-score answers that are already saved. Two more come from the pilot sweeps. Only the last needs new model calls.
-
-| Ablation | What changes | Question it answers | New calls |
-|---|---|---|---|
-| Samples 1 / 2 / 3 | Subsample the 3 saved samples | Does asking several times help? | 0 |
-| Votes vs stated confidence | Score = vote share, or one sample's confidence, vs both | Which confidence signal works? | 0 |
-| Thresholds vs majority vote | Keep relations listed in ≥ 2 of 3 samples | Does the tuned decision layer help? | 0 |
-| Direction rule vs the model's | Conflict / Rephrase direction from the model | Is the order rule still needed? | 0 |
-| Whole-map reach | Drop relations more than 10 turns apart | Do the long-range relations the LLM finds count? | 0 |
-| LLM vs labeller turn types | Task B with and without the LLM's types | Does the LLM type turns better? | 0 |
-| Worked examples k = 0 / 2 / 4 / 8 | Pilot sweep | How much do examples help? | in pilot |
-| Effort medium vs xhigh | Pilot sweep (only `xhigh` makes it think, D056) | How much reasoning pays? | in pilot |
-| **Reasoning on / off (dev)** | The dev pass at whichever of medium (no thinking) or `xhigh` (thinking) the pilot did not choose, 1 sample, compared with sample 1 of the main run | **Does reasoning fix direction and Conflict?** The core A2 question | 225 (90 if quota is tight) |
-
-*Not run (user decision, 2026-10-04):* removing the written definitions, random instead of retrieved examples, and a memorisation probe for contamination. The free dev → test check in A2.5 stands in for the last.
-
-## 7. Budget and time
-- **Spend: $0.** Every call uses the Claude Pro subscription.
-- **Model calls:** about 1,350 in total (~5 setup, ≤ 400 pilot, 675 dev, 225 ablation, 33 test).
-- **API-equivalent cost:** an estimated $0.03–0.08 per call at Sonnet 5.5's API prices ($2 / $10 per million input / output tokens), so roughly $40–110 for all of A2. It is measured from each call's `total_cost_usd` and reported, so A2 can be compared with paid approaches.
-- **Time:** unknown until measured. Calls are estimated at 30–90 s, so 11–34 h of running in total, spread over the subscription's usage windows: likely 1–3 weeks of calendar time. A2.1 and A2.2 measure it.
-
-## 8. Risks
-
-| Risk | Mitigation |
+| Check | Result |
 |---|---|
-| Usage limits make A2 too slow | Measured in the pilot; the dev ablation shrinks first; the user decides anything beyond that |
-| Claude Code adds hidden context, or answers with another model | Checked on every answer: token counts against our prompt, and `modelUsage`. Answers from another model are discarded |
-| The schema flag misbehaves in scripted mode | Verified in the A2.1 smoke test. Fallback: JSON in the reply text, validated locally, retried on failure |
-| The 3 samples barely differ | Stated confidence still grades the relations; the free ablation shows which signal works |
-| The pilot is noisy (50 maps) | Differences under about 3 points are treated as ties, and the cheaper setting wins |
-| The prompt overfits the pilot | At most 2 revision rounds, and dev stays unseen until A2.3 |
-| Contamination | Stated as a caveat; the dev → test shift is compared with A1's |
-| Runs can't be repeated exactly (no seed) | Every raw answer is committed; every number is recomputed from them |
+| **Lossless:** the 225 dev maps' gold answers, fed through as if the model had written them | Score exactly the pipeline ceiling, **98.92 / 96.51**, with 0 invalid maps |
+| Readable input | 3 written-out maps in [`results/a2/samples/`](../results/a2/samples/) |
+| Prompt size (median) | 5.5k characters with no examples, 21.5k with 4, 37.6k with 8 |
+| Valid answers, Sonnet only | Yes, after switching off Claude Code's side request (a session title from a smaller model) |
+| Nothing hidden added | Yes: the cached prefix is only our system prompt plus the schema (~2k tokens) |
+| Restart sends nothing twice | Yes |
 
-## 9. Results
+*Lessons:*
+- Sonnet didn't reason at effort medium or high: 0 thinking tokens, answering straight into the schema.
+- Calls are fast (4–9 s).
+- A first version retried a failure that was certain to repeat, wasting 6 calls. Fixed.
 
-### A2.1 Setup — passed (2026-10-04)
-Evidence: [`../results/a2/check.json`](../results/a2/check.json), [`../results/a2/samples/`](../results/a2/samples/) and `results/a2/smoke*/` (summaries and raw answers).
+### A2.2 Prompt development (the pilot) — done
+**What the pilot is.** Maps from 3 training episodes, picked by a fixed seed and stratified by size: 50 maps, cut to 20 after the first sweep to save time. Each pilot call is one map, sent exactly as in §2.2:
+- **Input:** the map, with its turn links taken from the annotation (they stand in for the ILO labeller's links), plus 4 worked examples from *other* debates.
+- **Output:** one answer (1 sample).
+- **Scoring:** the answer is compared with the map's own annotation using the official per-map metric, in two ways:
+  - keeping every relation the model listed;
+  - keeping only those it marked medium or high.
+- **Also recorded:** Inference direction, turn types, tokens and seconds.
+- Only one thing changes between runs (examples, effort or prompt), so differences come from that setting. Differences under about 3 points (50 maps) or 5 points (20 maps) count as ties, and the cheaper setting wins.
 
-| Gate item | Result |
+**1. What makes Sonnet reason?** (3 maps, 9 calls)
+
+| Lever | Maps where it reasoned |
 |---|---|
-| Lossless round trip (225 dev maps) | **98.92 / 96.51**, exactly the pipeline ceiling; 0 invalid maps; every gold answer passes the schema |
-| Readable inputs | 3 maps in `results/a2/samples/` (an unlinked proposition, a two-proposition turn, a median map) |
-| Prompt size (dev / test, median) | k = 0: 5.5k / 6.0k characters · k = 4: 21.5k / 21.5k · k = 8: 37.6k / 39.3k. At about 2 characters per token, that's at most ~20k tokens |
-| Valid answers | 12 calls, 8 answers, all valid against the schema |
-| Only Sonnet 5.5 answers | Yes, after one fix: Claude Code made a side request to Haiku 4.5 that names the session (~4k tokens in, ~15 out). `CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1` removes it, and the verification call shows Sonnet 5.5 only |
-| No hidden context | Yes. A repeated prompt reads ~1.9–2.2k tokens from cache: our system prompt plus the schema tool, and no Claude Code prompt |
-| Resume without re-sending | A re-run sends 0 calls; saved answers are re-judged when the rules change |
-| Cost and time per answer | 4–9 s; 6–8k input and 0.4–1.3k output tokens (k = 2); **$0.02–0.04 API-equivalent**; spend $0 |
+| "Think it through first" in the system prompt | 0 / 3 |
+| Claude Code's `ultrathink` keyword | 1 / 3 |
+| **Effort `xhigh`** | **3 / 3** (~1k thinking tokens) |
 
-**What the smoke test taught us**
-- **Sonnet 5.5 didn't think.** Thinking tokens were 0 at effort `medium` and at `high`: the model answered straight into the schema. On Sonnet 5.5 thinking can't be forced on or off, because the model decides per step. A2.2 therefore first checks what makes it reason before the effort sweep can mean anything: a think-first instruction in the system prompt, Claude Code's `ultrathink` keyword, and effort `xhigh`.
-- **The samples vary.** Two samples of one map listed 19 and 21 relations, and the medium and high answers for another map differed in most relations. So self-consistency has variation to work with.
-- **It over-links.** It listed 13 and 19–21 relations where the annotators drew 11 and 12. The thresholds exist for this.
-- **Calls are fast.** 4–9 s instead of the 30–90 s estimated, so the whole plan is a few hours of calls. Pro's usage limits are the only bottleneck.
-- **Prompt caching is partial.** Claude Code caches only the system prompt and schema, not the user message, so repeated samples re-read most of the input.
-- **A mistake, fixed.** The first version also retried an answer that failed the strict "Sonnet only" check. That failure was certain to repeat, so 6 of the 12 calls were wasted. Retries now cover only transient failures, and acceptance is judged from the saved answer.
+**2. How many worked examples?** (50 maps, effort medium, prompt v0)
 
-### A2.2 Prompt development — passed (2026-10-05)
-Evidence: [`../results/a2/pilot_table.json`](../results/a2/pilot_table.json), `results/a2/pilot_errors_*.md`, [`../results/a2/pilot_maps.json`](../results/a2/pilot_maps.json).
-The pilot is 3 training episodes (11, 12, 26). Their debates and speakers are kept out of the example pool. The scores below are on training maps with gold turn links and 1 sample, so they compare *settings*; they aren't comparable with A1's dev score.
-
-**What makes Sonnet reason?** (3 maps, 9 calls) Only effort `xhigh` did, on all 3 maps. Effort medium or high, a think-first instruction and the `ultrathink` keyword produced no reasoning, or only sometimes.
-
-**Worked examples** (50 maps, effort medium):
-
-| k | ARI, every listed relation | ARI, medium + high only | Input tokens |
+| Examples | ARI, all listed | ARI, medium + high | Input tokens |
 |---|---|---|---|
 | 0 | 45.0 / 26.4 | 48.5 / 24.3 | 3.6k |
 | 2 | 47.6 / 30.5 | 50.8 / 29.2 | 6.8k |
 | **4** | **49.5 / 30.6** | **51.2 / 29.1** | 10.1k |
 | 8 | 50.7 / 31.5 | 52.2 / 30.3 | 16.5k |
 
-Examples help, with shrinking gains. k = 4 is within noise of k = 8 at 40% fewer tokens.
+**3. Reasoning, then the prompt revision** (20 maps, 4 examples)
 
-**Reasoning, and the prompt revision** (20 maps, k = 4):
-
-| Setting | ARI, every listed relation | ARI, medium + high only | Inference direction | Seconds per call |
+| Setting | ARI, all listed | ARI, medium + high | Inference direction | Seconds |
 |---|---|---|---|---|
-| Effort medium (no thinking), prompt v0 | 50.5 / 32.5 | 52.7 / 30.4 | 79% | 5.4 |
-| Effort `xhigh` (~1k thinking tokens), prompt v0 | 55.0 / 44.0 | 58.9 / 39.5 | 88% | 12.7 |
-| **Effort `xhigh`, prompt v1** | **57.2 / 42.8** | **61.9 / 42.0** | 88% | 13.7 |
+| Effort medium (no reasoning), prompt v0 | 50.5 / 32.5 | 52.7 / 30.4 | 79% | 5 |
+| Effort `xhigh` (reasons), prompt v0 | 55.0 / 44.0 | 58.9 / 39.5 | 88% | 13 |
+| **Effort `xhigh`, prompt v1** | **57.2 / 42.8** | **61.9 / 42.0** | 88% | 14 |
 
-- **Reasoning is the biggest lever found so far:** +4.5 general and +11.5 focused, and Inference direction rises from 79% to 88%. This is direct early evidence for A2's central question.
-- **Prompt v1** comes from reading the errors:
-  - the model read 47 of the annotators' Rephrases as Inference, so Rephrase now explicitly covers restating, narrowing or a sharper version of the same point, and Inference needs a *different* point;
-  - it invented far more Inferences than it got right, and in gold about half of all propositions start no relation (only 5% start two or more), so these facts are now in the prompt.
-  - Invented Inferences fell from 64 to 52.
-- **Turn types:** 97% right overall, and 19 of 25 non-Asserting turns. The ILO labeller never predicts the rare types, so A2.4's turn-type check looks promising.
-- **Frozen for the dev and test runs:** prompt v1, k = 4, effort `xhigh`, 3 samples. Pilot cost: 249 calls, $0 spent, no usage limit hit.
+*ARI is general / focused F1.*
+
+**Findings**
+- **Reasoning is the biggest lever:** +4.5 general and **+11.5 focused**, and direction rises from 79% to 88%. This is early evidence for A2's central question.
+- **Examples help with shrinking returns:** 4 is within noise of 8 at 40% fewer tokens.
+- **Prompt v1 came from reading the errors** ([`pilot_errors_pilot-k4.md`](../results/a2/pilot_errors_pilot-k4.md)):
+  - the model called 47 of the annotators' restatements "Inference", so Rephrase now explicitly covers repeating, narrowing or sharpening the same point, and Inference needs a *different* point as reason;
+  - it invented more Inferences than it found, while in the annotation about half of all propositions start no relation (5% start two or more); that fact is now in the prompt.
+  - Invented Inferences fell from 64 to 52. One revision was enough: the remaining gaps were within the noise of 20 maps.
+- **Turn types:** 97% right overall, and 19 of 25 rare (non-Asserting) types, which the ILO labeller misses entirely.
+- **Caveat:** these are training maps with annotated turn links and 1 answer each, so they compare settings. They aren't comparable with A1's dev score. A2.3 gives that.
+
+### A2.3 Dev run — next
+1. **Run:** 225 dev maps × 3 answers, at the frozen settings, with the ILO labeller's turn links (as on test).
+2. **Thresholds:** tune per relation type with A1's code, cross-fitted over the 5 dev episodes. This gives the **honest dev ARI next to A1's 50.50 / 32.61**.
+3. **Diagnostics:**
+   - per-type precision and recall;
+   - Inference direction;
+   - maps with an invented Conflict;
+   - relations per map;
+   - run-to-run spread;
+   - where A1 and A2 err differently, which is the input for a later combination.
+
+### A2.4 Assembly and ablations — planned
+1. **Turn types:** the LLM's types replace the labeller's only where they clear a tuned threshold, and only if honest dev ILO beats 90.08.
+2. **Complete maps:** must pass the validator (225/225), giving dev ARI / ILO / Global next to A1.
+3. **Ablations:** see §6.
+
+### A2.5 Test run — planned
+1. **The run:** the 11 test maps, 3 answers each, with thresholds from all of dev.
+2. **Scoring:** the maps are saved before the answers are read, scored once, and nothing is tuned afterwards.
+3. **Contamination check:** compare A2's dev → test change with A1's (+0.9 ARI).
+
+---
+
+## 6. Ablations
+Each ablation switches off one component and re-scores.
+
+| Ablation | Question | New calls | Status |
+|---|---|---|---|
+| Worked examples 0 / 2 / 4 / 8 | How much do examples help? | in pilot | **Done**: +4.5 general from 0 to 4 |
+| Effort medium vs `xhigh` (pilot) | How much does reasoning pay? | in pilot | **Done**: +4.5 / +11.5 |
+| **Reasoning on / off (dev)** | Does reasoning fix direction and Conflict, on dev? | 225 | A2.4 |
+| 1 / 2 / 3 answers | Does asking several times help? | 0 | A2.4 |
+| Votes vs stated confidence | Which confidence signal works? | 0 | A2.4 |
+| Thresholds vs majority vote (≥ 2 of 3) | Does the tuned decision layer help? | 0 | A2.4 |
+| Direction rule vs the model's own | Is the order rule still needed? | 0 | A2.4 |
+| Relations > 10 turns apart dropped | Do the long-range relations count? | 0 | A2.4 |
+| LLM vs labeller turn types | Does the LLM type turns better? | 0 | A2.4 |
+
+*Not run (user decision):* no written definitions, random examples, and a memorisation probe.
+
+## 7. Budget and time
+- **Spent so far: $0.** 261 calls, 29 minutes of model time, **$10.15 API-equivalent** (computed from token counts at Sonnet 5.5 list prices).
+- **Per call at the frozen settings:** ~13 s and ~$0.05 API-equivalent.
+- **Remaining:**
+  - about 930 calls: dev 675, reasoning ablation 225, test 33;
+  - about 3 hours of calls, run in the background;
+  - about $45 API-equivalent.
+- No usage limit has been hit yet.
+
+## 8. Risks
+
+| Risk | Status |
+|---|---|
+| Usage limits make it slow | Not hit in 261 calls. The run pauses safely if they are |
+| Claude Code adds hidden context or another model | Checked on every answer; resolved in A2.1 |
+| The samples barely differ | They differ (e.g. 19 vs 21 relations on one map) |
+| Pilot noise / prompt overfitting | Ties go to the cheaper setting; one revision only; dev unseen until A2.3 |
+| Over-linking | Still present (9.5 listed vs 7.9 gold per map). The thresholds are tuned on dev for exactly this |
+| Contamination | Stated as a caveat; dev → test shift compared with A1's |
+| No exact reruns (no seed) | Every raw answer committed; every number recomputed from them |
 
 ---
 <details><summary>Decisions and build log</summary>
 
 | Phase | Outcome | Decisions |
 |---|---|---|
-| Plan | Whole-map Sonnet 5.5 on a Claude Pro subscription, $0; 3 samples; cross-fitted thresholds; one paid ablation | D051–D054 |
-| A2.1 Setup | Round trip 98.92 / 96.51; Sonnet-only after disabling the title request; 4–9 s and ~$0.03 per answer; no thinking by default | D055 |
-| A2.2 Prompt | Only `xhigh` makes Sonnet reason (+11.5 focused on the pilot); k = 4; prompt v1 | D056–D059 |
+| Plan | Sonnet 5.5 on Claude Pro, $0; 3 answers; cross-fitted thresholds; one paid ablation | D051–D054 |
+| A2.1 Setup | Lossless (98.92 / 96.51); Sonnet-only; ~$0.03 and 4–9 s per answer; no reasoning by default | D055 |
+| A2.2 Prompt | Only `xhigh` reasons (+11.5 focused); 4 examples; prompt v1; pilot 50 → 20 maps | D056–D059 |
 </details>
 
-**Reproduce:** *added when A2 is complete.*
+**Reproduce so far** (in WSL, from the repo root; needs Claude Code logged in to a Claude subscription):
+`python -m a2_llm.check` (gate checks, no calls) → `python -m a2_llm.pilot --choose` → `python -m a2_llm.runner --run=<name> --export` (e.g. `pilot-k4`, `pilot20-k4-xhigh-v1`) → `python -m a2_llm.pilot --score=<runs>` and `--errors=<run>`.
