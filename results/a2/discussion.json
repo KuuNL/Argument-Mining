@@ -1,0 +1,488 @@
+{
+ "errors_by_gold_label": {
+  "A1": {
+   "Conflict -> Conflict": 12,
+   "Conflict -> Inference": 35,
+   "Conflict -> None": 75,
+   "Conflict -> Rephrase": 8,
+   "Inference -> Inference": 416,
+   "Inference -> Inference, reversed": 98,
+   "Inference -> None": 413,
+   "Inference -> Rephrase": 133,
+   "None -> Conflict": 22,
+   "None -> Inference": 901,
+   "None -> None": 339,
+   "None -> Rephrase": 355,
+   "Rephrase -> Conflict": 5,
+   "Rephrase -> Inference": 92,
+   "Rephrase -> None": 211,
+   "Rephrase -> Rephrase": 375
+  },
+  "A2": {
+   "Conflict -> Conflict": 16,
+   "Conflict -> Inference": 9,
+   "Conflict -> None": 96,
+   "Conflict -> Rephrase": 9,
+   "Inference -> Conflict": 3,
+   "Inference -> Inference": 369,
+   "Inference -> Inference, reversed": 63,
+   "Inference -> None": 504,
+   "Inference -> Rephrase": 121,
+   "None -> Conflict": 16,
+   "None -> Inference": 405,
+   "None -> None": 920,
+   "None -> Rephrase": 276,
+   "Rephrase -> Conflict": 2,
+   "Rephrase -> Inference": 96,
+   "Rephrase -> None": 199,
+   "Rephrase -> Rephrase": 386
+  }
+ },
+ "pairs_only_one_system_gets_right": {
+  "only A1 right": {
+   "None": 339,
+   "Inference": 185,
+   "Rephrase": 92,
+   "Conflict": 6
+  },
+  "only A2 right": {
+   "None": 920,
+   "Inference": 138,
+   "Rephrase": 105,
+   "Conflict": 10
+  }
+ },
+ "by_turn_distance": {
+  "1": {
+   "gold relations": 1279,
+   "A1 recall": 0.527,
+   "A1 precision": 0.347,
+   "A1 predicted": 1942,
+   "A2 recall": 0.445,
+   "A2 precision": 0.471,
+   "A2 predicted": 1208,
+   "Inference": {
+    "gold": 707,
+    "A1 recall": 0.508,
+    "A2 recall": 0.396
+   },
+   "Conflict": {
+    "gold": 87,
+    "A1 recall": 0.126,
+    "A2 recall": 0.126
+   },
+   "Rephrase": {
+    "gold": 485,
+    "A1 recall": 0.627,
+    "A2 recall": 0.573
+   }
+  },
+  "2-3": {
+   "gold relations": 390,
+   "A1 recall": 0.238,
+   "A1 precision": 0.218,
+   "A1 predicted": 426,
+   "A2 recall": 0.351,
+   "A2 precision": 0.351,
+   "A2 predicted": 390,
+   "Inference": {
+    "gold": 252,
+    "A1 recall": 0.226,
+    "A2 recall": 0.302
+   },
+   "Conflict": {
+    "gold": 30,
+    "A1 recall": 0.033,
+    "A2 recall": 0.1
+   },
+   "Rephrase": {
+    "gold": 108,
+    "A1 recall": 0.324,
+    "A2 recall": 0.537
+   }
+  },
+  "4-7": {
+   "gold relations": 124,
+   "A1 recall": 0.137,
+   "A1 precision": 0.288,
+   "A1 predicted": 59,
+   "A2 recall": 0.282,
+   "A2 precision": 0.28,
+   "A2 predicted": 125,
+   "Inference": {
+    "gold": 71,
+    "A1 recall": 0.0,
+    "A2 recall": 0.099
+   },
+   "Conflict": {
+    "gold": 5,
+    "A1 recall": 0.0,
+    "A2 recall": 0.2
+   },
+   "Rephrase": {
+    "gold": 48,
+    "A1 recall": 0.354,
+    "A2 recall": 0.562
+   }
+  },
+  "unplaced": {
+   "gold relations": 28,
+   "A1 recall": 0.214,
+   "A1 precision": 0.4,
+   "A1 predicted": 15,
+   "A2 recall": 0.321,
+   "A2 precision": 0.643,
+   "A2 predicted": 14,
+   "Inference": {
+    "gold": 14,
+    "A1 recall": 0.0,
+    "A2 recall": 0.357
+   },
+   "Conflict": {
+    "gold": 1,
+    "A1 recall": 0.0,
+    "A2 recall": 1.0
+   },
+   "Rephrase": {
+    "gold": 13,
+    "A1 recall": 0.462,
+    "A2 recall": 0.231
+   }
+  },
+  "8+": {
+   "gold relations": 50,
+   "A1 recall": 0.04,
+   "A1 precision": 0.4,
+   "A1 predicted": 5,
+   "A2 recall": 0.24,
+   "A2 precision": 0.375,
+   "A2 predicted": 32,
+   "Inference": {
+    "gold": 16,
+    "A1 recall": 0.0,
+    "A2 recall": 0.062
+   },
+   "Conflict": {
+    "gold": 6,
+    "A1 recall": 0.0,
+    "A2 recall": 0.0
+   },
+   "Rephrase": {
+    "gold": 28,
+    "A1 recall": 0.071,
+    "A2 recall": 0.393
+   }
+  },
+  "same turn": {
+   "gold relations": 2,
+   "A1 recall": 0.0,
+   "A1 precision": 0.0,
+   "A1 predicted": 5,
+   "A2 recall": 0.0,
+   "A2 precision": 0.0,
+   "A2 predicted": 2,
+   "Conflict": {
+    "gold": 1,
+    "A1 recall": 0.0,
+    "A2 recall": 0.0
+   },
+   "Rephrase": {
+    "gold": 1,
+    "A1 recall": 0.0,
+    "A2 recall": 0.0
+   }
+  }
+ },
+ "by_word_overlap (Jaccard of content words)": {
+  ">0.3": {
+   "gold relations": 339,
+   "A1 recall": 0.587,
+   "A1 precision": 0.456,
+   "A1 predicted": 436,
+   "A2 recall": 0.552,
+   "A2 precision": 0.548,
+   "A2 predicted": 341,
+   "Inference": {
+    "gold": 106,
+    "A1 recall": 0.255,
+    "A2 recall": 0.349
+   },
+   "Conflict": {
+    "gold": 22,
+    "A1 recall": 0.273,
+    "A2 recall": 0.273
+   },
+   "Rephrase": {
+    "gold": 211,
+    "A1 recall": 0.787,
+    "A2 recall": 0.682
+   }
+  },
+  "0-0.15": {
+   "gold relations": 529,
+   "A1 recall": 0.348,
+   "A1 precision": 0.297,
+   "A1 predicted": 619,
+   "A2 recall": 0.389,
+   "A2 precision": 0.404,
+   "A2 predicted": 510,
+   "Inference": {
+    "gold": 307,
+    "A1 recall": 0.391,
+    "A2 recall": 0.384
+   },
+   "Conflict": {
+    "gold": 44,
+    "A1 recall": 0.023,
+    "A2 recall": 0.114
+   },
+   "Rephrase": {
+    "gold": 178,
+    "A1 recall": 0.354,
+    "A2 recall": 0.466
+   }
+  },
+  "0": {
+   "gold relations": 580,
+   "A1 recall": 0.393,
+   "A1 precision": 0.255,
+   "A1 predicted": 895,
+   "A2 recall": 0.331,
+   "A2 precision": 0.385,
+   "A2 predicted": 499,
+   "Inference": {
+    "gold": 441,
+    "A1 recall": 0.458,
+    "A2 recall": 0.331
+   },
+   "Conflict": {
+    "gold": 37,
+    "A1 recall": 0.027,
+    "A2 recall": 0.054
+   },
+   "Rephrase": {
+    "gold": 102,
+    "A1 recall": 0.245,
+    "A2 recall": 0.431
+   }
+  },
+  "0.15-0.3": {
+   "gold relations": 425,
+   "A1 recall": 0.426,
+   "A1 precision": 0.361,
+   "A1 predicted": 502,
+   "A2 recall": 0.416,
+   "A2 precision": 0.42,
+   "A2 predicted": 421,
+   "Inference": {
+    "gold": 206,
+    "A1 recall": 0.325,
+    "A2 recall": 0.33
+   },
+   "Conflict": {
+    "gold": 27,
+    "A1 recall": 0.148,
+    "A2 recall": 0.111
+   },
+   "Rephrase": {
+    "gold": 192,
+    "A1 recall": 0.573,
+    "A2 recall": 0.552
+   }
+  }
+ },
+ "by_speaker": {
+  "same speaker": {
+   "gold relations": 1650,
+   "A1 recall": 0.437,
+   "A1 precision": 0.318,
+   "A1 predicted": 2266,
+   "A2 recall": 0.406,
+   "A2 precision": 0.425,
+   "A2 predicted": 1578,
+   "Inference": {
+    "gold": 998,
+    "A1 recall": 0.414,
+    "A2 recall": 0.358
+   },
+   "Conflict": {
+    "gold": 91,
+    "A1 recall": 0.055,
+    "A2 recall": 0.033
+   },
+   "Rephrase": {
+    "gold": 561,
+    "A1 recall": 0.54,
+    "A2 recall": 0.553
+   }
+  },
+  "different speakers": {
+   "gold relations": 195,
+   "A1 recall": 0.333,
+   "A1 precision": 0.38,
+   "A1 predicted": 171,
+   "A2 recall": 0.426,
+   "A2 precision": 0.464,
+   "A2 predicted": 179,
+   "Inference": {
+    "gold": 48,
+    "A1 recall": 0.062,
+    "A2 recall": 0.146
+   },
+   "Conflict": {
+    "gold": 38,
+    "A1 recall": 0.184,
+    "A2 recall": 0.316
+   },
+   "Rephrase": {
+    "gold": 109,
+    "A1 recall": 0.505,
+    "A2 recall": 0.587
+   }
+  },
+  "unplaced": {
+   "gold relations": 28,
+   "A1 recall": 0.214,
+   "A1 precision": 0.4,
+   "A1 predicted": 15,
+   "A2 recall": 0.321,
+   "A2 precision": 0.643,
+   "A2 predicted": 14,
+   "Inference": {
+    "gold": 14,
+    "A1 recall": 0.0,
+    "A2 recall": 0.357
+   },
+   "Conflict": {
+    "gold": 1,
+    "A1 recall": 0.0,
+    "A2 recall": 1.0
+   },
+   "Rephrase": {
+    "gold": 13,
+    "A1 recall": 0.462,
+    "A2 recall": 0.231
+   }
+  }
+ },
+ "conflict": {
+  "A2 pairs listed as Conflict by >= 1 answer": 136,
+  "of which gold Conflict": 32,
+  "gold": 130,
+  "different speakers": 38,
+  "A2 listed by >= 1 answer": 32,
+  "A2 above its threshold": 16,
+  "A1 P(Conflict) >= 0.2": 40,
+  "A1 above its threshold": 12,
+  "A1 called it Conflict": 12,
+  "A2 called it Conflict": 16,
+  "A1 called it None": 75,
+  "A2 called it None": 96,
+  "A1 called it Inference": 35,
+  "A1 called it Rephrase": 8,
+  "A2 called it Rephrase": 9,
+  "A2 called it Inference": 9
+ },
+ "rephrase_by_target": {
+  "other": {
+   "gold": 586,
+   "A1 found": 302,
+   "A2 found": 311,
+   "A1 recall": 0.515,
+   "A2 recall": 0.531
+  },
+  "of a question": {
+   "gold": 97,
+   "A1 found": 62,
+   "A2 found": 66,
+   "A1 recall": 0.639,
+   "A2 recall": 0.68
+  }
+ },
+ "a2_minus_a1_by_map_size": {
+  "<=10": {
+   "maps": 59,
+   "mean A2 - A1 (general)": 5.7,
+   "A2 better": 34
+  },
+  "11-16": {
+   "maps": 98,
+   "mean A2 - A1 (general)": 3.1,
+   "A2 better": 60
+  },
+  "17-25": {
+   "maps": 62,
+   "mean A2 - A1 (general)": 3.3,
+   "A2 better": 38
+  },
+  "26+": {
+   "maps": 6,
+   "mean A2 - A1 (general)": 5.8,
+   "A2 better": 5
+  }
+ },
+ "graph_shape": {
+  "gold": {
+   "relations per map": 8.32,
+   "props starting 2+": 0.057,
+   "props receiving 2+": 0.102
+  },
+  "A1": {
+   "relations per map": 10.9,
+   "props starting 2+": 0.168,
+   "props receiving 2+": 0.167
+  },
+  "A2": {
+   "relations per map": 7.87,
+   "props starting 2+": 0.007,
+   "props receiving 2+": 0.096
+  }
+ },
+ "turn_types_llm_vote_vs_gold_dev (non-Asserting only)": {
+  "LLM Pure Questioning | gold Pure Questioning": 128,
+  "LLM Rhetorical Questioning | gold Pure Questioning": 24,
+  "LLM Rhetorical Questioning | gold Rhetorical Questioning": 18,
+  "LLM Pure Questioning | gold Asserting": 16,
+  "LLM Asserting | gold no link": 12,
+  "LLM Rhetorical Questioning | gold Asserting": 7,
+  "LLM Asserting | gold Assertive Questioning": 7,
+  "LLM Assertive Questioning | gold Assertive Questioning": 7,
+  "LLM Asserting | gold Default Illocuting": 6,
+  "LLM Assertive Questioning | gold Asserting": 5,
+  "LLM Rhetorical Questioning | gold Assertive Questioning": 4,
+  "LLM Assertive Questioning | gold Pure Questioning": 4,
+  "LLM Asserting | gold Agreeing": 3,
+  "LLM Assertive Questioning | gold Rhetorical Questioning": 3,
+  "LLM Pure Questioning | gold Rhetorical Questioning": 3,
+  "LLM Asserting | gold Pure Questioning": 3,
+  "LLM Asserting | gold Rhetorical Questioning": 2,
+  "LLM Rhetorical Questioning | gold Challenging": 2,
+  "LLM Asserting | gold Restating": 1,
+  "LLM Default Illocuting | gold Default Illocuting": 1,
+  "LLM Agreeing | gold Asserting": 1,
+  "LLM Pure Questioning | gold Assertive Questioning": 1
+ },
+ "turn_type_changes_on_test (post-hoc)": [
+  {
+   "map": "map1",
+   "turn": "Fiona Bruce: What about the Prime Minister in particular",
+   "labeller": "Asserting",
+   "llm": "Pure Questioning",
+   "gold": "Assertive Questioning"
+  },
+  {
+   "map": "map2",
+   "turn": "AudienceMember 20210912QT03: I just wondered why has it taken so long, nearly a year, for this story to break",
+   "labeller": "Asserting",
+   "llm": "Pure Questioning",
+   "gold": "Asserting"
+  },
+  {
+   "map": "map2",
+   "turn": "Fiona Bruce: Do you want another go, Maggie",
+   "labeller": "Asserting",
+   "llm": "Pure Questioning",
+   "gold": "Assertive Questioning"
+  }
+ ]
+}

@@ -2,7 +2,8 @@
 
 > **What this is:** the report on approach A2, written for readers new to the project. Terms are explained where they first appear, and §3 collects them.
 > **Status:** final (2026-10-05). The test set was scored once, with nothing changed afterwards: **Global 73.67 / 58.27**, against A1's 72.01 / 57.53 and the 2024 best of 67.05 / 48.25.
-> **Evidence:** [`../results/a2/`](../results/a2/) (summaries, scores and every raw model answer). Decisions D051–D059 are in [`../decisionlog.md`](../decisionlog.md).
+> **Evidence:** [`../results/a2/`](../results/a2/) (summaries, scores and every raw model answer). Decisions D051–D064 are in [`../decisionlog.md`](../decisionlog.md).
+> **Discussion:** [`A2-discussion.md`](A2-discussion.md) asks why A2 and A1 each win where they do.
 
 ## In one minute
 - **The task.** A televised debate is turned into a *map*: **propositions** (claims) and **turns** (who said what, in order). A system must say which propositions **support** (Inference), **attack** (Conflict) or **restate** (Rephrase) which others, and *how* each turn was said (asserting, questioning, …).
