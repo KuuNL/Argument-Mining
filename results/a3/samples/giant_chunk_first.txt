@@ -1,0 +1,105 @@
+# nodeset24807#c0
+
+<|im_start|>system
+You annotate debate maps from BBC Question Time in the style of the QT30 corpus (Inference Anchoring Theory).
+The map lists the turns T1, T2, ... in dialogue order as "Speaker: words"; under each turn are the propositions [P1], [P2], ... it expresses.
+Answer with JSON only:
+- "illocutions": for each link in "Links to type", how the turn expresses the proposition.
+- "relations": every relation between propositions that an annotator would draw: Inference (from a premise to the conclusion it supports), Conflict (from a proposition to one it attacks) or Rephrase (from a proposition to one it restates or answers).<|im_end|>
+<|im_start|>user
+T1  Suan Desouza: I’ve had five friends of mine contacting me today specifically worried about why we are not following the World Health Organisation rules and advice and Pfizer’s advice as well.
+    [P1] Suan Desouza have had five friends of mine contacting me today specifically worried about why we are not following the World Health Organisation rules and advice and Pfizer’s advice as well
+T2  Suan Desouza: Shall I come to Mark on that.
+T3  Nadhim Zahawi: with Pfizer/BioNTech we had to hold back 50 percent until the regulator, the MHRA and the Joint Committee on Vaccination and Immunisation and the chief medical officers said we could go to a 12-week interval between doses instead of the three-week interval
+    [P2] with Pfizer/BioNTech we had to hold back 50 percent until the regulator, the Medicines and Healthcare products Regulatory Agency and the Joint Committee on Vaccination and Immunisation and the chief medical officers said we could go to a 12-week interval between doses instead of the three-week interval
+T4  Suan Desouza: The World Health Organisation yesterday were very clear that they reckoned that -- well, they stated that it should be between 21 and 28 days maximum gap between the first and second dose and, in exceptional circumstances, up to 6 weeks.
+    [P3] the World Health Organisation yesterday were very clear that they stated that it should be between 21 and 28 days maximum gap between the first and second dose and, in exceptional circumstances, up to 6 weeks
+T5  Nadhim Zahawi: this week, as of Monday, we got 530,000 doses of the AstraZeneca Oxford vaccine
+    [P4] this week, as of Monday, we got 530,000 doses of the AstraZeneca Oxford vaccine
+T6  Nadhim Zahawi: you are talking about 13 plus million people who will be the vaccine
+    [P5] you are talking about 13 plus million people who will be vaccinated
+T7  Suan Desouza: they managed to roll out a million vaccines in 12 days
+    [P6] Israel managed to roll out a million vaccines in 12 days
+T8  Fiona Bruce: It is just under 14 million, isn’t it
+T9  Suan Desouza: Could I just make two points.
+T10  Susan Desouza: Both Pfizer and AstraZeneca insist there is no shortage of vaccines
+    [P7] both Pfizer and AstraZeneca insist there is no shortage of vaccines
+T11  Nadhim Zahawi: The limitation was actually the vaccine delivery
+    [P8] the limitation of the vaccine rollout was actually the vaccine delivery
+T12  Susan Desouza: If Israel can manage 16,000 vaccinations every day, why can’t we do better
+    [P9] if Israel can manage 16,000 vaccinations every day, why can’t we do better
+T13  Nadhim Zahawi: We started on 8 December with the Pfizer/BioNTech vaccine
+    [P10] we started on 8 December with the Pfizer/BioNTech vaccine
+T14  Suan Desouza: Firstly, Israel have been deploying out the Pfizer vaccine.
+    [P11] firstly, Israel have been deploying out the Pfizer vaccine
+T15  Nadhim Zahawi: which we were focussing on which is the over 80s
+T16  Nadhim Zahawi: We have now vaccinated 1 quarter, 25 percent of people who are over 80
+    [P12] we have now vaccinated 1 quarter, 25 percent of people who are over 80
+T17  Nadhim Zahawi: In two weeks’ time they will have that protection when the vaccine begins to really take effect
+    [P13] in two weeks’ time they will have that protection when the vaccine begins to really take effect
+T18  Suan Desouza: The second point, you mentioned about the 12-week gap between the first and second dose for Pfizer.
+    [P14] the second point, you mentioned about the 12-week gap between the first and second dose for Pfizer
+T19  Fiona Bruce: In terms of the question, could we move faster
+T20  Rachel Clarke: There are paramedics, nurses, healthcare assistants, doctors, NHS and care workers in their thousands who every day are going into an environment in which the air is thick with COVID and we are completely unvaccinated
+    [P15] there are paramedics, nurses, healthcare assistants, doctors, NHS and care workers in their thousands who every day are going into an environment in which the air is thick with COVID and we are completely unvaccinated
+T21  Rachel Clarke: it’s not our fault, it’s a supply issue
+T22  Rachel Clarke: Here we are again, second time round, completely exposed to a virus that has already killed over 650 frontline NHS and care staff
+    [P16] here we are again, second time round, completely exposed to a virus that has already killed over 650 frontline NHS and care staff
+T23  Rachel Clarke: So this couldn’t be more pertinent
+T24  Humphrey Cobbold: I’m confident of that
+T25  Rachel Clarke: We have lost more than the entire Australian death toll in 24-hours
+    [P17] we have lost more than the entire Australian death toll in 24-hours
+T26  Rachel Clarke: Conditions in hospitals are unimaginable
+    [P18] conditions in hospitals are unimaginable
+T27  Rachel Clarke: We have ambulances queuing up outside
+    [P19] we have ambulances queuing up outside
+T28  Rachel Clarke: patients we can’t get them out of the ambulances into hospitals
+T29  Rachel Clarke: Tonight I had messages from a doctor in London to tell me that police cars are delivering critically ill COVID patients into his hospital in London
+    [P20] tonight Rachel Clarke had messages from a doctor in London to tell me that police cars are delivering critically ill COVID patients into his hospital in London
+T30  Rachel Clarke: That is how bad things are
+    [P21] that is how bad things are
+T31  Rachel Clarke: SAGE told the government in September to have a circuit breaker
+    [P22] SAGE told the government in September to have a circuit breaker
+T32  Mark Walport: We printed the evidence to the government that there was likely to be a second wave.
+    [P23] SAGE printed the evidence to the government that there was likely to be a second wave
+T33  Rachel Clarke: And that is reprehensible
+T34  Mark Walport: I’m afraid the second wave was entirely predictable.
+    [P24] Mark Walport is afraid the second wave was entirely predictable
+T35  Mark Walport: Obviously the government is looking at the direct harms we are talking about now, also the economic damage, the loss to education, all these other things.
+    [P25] obviously the government is looking at the direct harms we are talking about now, also the economic damage, the loss to education, all these other things
+T36  Mark Walport: It is for them to balance.
+T37  Mark Walport: This really is an absolutely critical moment where the numbers are higher than they were in the first wave in almost everything.
+    [P26] this really is an absolutely critical moment where the numbers are higher than they were in the first wave in almost everything
+T38  Mark Walport: People have to really, really socially distance.
+T39  Fiona Bruce: I appreciate that but there are other questions our audience want to put and I want to hear them
+T40  Chris Auron: We have entered a third lockdown
+T41  Chris Auron: How many more lives were lost before the government decided to call this lockdown
+T42  Rachel Clarke: They told the government before Christmas: You have to lock down
+    [P27] SAGE told the government before Christmas that they have to lock down
+T43  Fiona Bruce: you called for tougher measures back in September.
+    [P28] SAGE called for tougher measures back in September
+T44  Chris Auron: I wouldn’t want anybody to go through what I’m going through as a family
+T45  Chris Auron: 76,000 other families out there are going through the same
+T46  Nadhim Zahawi: we’ve done 1.3 million vaccinations, a quarter of the over 80s I mentioned
+    [P29] we’ve done 1.3 million vaccinations, a quarter of the over 80-year-olds Zahawi mentioned earlier
+T47  Rachel Clarke: Not only a month after we started rolling out the Pfizer vaccine are three-quarters of the over 80s unvaccinated
+    [P30] not only a month after we started rolling out the Pfizer vaccine are three-quarters of the over 80s unvaccinated
+T48  Nadhim Zahawi: Between 4 and 11 January you are going to see another step-up
+    [P31] between 4th and 11th of January you are going to see another step-up
+T49  Nadhim Zahawi: because the NHS plan and the rollout that has been delivered in a methodical way
+    [P32] the NHS plan and the rollout has been delivered in a methodical way
+T50  Humphrey Cobbold: It is a logistics and planning exercise
+    [P33] the vaccine roll-out is a logistics and planning exercise
+T51  Nadhim Zahawi: Our target is to get to the 13.89 million
+    [P34] our target is to get to the 13.89 million
+T52  Rachel Clarke: On Monday he looked the nation in the eye and said his target, which we would deliver is 13.9 million vaccines by the middle of February
+    [P35] on Monday Boris Johnson looked the nation in the eye and said his target, which we would deliver is 13.9 million vaccines by the middle of February
+T53  Nadhim Zahawi: I’m on record as saying we will deliver that
+
+Links to type: none<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+{"illocutions":[],"relations":[{"type":"Conflict","from":"P3","to":"P2"},{"type":"Conflict","from":"P6","to":"P5"},{"type":"Conflict","from":"P8","to":"P7"},{"type":"Conflict","from":"P11","to":"P10"},{"type":"Rephrase","from":"P14","to":"P13"},{"type":"Rephrase","from":"P24","to":"P16"},{"type":"Rephrase","from":"P26","to":"P16"},{"type":"Rephrase","from":"P29","to":"P12"},{"type":"Conflict","from":"P30","to":"P29"},{"type":"Inference","from":"P33","to":"P32"},{"type":"Rephrase","from":"P34","to":"P5"},{"type":"Rephrase","from":"P35","to":"P34"}]}

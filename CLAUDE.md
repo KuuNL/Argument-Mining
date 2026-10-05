@@ -167,9 +167,9 @@ It runs through Claude Code's scripted mode (`claude -p`) on the user's Claude P
 - **Risks:** it gives no calibrated probabilities (votes stand in for them), it is slow under Pro's limits, and it may have seen QT30 during training.
 - **Plan and status:** `reports/A2-whole-map-llm.md` and the phase map (A2.1–A2.5).
 
-**A3 — Fine-tuned open LLM.** QLoRA (4-bit weights plus small trainable adapters) fine-tunes a 7–8B model to generate the relation list for a map.
+**A3 — Fine-tuned open LLM.** QLoRA (4-bit weights plus small trainable adapters) fine-tunes Qwen3-4B-Instruct-2507 to generate the relation list for a map (Qwen3-8B can't train on the 8 GB card, D066).
 - **Why:** it tests whether *learning the IAT annotation style* beats a general model's size.
-- **Risk:** it's tight on the 8 GB GPU, so it may need a rented one.
+- **Plan and status:** `reports/A3-finetuned-llm.md` and the phase map (A3.1–A3.6). It runs locally in a separate venv (`~/.venvs/a3`, `requirements-a3.txt`).
 
 **A4 — Jev (TypeSafe AI's System One model), no training.** Jev doesn't write text. It takes a *state* (up to 32k tokens) and a set of typed
 questions (`choice` among up to 255 options, `score` on a rubric, `boolean`), and answers all of them in parallel with probabilities.

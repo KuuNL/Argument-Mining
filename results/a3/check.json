@@ -1,0 +1,103 @@
+{
+ "tokenizer": "Qwen/Qwen3-8B",
+ "round_trip": {
+  "maps": 225,
+  "ari_general": 98.92,
+  "ari_focused": 96.51,
+  "expected": [
+   98.92,
+   96.51
+  ],
+  "invalid_maps": [],
+  "answers_failing_schema": []
+ },
+ "giant_chunks": {
+  "maps": 19,
+  "props": 2592,
+  "unplaced_props": 545,
+  "relations": 1453,
+  "kept": 719,
+  "lost_unplaced": 493,
+  "lost_edge": 241,
+  "chunks": 67
+ },
+ "leakage": {
+  "dev_names_in_train": [],
+  "dev_texts_in_train": [],
+  "test_texts_in_train": []
+ },
+ "tokens": {
+  "train": {
+   "total_tokens": {
+    "n": 1231,
+    "p50": 1182,
+    "p90": 1642,
+    "p99": 2187,
+    "max": 2634
+   },
+   "answer_tokens": {
+    "n": 1231,
+    "p50": 301,
+    "p90": 484,
+    "p99": 659,
+    "max": 809
+   }
+  },
+  "dev": {
+   "total_tokens": {
+    "n": 225,
+    "p50": 1163,
+    "p90": 1704,
+    "p99": 2229,
+    "max": 2547
+   },
+   "answer_tokens": {
+    "n": 225,
+    "p50": 302,
+    "p90": 488,
+    "p99": 636,
+    "max": 805
+   }
+  },
+  "giant_chunks": {
+   "total_tokens": {
+    "n": 67,
+    "p50": 2673,
+    "p90": 3293,
+    "p99": 3898,
+    "max": 4217
+   },
+   "answer_tokens": {
+    "n": 67,
+    "p50": 205,
+    "p90": 253,
+    "p99": 275,
+    "max": 301
+   }
+  },
+  "test_prompt_tokens": {
+   "n": 11,
+   "p50": 1022,
+   "p90": 1177,
+   "p99": 1177,
+   "max": 1712
+  }
+ },
+ "grammar": {
+  "train": {
+   "checked": 1231,
+   "rejected": [],
+   "n_rejected": 0
+  },
+  "dev": {
+   "checked": 225,
+   "rejected": [],
+   "n_rejected": 0
+  },
+  "giant_chunks": {
+   "checked": 67,
+   "rejected": [],
+   "n_rejected": 0
+  }
+ }
+}

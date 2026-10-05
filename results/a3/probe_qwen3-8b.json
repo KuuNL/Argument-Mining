@@ -1,0 +1,27 @@
+{
+ "length_sweep": {
+  "model": "qwen3-8b",
+  "loaded_torch_gib": 5.819059371948242,
+  "loaded_driver_gib": 7.316745758056641,
+  "points": [
+   {
+    "tokens": 599,
+    "seconds": 3.5,
+    "tokens_per_s": 171.0,
+    "peak_reserved_gib": 6.56,
+    "driver_used_gib": 7.85
+   },
+   {
+    "tokens": 1200,
+    "seconds": 2.34,
+    "tokens_per_s": 512.4,
+    "peak_reserved_gib": 6.98,
+    "driver_used_gib": 7.93
+   },
+   {
+    "tokens": 1797,
+    "error": "CUDA driver error: device not ready\nThe CUDA driver logged these messages, which may provide useful "
+   }
+  ]
+ }
+}

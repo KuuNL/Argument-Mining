@@ -27,8 +27,8 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A2.3 | Dev run + decision layer | Frozen settings, 3 samples × 225 dev maps (D054); per-type thresholds on confidence-weighted votes, cross-fitted | Honest dev ARI vs A1 (50.50 / 32.61); per-type P/R, direction, invented-Conflict maps; overlap of A1 and A2 errors | A2 | **Passed (D060–D062): honest dev ARI 54.63 / 34.12 vs A1 50.50 / 32.61** |
 | A2.4 | Assemble + ablations | Valid maps and dev Global; LLM turn types adopted only if they beat the labeller; free ablations + the minimal-reasoning dev pass | 225/225 valid; ablation table | A2 | **Passed (D063): honest dev Global 72.53 / 57.63 vs A1 70.29 / 56.63; reasoning only +1 on dev** |
 | A2.5 | Test run + report | Final A2 row; `reports/A2-whole-map-llm.md` | Run once, on the user's go | Final run | **Done (D064): test Global 73.67 / 58.27 (A1 72.01 / 57.53); ARI 55.77 / 33.34** |
-| A3.1 | Setup + feasibility | venv `~/.venvs/a3` (peft, bitsandbytes, xgrammar, Unsloth or trl + liger); `a3_finetune/data.py`, `schema.py` / `parse.py` without confidence, `check.py`; memory probe Qwen3-8B → Qwen3-4B-Instruct-2507; generation probe | Round trip 98.92 / 96.51; every gold answer passes its grammar; no leakage; model chosen by the D065 rule (≤ 7.5 GiB, ≥ 200 tok/s, batch ≥ 2) | A3 | **In progress** (D065 approved) |
-| A3.2 | Training loop | `train.py` (answer-only loss, adapter every half epoch, timing); `generate.py` (greedy types + seeded relation samples, grammar, cache) | Memorises 32 maps (≥ 95% relations exact); loss masking verified; epoch time and peak VRAM measured | A3 | Approved (D065) |
+| A3.1 | Setup + feasibility | venv `~/.venvs/a3` (peft, bitsandbytes, xgrammar, Unsloth or trl + liger); `a3_finetune/data.py`, `schema.py` / `parse.py` without confidence, `check.py`; memory probe Qwen3-8B → Qwen3-4B-Instruct-2507; generation probe | Round trip 98.92 / 96.51; every gold answer passes its grammar; no leakage; model chosen by the D065 rule (≤ 7.5 GiB, ≥ 200 tok/s, batch ≥ 2) | A3 | **Passed (D066)**: round trip 98.92 / 96.51; 0 grammar rejections; 8B fails the memory rule → **Qwen3-4B-Instruct-2507** (4.25 GiB, 789 tok/s) |
+| A3.2 | Training loop | `train.py` (answer-only loss, adapter every half epoch, timing); `generate.py` (greedy types + seeded relation samples, grammar, cache; greedy batched across maps, D066) | Memorises 32 maps (≥ 95% relations exact); loss masking verified; epoch time and peak VRAM measured | A3 | **Next** |
 | A3.3 | Training run | 1,231 test-like train maps, 3 epochs | Greedy dev ARI at each half epoch; best adapter chosen; diversity rule applied | A3 | Approved (D065) |
 | A3.4 | Dev run + decision layer | Types + 8 relation samples × 225 dev maps (labeller links); scores → A1's pair format → cross-fitted thresholds | Honest dev ARI vs A1 (50.50 / 32.61) and A2 (54.63 / 34.12) with the bootstrap test; H1–H4 at matched density | A3 | Approved (D065) |
 | A3.5 | Assemble + ablations | Valid maps, dev Global; LLM turn types (strict rule); combination preview; ablations | 225/225 valid; combination test; ablation table | A3 | Approved (D065) |
@@ -831,3 +831,37 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   1. Approve the model rule (8B if it fits, else Qwen3-4B-Instruct-2507, locally at $0), rather than a free Kaggle / Colab GPU or a paid rental.
   2. If WSL's 7 GB RAM can't load 8B: pre-quantized weights (default) or raising WSL memory in `.wslconfig`.
   3. Which retrain ablations to run (giant chunks recommended; 4B vs 8B only if 8B fits).
+
+### D066 — A3.1 result: gate passed; Qwen3-8B fails the memory rule, so A3 uses Qwen3-4B-Instruct-2507
+- **2026-10-05 · A3.1 · by Claude (pre-set rule) · Finding + Done** (`results/a3/check.json`, `probe_qwen3-8b.json`, `probe_qwen3-4b.json`, `samples/`; `requirements-a3.txt`; `python -m a3_finetune.check` and `python -m a3_finetune.probe`)
+- *Environment* (`~/.venvs/a3`, pinned in `requirements-a3.txt`):
+  - **Packages:** torch 2.14.0+cu130, transformers 5.18.0, peft 0.21.2, bitsandbytes 0.50.2, liger-kernel 0.8.4, xgrammar 0.2.8.
+  - **4-bit works on this GPU:** bitsandbytes' NF4 runs on the RTX 5060 Ti (sm_120) under CUDA 13.
+  - **Unsloth not installed:** its current release pins torch 2.12.1 and transformers 5.5, and the 4B fits without it.
+- *Training loop:* our own small loop rather than TRL's SFTTrainer (TRL is installed but unused). It makes D065's memory path explicit and checkable:
+  - the model is wrapped in PEFT directly, so nothing is copied to 32-bit;
+  - the loss reads hidden states at answer positions only, into Liger's fused cross-entropy.
+- *Gate checks (no model):*
+  - **Lossless round trip:** 98.92 / 96.51 on the 225 dev maps; 0 invalid maps, 0 schema failures.
+  - **Grammar:** every gold answer is accepted and ended by its map's grammar: 1,231 train, 225 dev, 67 giant chunks, 0 rejected.
+  - **No leakage:** no dev map name or identical map text in train; no test map text in train.
+  - **Tokens** (Qwen tokenizer, prompt + answer): train median 1,182, max 2,634; answers median 301, max 809; test prompts at most 1,712.
+  - **Giant chunks:** 67 chunks from 19 maps. 545 of 2,592 propositions can't be placed. Only 719 of 1,453 relations are kept (49%): 493 are lost to unplaced propositions and 241 to window edges. Chunks run to 4,217 tokens.
+- *Memory probe.* The Windows desktop already holds ~1.1 GiB of the 7.93 GiB card.
+
+  | | Qwen3-8B | Qwen3-4B-Instruct-2507 |
+  |---|---|---|
+  | Loaded (PyTorch / whole card) | 5.82 / 7.32 GiB | 2.59 / 3.79 GiB |
+  | 1,200-token example, forward + backward, no optimizer | 6.98 GiB reserved; card full (7.93 used) | — |
+  | Longest examples (~2.6k tokens), with optimizer | **Doesn't run.** Crashes at 1,797 tokens in the sweep, and at the longest example in the training probe ("device not ready": WSL can't map more GPU memory). An earlier diagnostic run spilled into system memory instead: 173 s for one 2,590-token step | **4.25 GiB peak, 789 tokens/s** (20 steps) |
+
+  - **Rule (D065): 8B fails** (it exceeds 7.5 GiB well before the longest example). **A3 uses Qwen3-4B-Instruct-2507.** No examples were capped.
+  - *Consequences:* the 4B vs 8B retrain ablation is dropped, since size can't be compared on this card. H6 keeps only "fine-tuned vs untrained".
+- *Generation probe* (untrained 4B, 5 dev maps):
+  - 55/55 answers valid under the grammar.
+  - Greedy decoding runs at ~22 tokens/s; 8 samples in one batch at ~63 tokens/s, peaking at 5.67 GiB.
+  - The untrained model writes empty lists for 3 of the 5 maps.
+- *Projections:*
+  - **Training:** an epoch is ≈ 1.5M tokens ≈ 33 min, so 3 epochs take ≈ 1.7 h.
+  - **Dev run** (greedy + 8 samples × 225 maps): ≈ 2 h.
+  - **Checkpoint scoring:** 6 checkpoints, greedy on all 225 dev maps one map at a time, would take ~5 h. So A3.2 adds greedy decoding batched across maps.

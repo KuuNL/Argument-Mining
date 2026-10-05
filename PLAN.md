@@ -135,6 +135,7 @@ Full plan, concepts, the reason for each choice and the independent review: [`re
 - **Model rule:** Qwen3-8B if, at the longest training example, its peak is ≤ 7.5 GiB, it trains at ≥ 200 tokens/s and generation fits a batch of ≥ 2.
 - **Otherwise:** Qwen3-4B-Instruct-2507.
 - **Why it's close:** Qwen3-8B's untied 16-bit embeddings alone take ~2.5 GB.
+- **Outcome (A3.1, D066):** 8B fills the card by 1,200 tokens and crashes before the longest example, so the model is **Qwen3-4B-Instruct-2507** (4.25 GiB peak, 789 tokens/s).
 
 **End to end:**
 1. **Data:** the 1,231 test-like training maps → (instruction + A2's serialised map, compact gold answer without confidence). Gold links on training maps; the ILO labeller's on dev and test. The giant maps are left out (a retrain ablation).

@@ -1,0 +1,119 @@
+{
+ "training": {
+  "model": "qwen3-4b",
+  "trainable_params": 33030144,
+  "loaded": {
+   "torch_gib": 2.5940237045288086,
+   "driver_gib": 3.78558349609375,
+   "driver_before_gib": 1.09808349609375
+  },
+  "steps": 20,
+  "longest_tokens": 2630,
+  "tokens_per_s": 788.8554460143902,
+  "seconds_per_step": 2.8127870120588607,
+  "peak_allocated_gib": 3.9586567878723145,
+  "peak_reserved_gib": 4.24609375,
+  "peak_driver_used_gib": 5.39105224609375,
+  "losses": [
+   0.3264,
+   0.2601,
+   0.1939,
+   0.1749,
+   0.1307,
+   0.1231,
+   0.1233,
+   0.1457,
+   0.1358,
+   0.0933,
+   0.1066,
+   0.1077,
+   0.1279,
+   0.1051,
+   0.1253,
+   0.1087,
+   0.2277,
+   0.1044,
+   0.1121,
+   0.0768
+  ]
+ },
+ "generation": {
+  "model": "qwen3-4b",
+  "maps": [
+   {
+    "map": "nodeset17918",
+    "greedy_seconds": 2.65,
+    "greedy_tokens_per_s": 4.5,
+    "greedy_tokens": 12,
+    "finished": true,
+    "valid": true,
+    "relations": 0
+   },
+   {
+    "map": "nodeset17919",
+    "greedy_seconds": 0.74,
+    "greedy_tokens_per_s": 16.3,
+    "greedy_tokens": 12,
+    "finished": true,
+    "valid": true,
+    "relations": 0
+   },
+   {
+    "map": "nodeset17921",
+    "greedy_seconds": 14.4,
+    "greedy_tokens_per_s": 22.0,
+    "greedy_tokens": 317,
+    "finished": true,
+    "valid": true,
+    "relations": 7
+   },
+   {
+    "map": "nodeset17923",
+    "greedy_seconds": 0.87,
+    "greedy_tokens_per_s": 13.7,
+    "greedy_tokens": 12,
+    "finished": true,
+    "valid": true,
+    "relations": 0
+   },
+   {
+    "map": "nodeset17925",
+    "greedy_seconds": 24.15,
+    "greedy_tokens_per_s": 22.0,
+    "greedy_tokens": 532,
+    "finished": true,
+    "valid": true,
+    "relations": 13
+   }
+  ],
+  "batches": {
+   "8": {
+    "seconds": 39.8,
+    "samples": 40,
+    "valid": 40,
+    "samples_per_min": 60.3,
+    "tokens_per_s": 62.6,
+    "peak_reserved_gib": 5.67,
+    "peak_driver_used_gib": 7.04
+   },
+   "4": {
+    "seconds": 60.5,
+    "samples": 20,
+    "valid": 20,
+    "samples_per_min": 19.8,
+    "tokens_per_s": 30.5,
+    "peak_reserved_gib": 5.67,
+    "peak_driver_used_gib": 7.04
+   },
+   "2": {
+    "seconds": 18.2,
+    "samples": 10,
+    "valid": 10,
+    "samples_per_min": 32.9,
+    "tokens_per_s": 35.3,
+    "peak_reserved_gib": 5.67,
+    "peak_driver_used_gib": 7.07
+   }
+  }
+ }
+}

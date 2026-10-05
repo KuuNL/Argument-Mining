@@ -1,0 +1,45 @@
+# nodeset23782
+
+<|im_start|>system
+You annotate debate maps from BBC Question Time in the style of the QT30 corpus (Inference Anchoring Theory).
+The map lists the turns T1, T2, ... in dialogue order as "Speaker: words"; under each turn are the propositions [P1], [P2], ... it expresses.
+Answer with JSON only:
+- "illocutions": for each link in "Links to type", how the turn expresses the proposition.
+- "relations": every relation between propositions that an annotator would draw: Inference (from a premise to the conclusion it supports), Conflict (from a proposition to one it attacks) or Rephrase (from a proposition to one it restates or answers).<|im_end|>
+<|im_start|>user
+T1  AudienceMember 20210916QT21: there's you know, a huge moral imperative to help India
+    [P1] there's a huge moral imperative to help India
+T2  AudienceMember 20210916QT21: It's going through incredible pain
+    [P2] India is going through incredible pain
+T3  AudienceMember 20210916QT21: sending 600 ventilators or pieces of hospital equipment is a drop in the ocean
+    [P3] sending 600 ventilators or pieces of hospital equipment to India is a drop in the ocean
+T4  AudienceMember 20210916QT21: The British Association of Physicians issued a statement saying we can do so much more
+    [P4] the British Association of Physicians issued a statement saying that we can do so much more for India
+T5  AudienceMember 20210916QT21: We have empty Nightingale hospitals
+    [P5] the UK have empty Nightingale hospitals
+T6  AudienceMember 20210916QT21: we have huge ties as Jonathan said to India
+T7  John Ashworth: we have huge ties to India
+    [P6] the UK have huge ties to India
+T8  AudienceMember 20210916QT21: we are trying to convince ourselves as a nation we have to do this to protect ourselves
+    [P7] we are trying to convince ourselves as a nation that we have to not help India to protect ourselves
+T9  AudienceMember 20210916QT21: We have to do this to protect thousands upon thousands of people dying every day in India
+    [P8] the UK have to help India to protect thousands upon thousands of people dying every day in India
+T10  Tim Stanley: I agree with part of that
+T11  Tim Stanley: Jon had some very good points
+    [P9] John Ashworth had some very good points
+T12  Tim Stanley: subtly dodged the tricky question of what is the point at which you judge the country now has a surplus
+    [P10] John Ashworth subtly dodged the tricky question of what is the point at which you judge the country now has a surplus
+T13  Tim Stanley: Is it for instance once we have vaccinated everyone over the age of 42
+    [P11] the UK having vaccinated everyone over the age of 42 is or is not the point at which you judge the country has a surplus
+T14  Tim Stanley: the case that anything we are doing after that counts ethically as a surplus
+    [P12] it is or is not the case that anything the UK are doing after vaccinating everyone over the age of 42 counts ethically as a surplus
+T15  Tim Stanley: That's a very difficult question to answer
+    [P13] judging the point at which the UK has a surplus is a very difficult question to answer
+
+Links to type: T1-P1, T2-P2, T3-P3, T4-P4, T5-P5, T7-P6, T8-P7, T9-P8, T11-P9, T12-P10, T13-P11, T14-P12, T15-P13<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+{"illocutions":[{"link":"T1-P1","type":"Asserting"},{"link":"T2-P2","type":"Asserting"},{"link":"T3-P3","type":"Asserting"},{"link":"T4-P4","type":"Asserting"},{"link":"T5-P5","type":"Asserting"},{"link":"T7-P6","type":"Asserting"},{"link":"T8-P7","type":"Asserting"},{"link":"T9-P8","type":"Asserting"},{"link":"T11-P9","type":"Asserting"},{"link":"T12-P10","type":"Asserting"},{"link":"T13-P11","type":"Pure Questioning"},{"link":"T14-P12","type":"Pure Questioning"},{"link":"T15-P13","type":"Asserting"}],"relations":[{"type":"Inference","from":"P2","to":"P1"},{"type":"Inference","from":"P3","to":"P1"},{"type":"Inference","from":"P4","to":"P1"},{"type":"Inference","from":"P5","to":"P1"},{"type":"Inference","from":"P6","to":"P1"},{"type":"Conflict","from":"P8","to":"P7"},{"type":"Rephrase","from":"P12","to":"P11"},{"type":"Rephrase","from":"P13","to":"P10"}]}

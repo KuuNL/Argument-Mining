@@ -1,0 +1,113 @@
+# nodeset25445#c1
+
+<|im_start|>system
+You annotate debate maps from BBC Question Time in the style of the QT30 corpus (Inference Anchoring Theory).
+The map lists the turns T1, T2, ... in dialogue order as "Speaker: words"; under each turn are the propositions [P1], [P2], ... it expresses.
+Answer with JSON only:
+- "illocutions": for each link in "Links to type", how the turn expresses the proposition.
+- "relations": every relation between propositions that an annotator would draw: Inference (from a premise to the conclusion it supports), Conflict (from a proposition to one it attacks) or Rephrase (from a proposition to one it restates or answers).<|im_end|>
+<|im_start|>user
+T1  Willie Rennie: We can put aside our differences for the next five years to try and unite the country to get through this recovery
+    [P1] we can put aside our differences for the next five years to try and unite the country to get through this recovery
+T2  Willie Rennie: we owe it to these people to do exactly that
+T3  Emma Unknown: Personally, it's putting me off being an SNP voter
+T4  John Unknown: he just went off on a tangent about independence
+    [P2] Douglas Ross just went off on a tangent about independence
+T5  Lorna Slater: The unionists want independence to go away
+    [P3] the unionists want independence to go away
+T6  Emma Unknown: I don't really know – how can you convince me that another referendum is in the best interests of the country
+T7  Douglas Ross: if we can get rid of that threat of an independence referendum
+    [P4] Scotland can come together if rid of that threat of an independence referendum
+T8  Douglas Ross: Keith, you've said you want a referendum this year
+T9  Willie Rennie: Scotland's got a terrible record on drug deaths – 1,256 people died
+    [P5] Scotland's got a terrible record on drug deaths – 1,256 people died
+T10  Willie Rennie: it's the worst in Europe
+T11  Willie Rennie: the confession from the First Minister was that through the independence debate she took her eye off the ball
+    [P6] the confession from the First Minister was that through the independence debate she took her eye off the ball
+T12  Willie Rennie: There are a lot of talented people in the parliament that could actually resolve things
+    [P7] there are a lot of talented people in the parliament that could actually resolve things
+T13  Willie Rennie: More people will die
+    [P8] more people will die
+T14  Willie Rennie: This is real people's lives
+    [P9] this is real people's lives
+T15  Willie Rennie: the divisions will lead to us taking more eyes off more balls and more people will lose their lives
+    [P10] the divisions will lead to us taking more eyes off more balls and more people will lose their lives
+T16  Douglas Ross: that's where I believe we can, if we stop that SNP majority, focus on the recovery, on rebuilding, on drug deaths, on supporting the NHS, on rebuilding our educational standards
+    [P11] that's where Douglas Ross believes we can, if we stop that SNP majority, focus on the recovery, on rebuilding, on drug deaths, on supporting the NHS, on rebuilding our educational standards
+T17  Anas Sarwar: that we can just decide to have a referendum
+T18  Anas Sarwar: decide to have independence
+T19  Anas Sarwar: it doesn't take years of focus
+T20  Anas Sarwar: we've been separated from our families like never before
+T21  Anas Sarwar: This is a pandemic election when 10,000 of our fellow citizens have lost their lives, when 360,000 of our fellow citizens are on furlough
+    [P12] this is a pandemic election when 10,000 of our fellow citizens have lost their lives, when 360,000 of our fellow citizens are on furlough
+T22  Douglas Ross: you rightly speak about the number on furlough
+    [P13] Anas Sarwar can rightly speak about the number on furlough
+T23  Anas Sarwar: you're right to say that about furlough
+    [P14] Douglas Ross is right to say that about furlough
+T24  Fiona Bruce: what will you do, Anas, if this election does return a pro-independence majority
+    [P15] xxx is what Anas Sarwar will do if this election does return a pro-independence majority
+T25  Anas Sarwar: I want us to choose something different
+T26  Fiona Bruce: will you ignore that pro-independence majority
+T27  Keith Brown: we disagree on spending billions of pounds more money on nuclear weapons
+    [P16] we disagree on spending billions of pounds more money on nuclear weapons
+T28  Keith Brown: on the two-child policy cap
+    [P17] we disagree on the two-child policy cap
+T29  Keith Brown: on the rape clause
+T30  Keith Brown: We've done that
+T31  Keith Brown: We can't change the two-child policy
+    [P18] we can't change the two-child policy
+T32  Keith Brown: we can't change the rape clause
+    [P19] we can't change the rape clause
+T33  Keith Brown: than what Boris Johnson does
+T34  Douglas Ross: not just in the UK but across Europe – the highest drug deaths anywhere in Europe
+T35  Douglas Ross: when she says she took her eye off the ball
+T36  Douglas Ross: that has led to thousands losing their lives, and families being ripped apart because of that devastation of losing a loved one so early
+    [P20] Nicola Sturgeon's taking eyes of the ball has led to thousands losing their lives, and families being ripped apart because of that devastation of losing a loved one so early
+T37  Lorna Slater: that stops us from having the powers that we need in Scotland to treat drug deaths as a social issue
+    [P21] the repeal of the Misuse of Drugs Act stops us from having the powers that we need in Scotland to treat drug deaths as a social issue
+T38  Lorna Slater: the war on drugs has failed
+T39  Douglas Ross: I agree with you
+T40  Angela Unknown: some tremendous things in education, there are difficulties as well but there are tremendous things
+    [P22] we are achieving some tremendous things in education, there are difficulties as well but there are tremendous things
+T41  Douglas Ross: we have to focus on education
+    [P23] we have to focus on education
+T42  Angela Unknown: Nerinda mentioned at the very start about focusing on the independence referendum, or building the economy and recovering the health service
+    [P24] focusing on the independence referendum, or building the economy and recovering the health service
+T43  Angela Unknown: We can still have an independence referendum and still focus on these areas
+    [P25] to Angela Unknown we can still have an independence referendum and still focus on these areas
+T44  Angela Unknown: we have free prescriptions and eye tests
+    [P26] we have free prescriptions and eye tests
+T45  Fiona Bruce: clearly there are other NHS statistics that you could cite that aren't quite so favourable
+    [P27] clearly there are other NHS statistics that you could cite that aren't quite so favourable
+T46  Keith Brown: And as has been said by Angela, we are achieving fantastic results in our NHS
+T47  Angela Unknown: to me they are not mutually exclusive
+T48  Keith Brown: It's not the case the two are exclusive, as Angela says
+T49  Angela Unknown: It's not the case that difficulties and tremendous achievements are exclusive
+    [P28] it's not the case that difficulties and tremendous achievements are exclusive
+T50  Angela Unknown: we can still have an independence referendum and we can still focus on these key priority areas
+    [P29] to Angela Unknown we can still have an independence referendum and we can still focus on these key priority areas
+T51  Willie Rennie: If the SNP, and the Greens, allow us to have a parliament that's focused on independence, many many other things will be neglected
+    [P30] if the SNP, and the Greens, allow us to have a parliament that's focused on independence, many many other things will be neglected
+T52  Keith Brown: it's possible to do these things at the same time
+    [P31] it's possible to do difficult and tremendous things at the same time
+T53  Anas Sarwar: you yourself have said that we've got to confront the climate emergency
+T54  Anas Sarwar: at the very heart of your policies
+T55  Douglas Ross: I'm determined to stop it
+T56  Lorna Slater: The Scottish Greens would see a jobs guarantee for all oil and gas workers, to make sure that they have jobs to move to in renewable industries, in other subsea industries
+    [P32] the Scottish Greens would see a jobs guarantee for all oil and gas workers, to make sure that they have jobs to move to in renewable industries, in other subsea industries
+T57  Lorna Slater: we would welcome you to come and join our industry with us, and let's work together to build a sustainable future for Scotland
+T58  Keith Brown: People decide
+    [P33] people decide
+T59  Anas Sarwar: we can't come together for the sake of the national interest
+    [P34] we can come together for the sake of the national interest
+T60  Anas Sarwar: the problem you have, Douglas, is that you are just as determined to talk about division as Keith and Lorna are
+    [P35] the problem you have, Douglas, is that you are just as determined to talk about division as Keith and Lorna are
+T61  Anas Sarwar: focus on our recovery
+
+Links to type: none<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+{"illocutions":[],"relations":[{"type":"Rephrase","from":"P3","to":"P2"},{"type":"Rephrase","from":"P10","to":"P8"},{"type":"Rephrase","from":"P13","to":"P12"},{"type":"Rephrase","from":"P14","to":"P12"},{"type":"Rephrase","from":"P18","to":"P17"},{"type":"Rephrase","from":"P20","to":"P9"},{"type":"Rephrase","from":"P23","to":"P22"},{"type":"Conflict","from":"P27","to":"P26"},{"type":"Conflict","from":"P30","to":"P29"},{"type":"Rephrase","from":"P31","to":"P29"},{"type":"Rephrase","from":"P35","to":"P34"}]}

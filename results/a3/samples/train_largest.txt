@@ -1,0 +1,92 @@
+# nodeset18817
+
+<|im_start|>system
+You annotate debate maps from BBC Question Time in the style of the QT30 corpus (Inference Anchoring Theory).
+The map lists the turns T1, T2, ... in dialogue order as "Speaker: words"; under each turn are the propositions [P1], [P2], ... it expresses.
+Answer with JSON only:
+- "illocutions": for each link in "Links to type", how the turn expresses the proposition.
+- "relations": every relation between propositions that an annotator would draw: Inference (from a premise to the conclusion it supports), Conflict (from a proposition to one it attacks) or Rephrase (from a proposition to one it restates or answers).<|im_end|>
+<|im_start|>user
+T1  Ben Unknown: I agree with what Jess was saying about job flexibility
+T2  Ben Unknown: in the future we're going to see a lot more people working from home
+    [P1] in the future we're going to see a lot more people working from home
+T3  Ben Unknown: speaking personally as a chemist
+    [P2] Ben is speaking personally as a chemist
+T4  Ben Unknown: I work in a lab everyday of the week
+    [P3] Ben works in a lab everyday of the week
+T5  Ben Unknown: my company has introduced a policy of working in the lab now on alternate weeks
+    [P4] Ben's company has introduced a policy of working in the lab now on alternate weeks
+T6  Ben Unknown: working from home on other weeks
+    [P5] Ben's company has introduced a policy of working from home every other week
+T7  Ben Unknown: that's been working really well
+    [P6] working in the lab on alternate weeks and from home every other week has been working really well
+T8  Ben Unknown: we're going to be seeing that going forward
+    [P7] we're going to be seeing companies introducing policies on working from home going forward
+T9  Ben Unknown: another thing hopefully to see in the future as well is just better hygiene even across the board
+    [P8] another thing hopefully to see in the future as well is just better hygiene even across the board
+T10  Ben Unknown: this pandemic has increased everybody's awareness of hygiene
+    [P9] the COVID-19 pandemic has increased everybody's awareness of hygiene
+T11  Ben Unknown: good hygiene even practices
+    [P10] the COVID-19 pandemic has increased everybody's awareness of good hygiene even practices
+T12  Ben Unknown: that would be a thing in the future with hand sanitiseer and wearing face mask
+    [P11] increased awareness of hygiene would be a thing in the future with hand sanitise errand wearing face mask
+T13  Fiona Bruce: What changes would you like to see
+    [P12] Iona Bain would like to see xxx changes
+T14  Fiona Bruce: we will never be the same again
+    [P13] we will never be the same again
+T15  Fiona Bruce: Technology has been changing our lives over years and years and years now
+    [P14] technology has been changing our lives over years and years and years now
+T16  Fiona Bruce: over the last three months, I think technology has been accelerated by at least five years in the way we have adopted it
+    [P15] over the last three months technology has been accelerated by at least five years in the way we have adopted it
+T17  Fiona Bruce: we're using it
+    [P16] over the last three months technology has been accelerated by at least five years in the way we are using it
+T18  Fiona Bruce: I can't see myself having offices with that many people in ever again
+    [P17] Fiona Bruce cannot see herself having offices with that many people in ever again
+T19  Fiona Bruce: the first thing we're going to be doing is cutting down the number of days of people coming to the offices
+    [P18] the first thing we're going to be doing is cutting down the number of days of people coming to the offices
+T20  Fiona Bruce: after speaking to our colleagues
+    [P19] the first thing we're going to be doing is speaking to our colleagues
+T21  Fiona Bruce: we will need less space
+    [P20] we will need less space
+T22  Fiona Bruce: people will be able to balance their lives a lot better
+    [P21] people will be able to balance their lives a lot better
+T23  Fiona Bruce: technology has done that
+    [P22] technology has lead to workspaces needing less space and people being able to balance their lives a lot better
+T24  Fiona Bruce: Retail will be very different as well
+    [P23] retail will be very different as well
+T25  Fiona Bruce: People have adopted on-line a lot faster than they would have done
+    [P24] people have adopted on-line a lot faster than they would have done without the COVID-19 related lockdown
+T26  Fiona Bruce: we are going to see a lot more pressure on our high street stores
+    [P25] we are going to see a lot more pressure on our high street stores
+T27  Fiona Bruce: that's again something the Government have got to do something about
+    [P26] higher pressure on our high street stores is again something the Government have got to do something about
+T28  Fiona Bruce: then the rates
+    [P27] then the rates is something the Government have got to do something about
+T29  Fiona Bruce: It don't make sense
+    [P28] the rates don't make sense
+T30  Fiona Bruce: It's a tax from the 1500s
+    [P29] the rates are a tax from the 1500s
+T31  Fiona Bruce: Life moved on
+    [P30] life moved on from the 1500s
+T32  Fiona Bruce: The Inernet did not exist in the 1500s
+    [P31] the Inernet did not exist in the 1500s
+T33  Fiona Bruce: It needs work for you to work out for something else to bring the taxation back into the Treasury
+    [P32] it needs work for you to work out for something else to bring the taxation back into the Treasury
+T34  Fiona Bruce: you need to give us our services
+    [P33] you need to give us our services
+T35  Fiona Bruce: you'll have to do the work
+    [P34] you'll have to do the work
+T36  Fiona Bruce: It's not practical
+    [P35] the taxation is not practical
+T37  Fiona Bruce: It's destroying the fabric of our society
+    [P36] the tax from the 1500s is destroying the fabric of our society
+T38  Fiona Bruce: So lots of things will have to change
+    [P37] so lots of things will have to change
+
+Links to type: T2-P1, T3-P2, T4-P3, T5-P4, T6-P5, T7-P6, T8-P7, T9-P8, T10-P9, T11-P10, T12-P11, T13-P12, T14-P13, T15-P14, T16-P15, T17-P16, T18-P17, T19-P18, T20-P19, T21-P20, T22-P21, T23-P22, T24-P23, T25-P24, T26-P25, T27-P26, T28-P27, T29-P28, T30-P29, T31-P30, T32-P31, T33-P32, T34-P33, T35-P34, T36-P35, T37-P36, T38-P37<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+{"illocutions":[{"link":"T2-P1","type":"Asserting"},{"link":"T3-P2","type":"Asserting"},{"link":"T4-P3","type":"Asserting"},{"link":"T5-P4","type":"Asserting"},{"link":"T6-P5","type":"Asserting"},{"link":"T7-P6","type":"Asserting"},{"link":"T8-P7","type":"Asserting"},{"link":"T9-P8","type":"Asserting"},{"link":"T10-P9","type":"Asserting"},{"link":"T11-P10","type":"Asserting"},{"link":"T12-P11","type":"Asserting"},{"link":"T13-P12","type":"Pure Questioning"},{"link":"T14-P13","type":"Asserting"},{"link":"T15-P14","type":"Asserting"},{"link":"T16-P15","type":"Asserting"},{"link":"T17-P16","type":"Asserting"},{"link":"T18-P17","type":"Asserting"},{"link":"T19-P18","type":"Asserting"},{"link":"T20-P19","type":"Asserting"},{"link":"T21-P20","type":"Asserting"},{"link":"T22-P21","type":"Asserting"},{"link":"T23-P22","type":"Asserting"},{"link":"T24-P23","type":"Asserting"},{"link":"T25-P24","type":"Asserting"},{"link":"T26-P25","type":"Asserting"},{"link":"T27-P26","type":"Asserting"},{"link":"T28-P27","type":"Asserting"},{"link":"T29-P28","type":"Asserting"},{"link":"T30-P29","type":"Asserting"},{"link":"T31-P30","type":"Asserting"},{"link":"T32-P31","type":"Asserting"},{"link":"T33-P32","type":"Asserting"},{"link":"T34-P33","type":"Asserting"},{"link":"T35-P34","type":"Asserting"},{"link":"T36-P35","type":"Asserting"},{"link":"T37-P36","type":"Asserting"},{"link":"T38-P37","type":"Asserting"}],"relations":[{"type":"Rephrase","from":"P5","to":"P4"},{"type":"Rephrase","from":"P6","to":"P5"},{"type":"Inference","from":"P6","to":"P7"},{"type":"Inference","from":"P9","to":"P8"},{"type":"Rephrase","from":"P10","to":"P9"},{"type":"Rephrase","from":"P11","to":"P10"},{"type":"Inference","from":"P14","to":"P13"},{"type":"Inference","from":"P15","to":"P13"},{"type":"Rephrase","from":"P16","to":"P15"},{"type":"Inference","from":"P18","to":"P17"},{"type":"Inference","from":"P18","to":"P20"},{"type":"Inference","from":"P24","to":"P23"},{"type":"Rephrase","from":"P27","to":"P26"},{"type":"Inference","from":"P29","to":"P28"},{"type":"Inference","from":"P30","to":"P28"},{"type":"Rephrase","from":"P31","to":"P30"},{"type":"Rephrase","from":"P35","to":"P28"},{"type":"Inference","from":"P36","to":"P37"}]}
