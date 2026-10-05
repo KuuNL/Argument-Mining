@@ -128,35 +128,55 @@ targets 2024's worst failures directly: **direction** and **convergent vs diverg
 ---
 
 ## Approach 3 — Fine-tuned open LLM (QLoRA, generative)
-**Idea.** Teach a mid-size open model the annotation style through its weights rather than through the prompt.
+**Idea.** Teach an open model the annotators' habits through its weights rather than through the prompt. It keeps A2's whole-map view and learns what A1 learned from the data.
+Full plan, concepts, the reason for each choice and the independent review: [`reports/A3-finetuned-llm.md`](reports/A3-finetuned-llm.md) (D065).
 
-**How fine-tuning works here.** Each training example is a pair (serialised map → gold relation list as text). The model is
-trained with next-token loss **on the answer tokens only**, so it learns to write the annotators' relations for any map.
-- **LoRA:** freeze the base model and train small low-rank adapter matrices (about 0.1–1% of parameters).
-- **QLoRA:** also keep the frozen base in 4-bit, which is how an 8B model fits in 8 GB.
-- **Stack:** PyTorch + HF Transformers + PEFT + bitsandbytes (or Unsloth for speed). The same PyTorch environment as A1.
+**Model and route (D065).** Qwen3 loaded in 4-bit, with LoRA adapters (QLoRA), on the local RTX 5060 Ti, in a separate venv (`~/.venvs/a3`). Spend is $0.
+- **Model rule:** Qwen3-8B if, at the longest training example, its peak is ≤ 7.5 GiB, it trains at ≥ 200 tokens/s and generation fits a batch of ≥ 2.
+- **Otherwise:** Qwen3-4B-Instruct-2507.
+- **Why it's close:** Qwen3-8B's untied 16-bit embeddings alone take ~2.5 GB.
 
 **End to end:**
-1. **Data:** 1,478 maps → prompt/answer pairs, using the same serialisation as A2. Split maps above the context budget at dialogue boundaries.
-2. **Model:** a Qwen3-8B-class instruct model, loaded in 4-bit with LoRA r=16 on the attention and MLP layers.
-3. **Train:** 1–3 epochs with sequence length about 4k and gradient checkpointing; dev loss and dev F1 every half epoch.
-4. **Inference:** constrained decoding with a JSON grammar, so only valid IDs and labels can be written. Answer-token probabilities
-   serve as rough confidence for thresholds.
-5. **Repair and assemble** as in A1 and A2.
+1. **Data:** the 1,231 test-like training maps → (instruction + A2's serialised map, compact gold answer without confidence). Gold links on training maps; the ILO labeller's on dev and test. The giant maps are left out (a retrain ablation).
+2. **Train:**
+   - QLoRA, r = 16 on all linear layers;
+   - answer-only loss;
+   - 3 epochs, with an adapter every half epoch;
+   - memory path: our own PEFT wrapping and a fused loss.
+3. **Pick** the half-epoch adapter with the best greedy dev ARI (as A1).
+4. **Generate:** turn types once (greedy), then the relations sampled 8 times from that fixed start (seeded). A per-map grammar keeps every answer valid.
+5. **Decide:** vote shares (token probabilities if the votes are all-or-nothing, by a fixed rule) → A1's 5-label pair format → A1's thresholds, cross-fitted by dev episode.
+6. **Turn types:** the LLM's replace the labeller's only if they gain ≥ 0.5 honest ILO and win in ≥ 4 of 5 dev folds.
+7. **Assemble** with A1's `build_map`, validate, then score officially.
 
-**How it differs.** Versus A1: it generates the whole map's answer, sees everything at once, and has no fixed classifier head. Versus A2:
-the knowledge sits in the weights, so no examples are needed in the prompt, it's cheap per call and runs locally, but it costs training time.
+**Phases:**
+- **A3.1** setup and feasibility (lossless round trip, grammar check, memory / speed probes, model rule);
+- **A3.2** training loop (memorise 32 maps);
+- **A3.3** training run;
+- **A3.4** dev run, thresholds, honest score;
+- **A3.5** complete maps, combination preview, ablations;
+- **A3.6** one test run.
 
-**Why it could beat 2024.** No 2024 team succeeded with a fine-tuned LLM: Pokemon tried LLaMA and fell back to encoders. Current 8B
-models are much stronger, and QLoRA makes whole-map training feasible on consumer hardware. This tests whether *learned style + whole-map view*
-beats a classifier.
+**Success (honest dev), fixed in advance.** A3 succeeds if either holds:
+- it beats A2's ARI general (54.63), with a paired per-map bootstrap interval above 0;
+- adding A3's pair scores to an A1 + A2 average gains ≥ 1.0 general.
 
-**Ablations:** base model with no fine-tuning (zero-shot) vs fine-tuned · epochs · with vs without constrained decoding.
-**Timing:** training wall-clock (the headline cost of this approach), tokens per second at inference, peak VRAM.
+The hypotheses H1–H6 each have a pass rule (report §7).
+
+**How it differs.** Versus A1: it writes the whole map's answer, so decisions compete, and it has no fixed classifier head. Versus A2: the conventions sit in the weights, so no examples are needed in the prompt, and it runs locally at no marginal cost, but it costs training time.
+
+**Ablations:**
+- *Free:* samples 1 / 2 / 4 / 8 · votes vs token probabilities · greedy vs votes · thresholds vs majority vote · epoch curve · direction rule · LLM vs labeller turn types.
+- *Generation:* the untrained model, zero-shot · no constrained decoding.
+- *Retrain:* with the giant-map chunks · 4B vs 8B (only if 8B fits).
+
+**Timing:** training wall-clock (the headline cost), tokens per second, peak VRAM; roughly 15–35 GPU hours in all.
 **Risks:**
-- 8 GB is tight: fall back to a smaller model (3–4B), or rent one cloud GPU run (logged in timing).
-- Weak calibration makes the rare-label trap harder to control.
-- Long maps overflow the context → split them, then merge.
+- Library support for Blackwell on CUDA 13 (checked first);
+- 8B not fitting (the rule switches to 4B);
+- overfitting 1,231 maps;
+- all-or-nothing votes (the token-probability rule);
+- contamination (the dev → test change is compared with A1's and A2's).
 
 ---
 

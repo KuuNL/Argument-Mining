@@ -27,7 +27,13 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A2.3 | Dev run + decision layer | Frozen settings, 3 samples × 225 dev maps (D054); per-type thresholds on confidence-weighted votes, cross-fitted | Honest dev ARI vs A1 (50.50 / 32.61); per-type P/R, direction, invented-Conflict maps; overlap of A1 and A2 errors | A2 | **Passed (D060–D062): honest dev ARI 54.63 / 34.12 vs A1 50.50 / 32.61** |
 | A2.4 | Assemble + ablations | Valid maps and dev Global; LLM turn types adopted only if they beat the labeller; free ablations + the minimal-reasoning dev pass | 225/225 valid; ablation table | A2 | **Passed (D063): honest dev Global 72.53 / 57.63 vs A1 70.29 / 56.63; reasoning only +1 on dev** |
 | A2.5 | Test run + report | Final A2 row; `reports/A2-whole-map-llm.md` | Run once, on the user's go | Final run | **Done (D064): test Global 73.67 / 58.27 (A1 72.01 / 57.53); ARI 55.77 / 33.34** |
-| A3 · A4 | Other approaches | Phased (A3.1, …) when each starts | — | A3 / A4 | Not started |
+| A3.1 | Setup + feasibility | venv `~/.venvs/a3` (peft, bitsandbytes, xgrammar, Unsloth or trl + liger); `a3_finetune/data.py`, `schema.py` / `parse.py` without confidence, `check.py`; memory probe Qwen3-8B → Qwen3-4B-Instruct-2507; generation probe | Round trip 98.92 / 96.51; every gold answer passes its grammar; no leakage; model chosen by the D065 rule (≤ 7.5 GiB, ≥ 200 tok/s, batch ≥ 2) | A3 | **In progress** (D065 approved) |
+| A3.2 | Training loop | `train.py` (answer-only loss, adapter every half epoch, timing); `generate.py` (greedy types + seeded relation samples, grammar, cache) | Memorises 32 maps (≥ 95% relations exact); loss masking verified; epoch time and peak VRAM measured | A3 | Approved (D065) |
+| A3.3 | Training run | 1,231 test-like train maps, 3 epochs | Greedy dev ARI at each half epoch; best adapter chosen; diversity rule applied | A3 | Approved (D065) |
+| A3.4 | Dev run + decision layer | Types + 8 relation samples × 225 dev maps (labeller links); scores → A1's pair format → cross-fitted thresholds | Honest dev ARI vs A1 (50.50 / 32.61) and A2 (54.63 / 34.12) with the bootstrap test; H1–H4 at matched density | A3 | Approved (D065) |
+| A3.5 | Assemble + ablations | Valid maps, dev Global; LLM turn types (strict rule); combination preview; ablations | 225/225 valid; combination test; ablation table | A3 | Approved (D065) |
+| A3.6 | Test run + report | Final A3 row; `reports/A3-finetuned-llm.md` | Run once, on the user's go | Final run | Approved (D065) |
+| A4 | Jev | Phased (A4.1, …) when it starts | — | A4 | Not started |
 | — | Combination · Final run | — | — | Combination / Final run | Not started |
 
 ---
@@ -767,3 +773,61 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - *Turn types:* 3 LLM changes on test, all Asserting → Pure Questioning and all wrong. Maps 1 and 2 got a type absent from gold (the rare-label trap), costing 1.1 ILO. *Post-hoc only (not submitted):* with the labeller's types, Global is 74.20 / 58.81.
 - *Contamination:* the dev → test ARI change is +1.1 for A2 against +0.9 for A1, so there's no sign of memorised test answers.
 - *A2 totals:* 1,194 calls, $0 spent, $57.08 API-equivalent.
+
+### D065 — A3 plan: a QLoRA-tuned Qwen3 writes each map's relations; sampled votes feed A1's decision layer
+- **2026-10-05 · A3 · by Claude · Approved by user 2026-10-05** ("go ahead and start A3.1"; revised the same day after an independent review, before approval). Open items take their stated defaults: the model rule, pre-quantized weights only if RAM requires, and the retrain ablations confirmed at A3.5. The full plan is in [`reports/A3-finetuned-llm.md`](reports/A3-finetuned-llm.md). PLAN.md's Approach 3 section is rewritten (done); phases A3.1–A3.6 are in the phase map.
+- *Question:* A2's discussion found that the encoder learns *the annotators* and the LLM applies *the definition*. Can an LLM that learns the annotators through its weights keep the LLM's precision and direction, and also gain the encoder's neighbour-Inference recall and turn types? Concessive Conflict too, if possible.
+- *Design:*
+  - **Input:** A2's serialised map after a short fixed instruction, with no worked examples and no reasoning. Training maps use gold links (D040); dev and test use the labeller's links.
+  - **Target:** A2's answer without `confidence`, written as compact JSON with exact separators: illocutions, then relations in P order.
+  - **Training data:** the 1,231 test-like training maps. The giant maps (no turn links; 528 of 2,592 propositions unplaceable, D022 / D030) are a retrain ablation, chunked to ≤ 35 propositions.
+  - **Method:** QLoRA (4-bit NF4 layers; LoRA r = 16, α = 32, all linear layers; answer-only loss; 3 epochs; an adapter every half epoch).
+    - *Why:* on 8 GB, full fine-tuning fits only under ~0.5B (ModernBERT-large already used 7.44 GiB, D009), and 16-bit LoRA only up to ~2–3B.
+    - *Memory path built in:* we wrap the model in PEFT ourselves, so TRL doesn't copy the 16-bit embeddings to 32-bit, and we use a fused loss (Unsloth, or TRL + Liger).
+  - **Model rule:** Qwen3-8B if, at the longest training example, its peak is ≤ 7.5 GiB, training runs at ≥ 200 tokens/s, and generation fits a batch of ≥ 2. Otherwise Qwen3-4B-Instruct-2507. No maps are capped to make 8B fit.
+    - *Why borderline:* Qwen3-8B's untied 16-bit embeddings take ~2.5 GB, so its weights are ~6.2 GB; the 4B's (tied) are ~2.7 GB. Configs checked on Hugging Face.
+    - *Other models checked on the web, 2026-10-05:*
+      - Qwen3.5 (Mar 2026): Unsloth advises against 4-bit training, and its 16-bit 4B needs 10 GB.
+      - Gemma 4: E4B needs 10 GB even in 4-bit; E2B sits at 8 GB.
+      - Llama 3.1 8B is older, gated and custom-licensed.
+      - ≥ 12B and mixture-of-experts models don't fit.
+  - **Prediction:** turn types written once (greedy, with their probabilities), then the relations sampled 8 times from that fixed start (seeded). A grammar built from each map's schema, with no free whitespace, keeps answers valid, and answer length is capped.
+  - **Pair scores:** vote shares in A1's 5-label format. Token probabilities are kept as well.
+    - *Diversity rule (A3.3, fixed now):* if fewer than 10% of listed relations get a vote share strictly between 0 and 1, token probability becomes the main score.
+    - Pair scores are then decided by A1's thresholds, cross-fitted by episode, and assembled by `build_map`.
+  - **Checkpoint:** best greedy dev ARI over the 6 half-epoch adapters (as A1, D043).
+  - **Turn types:** links stay with the labeller. LLM types replace the labeller's only if they gain ≥ 0.5 honest ILO *and* win in ≥ 4 of 5 dev folds; this is stricter than A2's rule, after D064.
+  - **Environment:** a separate venv `~/.venvs/a3`, so A1, A2 and the ILO labeller keep working.
+- *Success (honest dev, fixed now):* A3 succeeds if either holds:
+  1. **Beats A2:** A3's ARI general is above A2's 54.63, with a paired per-map bootstrap 95% interval above 0.
+  2. **Adds to the combination:** a cross-fitted average of A1 + A2 + A3 pair scores beats A1 + A2 alone by ≥ 1.0 general.
+- *Hypotheses, with decision rules:* H1 and H2 are measured at matched density (8.3 relations per map).
+  - H1: neighbour-Inference recall ≥ A2 + 0.05.
+  - H2: invented relations ≤ 90% of A1's.
+  - H3: Inference direction ≥ 85%.
+  - H4: within-speaker Conflict recall ≥ 15%.
+  - H5: the strict turn-type rule passes.
+  - H6: fine-tuned beats untrained zero-shot by ≥ 5 general.
+- *Ablations:*
+  - *Free:* samples 1 / 2 / 4 / 8 · votes vs token probabilities · greedy vs votes · thresholds vs majority vote · score per half epoch · direction rule · LLM vs labeller types.
+  - *Generation:* untrained zero-shot · no constrained decoding.
+  - *Retrain:* with the giant-map chunks (recommended) · 4B vs 8B (only if 8B fits).
+- *Review:* an independent reviewer agent rated the first draft "approve with changes", and every finding was adopted (report §12). The main ones:
+  - the 8B memory case;
+  - a success criterion that couldn't fail;
+  - hypotheses with no decision rules;
+  - a confounded Qwen3.5-2B ablation, now dropped;
+  - A2's schema and parser requiring `confidence`;
+  - giant maps in the main run.
+- *Changes to PLAN.md's A3 section (on approval):*
+  - the separate venv;
+  - vote shares, with token probabilities kept, replace answer-token probabilities alone;
+  - "split long maps" becomes "giant maps as a chunked retrain ablation";
+  - the model rule;
+  - the success test and the hypothesis rules;
+  - the ablation list above.
+- *Cost:* $0, on the local RTX 5060 Ti with no API calls. Roughly 15–35 GPU hours.
+- *Open for the user:*
+  1. Approve the model rule (8B if it fits, else Qwen3-4B-Instruct-2507, locally at $0), rather than a free Kaggle / Colab GPU or a paid rental.
+  2. If WSL's 7 GB RAM can't load 8B: pre-quantized weights (default) or raising WSL memory in `.wslconfig`.
+  3. Which retrain ablations to run (giant chunks recommended; 4B vs 8B only if 8B fits).
