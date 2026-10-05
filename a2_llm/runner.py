@@ -9,14 +9,20 @@ kept. At a usage limit the runner stops and says so: re-run the same command to 
 
     python -m a2_llm.runner --run=smoke            # send what is missing, then summarise
     python -m a2_llm.runner --run=smoke --export   # also results/a2/<run>/responses.jsonl.gz (committed, D052)
+    python -m a2_llm.runner --run=dev-v1 --export --workers=2   # 2 calls at a time (each answer is its own file)
+    ... --until-done      # at a usage limit, sleep until the stated reset (+5 min) and carry on (D060)
 """
 import gzip
 import hashlib
 import json
+import re
 import statistics as st
 import sys
+import threading
 import time
-from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from common import RESULTS, ROOT
 from common.aif import load_map, strip_to_input, test_paths, view
@@ -211,31 +217,71 @@ def summary(recs: list[dict]) -> dict:
     return out
 
 
+RESET = re.compile(r"resets\s+(?:(?P<mon>[A-Z][a-z]{2,8})\s+(?P<day>\d{1,2}),?\s+(?:at\s+)?)?"
+                   r"(?P<h>\d{1,2})(?::(?P<m>\d{2}))?\s*(?P<ap>[ap]m)\s*(?:\((?P<tz>[^)]+)\))?", re.I)
+
+
+def seconds_to_reset(message: str, margin: int = 300) -> float:
+    """Seconds until the reset named in a usage-limit message ("resets 3:10am (Europe/London)", or with a date
+    for a weekly limit), plus a margin. Unparseable messages give 30 minutes: the next try costs nothing."""
+    m = RESET.search(message)
+    if not m:
+        return 1800.0
+    tz = ZoneInfo(m["tz"]) if m["tz"] else ZoneInfo("Europe/London")
+    now = datetime.now(tz)
+    hour = int(m["h"]) % 12 + (12 if m["ap"].lower() == "pm" else 0)
+    at = now.replace(hour=hour, minute=int(m["m"] or 0), second=0, microsecond=0)
+    if m["mon"]:
+        at = at.replace(month=datetime.strptime(m["mon"][:3], "%b").month, day=int(m["day"]))
+        if at < now - timedelta(days=1):
+            at = at.replace(year=at.year + 1)
+    elif at <= now:
+        at += timedelta(days=1)
+    return max((at - now).total_seconds(), 0) + margin
+
+
 def main():
     run = arg("run", "smoke")
     cfg = RUNS[run]
     cli = claude_cli.version()
     js = list(jobs(cfg))
-    todo = [j for j in js if pending(load(j["key"], j["s"]))]
-    print(f"run {run}: {len(js)} jobs, {len(js) - len(todo)} settled, {len(todo)} to send ({cli})", flush=True)
-    stopped = None
-    with timed("a2", f"run:{run}", jobs=len(js), to_send=len(todo)) as row:
-        for job in todo:
+    workers = int(arg("workers", 1))
+    until_done = "--until-done" in sys.argv           # sleep through usage limits and carry on (D060)
+    while True:
+        todo = [j for j in js if pending(load(j["key"], j["s"]))]
+        print(f"run {run}: {len(js)} jobs, {len(js) - len(todo)} settled, {len(todo)} to send, {workers} at a time "
+              f"({cli}, {datetime.now().isoformat(timespec='minutes')})", flush=True)
+        halt, limits = threading.Event(), []
+
+        def work(job):
+            if halt.is_set():                             # a usage limit was hit: send nothing more
+                return
             try:
                 send(job, cfg, run, cli)
             except claude_cli.UsageLimit as e:
-                stopped = str(e)
-                break
-        recs = [r for r in (load(j["key"], j["s"]) for j in js) if r]
-        rep = {"run": run, "settings": cfg, "cli": cli, "stopped_at_usage_limit": stopped, **summary(recs)}
-        row.update({k: rep[k] for k in ("ok", "failed", "calls_made", "api_equivalent_usd")})
-    (OUT / run).mkdir(parents=True, exist_ok=True)
-    with open(OUT / run / "summary.json", "w", encoding="utf-8", newline="\n") as f:
-        f.write(json.dumps(rep, indent=1))
-    if "--export" in sys.argv:
-        with gzip.open(OUT / run / "responses.jsonl.gz", "wt", encoding="utf-8") as f:
-            for r in sorted(recs, key=lambda r: (r["map"], r["sample"])):
-                f.write(json.dumps(r, ensure_ascii=False) + "\n")
+                limits.append(str(e))
+                halt.set()
+
+        with timed("a2", f"run:{run}", jobs=len(js), to_send=len(todo), workers=workers) as row:
+            with ThreadPoolExecutor(max_workers=workers) as pool:
+                list(pool.map(work, todo))                # re-raises any other error
+            stopped = limits[0] if limits else None
+            recs = [r for r in (load(j["key"], j["s"]) for j in js) if r]
+            rep = {"run": run, "settings": cfg, "cli": cli, "stopped_at_usage_limit": stopped, **summary(recs)}
+            row.update({k: rep[k] for k in ("ok", "failed", "calls_made", "api_equivalent_usd")})
+        (OUT / run).mkdir(parents=True, exist_ok=True)
+        with open(OUT / run / "summary.json", "w", encoding="utf-8", newline="\n") as f:
+            f.write(json.dumps(rep, indent=1))
+        if "--export" in sys.argv:
+            with gzip.open(OUT / run / "responses.jsonl.gz", "wt", encoding="utf-8") as f:
+                for r in sorted(recs, key=lambda r: (r["map"], r["sample"])):
+                    f.write(json.dumps(r, ensure_ascii=False) + "\n")
+        if not stopped or not until_done:
+            break
+        wait = seconds_to_reset(stopped)
+        print(f"Usage limit: {stopped}\nSleeping {wait / 60:.0f} min, until {(datetime.now() + timedelta(seconds=wait)).isoformat(timespec='minutes')}",
+              flush=True)
+        time.sleep(wait)
     print(json.dumps(rep, indent=1))
     if stopped:
         print(f"\nStopped at the usage limit: {stopped}\nRe-run the same command to continue; answered jobs are kept.")

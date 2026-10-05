@@ -678,3 +678,9 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - **Frozen for A2.3–A2.5:** Sonnet 5.5, `system_v1.md`, 4 TF-IDF-retrieved worked examples, effort `xhigh`, 3 samples.
 - *Pilot cost:* 249 calls (sweep A 200, sweep B 20 + 20 reused, revision 20, reasoning test 9) and no usage limit hit. A2.3 is 675 calls at ~13 s ≈ 2.5 h of calls.
 - *Caveat:* pilot scores are on *training* maps with gold links and 1 sample, so they are not comparable with A1's dev numbers. A2.3 gives the comparable score.
+
+### D060 — A2 runs auto-resume after usage limits (replaces "resume when I say")
+- **2026-10-05 · A2.3 · by user ("plan to continue when usage resets") · Approved · Done**
+- *What happened:* the dev run (`dev-v1`, 2 calls at a time) hit the Pro **5-hour session limit after 76 of 675 answers** ("resets 3:10am (Europe/London)"). At effort `xhigh`, a session holds far fewer calls than the pilot's medium-effort calls suggested. The remaining 599 calls need about 8 sessions, so roughly 1.5–2 days of calendar time, unless the weekly limit binds first.
+- *Change:* `runner.py --until-done`. At a usage limit the runner reads the reset time in the message, sleeps until 5 minutes after it, and continues. This covers the 5-hour form and the weekly form with a date, and an unreadable message retries in 30 minutes. Answers are saved one by one, so nothing is lost or re-sent. This replaces D052's "pause; resume when I say" for A2's runs.
+- *Note for the user:* while it runs, it uses each fresh Pro session as soon as it resets, which competes with their own Claude use. Stopping it is safe at any time.
