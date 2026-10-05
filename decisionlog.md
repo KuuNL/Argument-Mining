@@ -26,7 +26,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A2.2 | Prompt development | Pilot (~50 train maps, 3 episodes), TF-IDF example retrieval, system prompt; sweeps at 1 sample: examples k ∈ {0,2,4,8}, effort low/medium/high; ≤ 2 revision rounds | Prompt and settings frozen from a pilot table; timeline projected from measured calls per usage window | A2 | **Passed (D056–D059): frozen = prompt v1, k = 4, effort `xhigh`; reasoning +11 focused on the pilot** |
 | A2.3 | Dev run + decision layer | Frozen settings, 3 samples × 225 dev maps (D054); per-type thresholds on confidence-weighted votes, cross-fitted | Honest dev ARI vs A1 (50.50 / 32.61); per-type P/R, direction, invented-Conflict maps; overlap of A1 and A2 errors | A2 | **Passed (D060–D062): honest dev ARI 54.63 / 34.12 vs A1 50.50 / 32.61** |
 | A2.4 | Assemble + ablations | Valid maps and dev Global; LLM turn types adopted only if they beat the labeller; free ablations + the minimal-reasoning dev pass | 225/225 valid; ablation table | A2 | **Passed (D063): honest dev Global 72.53 / 57.63 vs A1 70.29 / 56.63; reasoning only +1 on dev** |
-| A2.5 | Test run + report | Final A2 row; `reports/A2-whole-map-llm.md` | Run once, on the user's go | Final run | Approved (D051–D053) |
+| A2.5 | Test run + report | Final A2 row; `reports/A2-whole-map-llm.md` | Run once, on the user's go | Final run | **Done (D064): test Global 73.67 / 58.27 (A1 72.01 / 57.53); ARI 55.77 / 33.34** |
 | A3 · A4 | Other approaches | Phased (A3.1, …) when each starts | — | A3 / A4 | Not started |
 | — | Combination · Final run | — | — | Combination / Final run | Not started |
 
@@ -744,3 +744,26 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - **The pilot's +4.5 / +11.5 for reasoning did not replicate on dev.** Likely causes: the pilot compared reasoning under prompt v0 (v1 fixes much of what reasoning compensated for), 20-map noise, and annotated links.
   - A pilot effect's size must be confirmed on the larger set.
   - The frozen settings (`xhigh`) stay for the test run as decided before dev was seen. Medium is the efficient choice for future runs and the combination.
+
+### D064 — A2.5 result: test Global 73.67 / 58.27; ARI 55.77 / 33.34; the LLM turn types cost 1.1 ILO
+- **2026-10-05 · A2.5 · run on the user's go · Finding** (`results/a2/test_global.json`, `test_predictions/`, `test_posthoc.json`)
+- *Protocol:*
+  - 11 test inputs × 3 answers (33 calls, valid, Sonnet-only, $1.93 API-equivalent);
+  - dev-fitted relation thresholds and turn-type rule;
+  - maps assembled, validated (11/11) and saved before the gold was read, then scored once, with nothing changed after.
+
+  | Test F1, general / focused | ARI | ILO | Global |
+  |---|---|---|---|
+  | A1 + labeller (D050) | 51.38 / 30.77 | 92.64 / 84.28 | 72.01 / 57.53 |
+  | **A2 + labeller + LLM types** | **55.77 / 33.34** | 91.56 / 83.20 | **73.67 / 58.27** |
+
+- *Against the 2024 field:* Global 1st / 1st; ARI general 1st (DFKI 55.33); ARI focused 2nd (POKEMON 35.89).
+- *Per type (pooled), P / R / F1:*
+  - Inference 0.48 / 0.40 / 0.44 (A1: 0.31 / 0.28 / 0.29);
+  - Conflict 0.50 / 0.15 / 0.24 (2 of 13; A1 also 2 of 13);
+  - Rephrase 0.46 / 0.54 / 0.50 (A1: 0.46 / 0.63 / 0.53).
+  - Direction is right for 90% of the Inferences found (A1: 78%), and no map gets an invented type.
+- *Per map:* A2's ARI beats A1's on 7 of 11 maps (+12 to +15 on maps 3, 7 and 8; −7 on map 4, −5 on map 2).
+- *Turn types:* 3 LLM changes on test, all Asserting → Pure Questioning and all wrong. Maps 1 and 2 got a type absent from gold (the rare-label trap), costing 1.1 ILO. *Post-hoc only (not submitted):* with the labeller's types, Global is 74.20 / 58.81.
+- *Contamination:* the dev → test ARI change is +1.1 for A2 against +0.9 for A1, so there's no sign of memorised test answers.
+- *A2 totals:* 1,194 calls, $0 spent, $57.08 API-equivalent.
