@@ -1,0 +1,52 @@
+{"event": "start", "config": {"run": "overfit", "model": "qwen3-4b", "epochs": 10.0, "lr": 0.0002, "accum": 1, "maps": 32, "giants": false, "dev": false, "saves_per_epoch": 1, "warmup": 0.03, "grad_clip": 1.0, "seed": 13}, "train": 32, "dev": 0, "updates": 320, "updates_per_epoch": 32, "masking": {"examples": 32, "answer_tokens": 8323, "prompt_tokens_masked": 24555}}
+{"event": "train", "step": 10, "epoch": 0.312, "loss": 0.412, "lr": 0.00019935691318327976, "tokens_per_s": 374, "peak_vram_gib": 3.71}
+{"event": "train", "step": 20, "epoch": 0.625, "loss": 0.1684, "lr": 0.00019292604501607719, "tokens_per_s": 735, "peak_vram_gib": 3.83}
+{"event": "train", "step": 30, "epoch": 0.938, "loss": 0.1215, "lr": 0.0001864951768488746, "tokens_per_s": 721, "peak_vram_gib": 3.83}
+{"event": "train", "step": 32, "epoch": 1.0, "loss": 0.0938, "lr": 0.00018520900321543409, "tokens_per_s": 716, "peak_vram_gib": 3.83}
+{"event": "save", "step": 32, "epoch": 1.0, "adapter": "ep1.0"}
+{"event": "train", "step": 40, "epoch": 1.25, "loss": 0.0784, "lr": 0.00018006430868167204, "tokens_per_s": 692, "peak_vram_gib": 3.83}
+{"event": "train", "step": 50, "epoch": 1.562, "loss": 0.0871, "lr": 0.00017363344051446946, "tokens_per_s": 749, "peak_vram_gib": 3.83}
+{"event": "train", "step": 60, "epoch": 1.875, "loss": 0.0901, "lr": 0.0001672025723472669, "tokens_per_s": 720, "peak_vram_gib": 3.83}
+{"event": "train", "step": 64, "epoch": 2.0, "loss": 0.1015, "lr": 0.00016463022508038586, "tokens_per_s": 725, "peak_vram_gib": 3.83}
+{"event": "save", "step": 64, "epoch": 2.0, "adapter": "ep2.0"}
+{"event": "train", "step": 70, "epoch": 2.188, "loss": 0.0323, "lr": 0.0001607717041800643, "tokens_per_s": 739, "peak_vram_gib": 3.83}
+{"event": "train", "step": 80, "epoch": 2.5, "loss": 0.0522, "lr": 0.00015434083601286174, "tokens_per_s": 715, "peak_vram_gib": 3.83}
+{"event": "train", "step": 90, "epoch": 2.812, "loss": 0.0624, "lr": 0.0001479099678456592, "tokens_per_s": 746, "peak_vram_gib": 3.83}
+{"event": "train", "step": 96, "epoch": 3.0, "loss": 0.0663, "lr": 0.00014405144694533764, "tokens_per_s": 733, "peak_vram_gib": 3.83}
+{"event": "save", "step": 96, "epoch": 3.0, "adapter": "ep3.0"}
+{"event": "train", "step": 100, "epoch": 3.125, "loss": 0.0217, "lr": 0.00014147909967845662, "tokens_per_s": 733, "peak_vram_gib": 3.83}
+{"event": "train", "step": 110, "epoch": 3.438, "loss": 0.0311, "lr": 0.00013504823151125404, "tokens_per_s": 710, "peak_vram_gib": 3.83}
+{"event": "train", "step": 120, "epoch": 3.75, "loss": 0.0346, "lr": 0.00012861736334405147, "tokens_per_s": 728, "peak_vram_gib": 3.83}
+{"event": "train", "step": 128, "epoch": 4.0, "loss": 0.0392, "lr": 0.00012347266881028942, "tokens_per_s": 735, "peak_vram_gib": 3.83}
+{"event": "save", "step": 128, "epoch": 4.0, "adapter": "ep4.0"}
+{"event": "train", "step": 130, "epoch": 4.062, "loss": 0.0041, "lr": 0.0001221864951768489, "tokens_per_s": 743, "peak_vram_gib": 3.83}
+{"event": "train", "step": 140, "epoch": 4.375, "loss": 0.0265, "lr": 0.0001157556270096463, "tokens_per_s": 740, "peak_vram_gib": 3.83}
+{"event": "train", "step": 150, "epoch": 4.688, "loss": 0.0214, "lr": 0.00010932475884244373, "tokens_per_s": 728, "peak_vram_gib": 3.83}
+{"event": "train", "step": 160, "epoch": 5.0, "loss": 0.017, "lr": 0.00010289389067524115, "tokens_per_s": 714, "peak_vram_gib": 3.83}
+{"event": "save", "step": 160, "epoch": 5.0, "adapter": "ep5.0"}
+{"event": "train", "step": 170, "epoch": 5.312, "loss": 0.0164, "lr": 9.646302250803859e-05, "tokens_per_s": 717, "peak_vram_gib": 3.83}
+{"event": "train", "step": 180, "epoch": 5.625, "loss": 0.0083, "lr": 9.003215434083602e-05, "tokens_per_s": 723, "peak_vram_gib": 3.83}
+{"event": "train", "step": 190, "epoch": 5.938, "loss": 0.0111, "lr": 8.360128617363344e-05, "tokens_per_s": 732, "peak_vram_gib": 3.83}
+{"event": "train", "step": 192, "epoch": 6.0, "loss": 0.0194, "lr": 8.231511254019293e-05, "tokens_per_s": 706, "peak_vram_gib": 3.83}
+{"event": "save", "step": 192, "epoch": 6.0, "adapter": "ep6.0"}
+{"event": "train", "step": 200, "epoch": 6.25, "loss": 0.0042, "lr": 7.717041800643087e-05, "tokens_per_s": 727, "peak_vram_gib": 3.83}
+{"event": "train", "step": 210, "epoch": 6.562, "loss": 0.0095, "lr": 7.073954983922831e-05, "tokens_per_s": 718, "peak_vram_gib": 3.83}
+{"event": "train", "step": 220, "epoch": 6.875, "loss": 0.0055, "lr": 6.430868167202573e-05, "tokens_per_s": 719, "peak_vram_gib": 3.83}
+{"event": "train", "step": 224, "epoch": 7.0, "loss": 0.004, "lr": 6.173633440514471e-05, "tokens_per_s": 696, "peak_vram_gib": 3.83}
+{"event": "save", "step": 224, "epoch": 7.0, "adapter": "ep7.0"}
+{"event": "train", "step": 230, "epoch": 7.188, "loss": 0.002, "lr": 5.787781350482315e-05, "tokens_per_s": 750, "peak_vram_gib": 3.83}
+{"event": "train", "step": 240, "epoch": 7.5, "loss": 0.0023, "lr": 5.144694533762058e-05, "tokens_per_s": 734, "peak_vram_gib": 3.83}
+{"event": "train", "step": 250, "epoch": 7.812, "loss": 0.0037, "lr": 4.501607717041801e-05, "tokens_per_s": 725, "peak_vram_gib": 3.83}
+{"event": "train", "step": 256, "epoch": 8.0, "loss": 0.0004, "lr": 4.1157556270096466e-05, "tokens_per_s": 690, "peak_vram_gib": 3.83}
+{"event": "save", "step": 256, "epoch": 8.0, "adapter": "ep8.0"}
+{"event": "train", "step": 260, "epoch": 8.125, "loss": 0.001, "lr": 3.8585209003215434e-05, "tokens_per_s": 671, "peak_vram_gib": 3.83}
+{"event": "train", "step": 270, "epoch": 8.438, "loss": 0.0007, "lr": 3.2154340836012867e-05, "tokens_per_s": 727, "peak_vram_gib": 3.83}
+{"event": "train", "step": 280, "epoch": 8.75, "loss": 0.0021, "lr": 2.572347266881029e-05, "tokens_per_s": 714, "peak_vram_gib": 3.83}
+{"event": "train", "step": 288, "epoch": 9.0, "loss": 0.0003, "lr": 2.0578778135048233e-05, "tokens_per_s": 718, "peak_vram_gib": 3.83}
+{"event": "save", "step": 288, "epoch": 9.0, "adapter": "ep9.0"}
+{"event": "train", "step": 290, "epoch": 9.062, "loss": 0.0, "lr": 1.9292604501607717e-05, "tokens_per_s": 693, "peak_vram_gib": 3.83}
+{"event": "train", "step": 300, "epoch": 9.375, "loss": 0.0004, "lr": 1.2861736334405144e-05, "tokens_per_s": 711, "peak_vram_gib": 3.83}
+{"event": "train", "step": 310, "epoch": 9.688, "loss": 0.0002, "lr": 6.430868167202572e-06, "tokens_per_s": 722, "peak_vram_gib": 3.83}
+{"event": "train", "step": 320, "epoch": 10.0, "loss": 0.0003, "lr": 0.0, "tokens_per_s": 721, "peak_vram_gib": 3.83}
+{"event": "save", "step": 320, "epoch": 10.0, "adapter": "ep10.0"}
+{"event": "end", "updates": 320, "seconds": 518.3, "minutes_per_epoch": 0.9, "tokens_per_s": 634, "peak_vram_gib": 3.83}

@@ -34,22 +34,30 @@ class Generator:
         return self.tok(prompt(self.tok, ex.user), add_special_tokens=False)["input_ids"]
 
     @torch.no_grad()
-    def _run(self, ids: list[int], matchers, sample: bool, max_new: int, seed: int | None) -> list[Out]:
-        x = torch.tensor([ids] * len(matchers), device=self.model.device)
+    def _run(self, rows: list[list[int]], matchers, sample: bool, max_new: int, seed: int | None) -> list[Out]:
+        """rows: one prompt per matcher, left-padded to a common length."""
+        width = max(len(r) for r in rows)
+        pad = self.tok.pad_token_id if self.tok.pad_token_id is not None else self.end
+        x = torch.tensor([[pad] * (width - len(r)) + r for r in rows], device=self.model.device)
+        mask = torch.tensor([[0] * (width - len(r)) + [1] * len(r) for r in rows], device=self.model.device)
         proc = Constrain(matchers, self.g.vocab_size)
         kw = dict(do_sample=True, temperature=1.0, top_k=0, top_p=1.0) if sample else dict(do_sample=False)
         if seed is not None:
             torch.manual_seed(seed)
-        seqs = self.model.generate(x, attention_mask=torch.ones_like(x), max_new_tokens=max_new,
-                                   logits_processor=[proc], eos_token_id=self.end, pad_token_id=self.end, **kw)
+        seqs = self.model.generate(x, attention_mask=mask, max_new_tokens=max_new, logits_processor=[proc],
+                                   eos_token_id=self.end, pad_token_id=pad, **kw)
         outs = []
-        for i, row in enumerate(seqs[:, len(ids):].tolist()):
+        for i, row in enumerate(seqs[:, width:].tolist()):
             n = row.index(self.end) + 1 if self.end in row else len(row)
             outs.append(Out(row[:n], proc.logps[i], self.end in row))
         return outs
 
     def greedy(self, ex, max_new: int = 1024) -> Out:
-        return self._run(self.prompt_ids(ex), [self.g.matcher(ex.s)], False, max_new, None)[0]
+        return self.greedy_batch([ex], max_new)[0]
+
+    def greedy_batch(self, exs: list, max_new: int = 1024) -> list[Out]:
+        """Greedy answers for several maps in one left-padded batch."""
+        return self._run([self.prompt_ids(e) for e in exs], [self.g.matcher(e.s) for e in exs], False, max_new, None)
 
     def cut(self, tokens: list[int]) -> int:
         """The longest token prefix of a greedy answer that ends before its "relations" key."""
@@ -65,7 +73,7 @@ class Generator:
         prefix = greedy.tokens[:k]
         first = self.g.matcher(ex.s, prefix)
         matchers = [first] + [first.fork() for _ in range(n - 1)]
-        return prefix, self._run(self.prompt_ids(ex) + prefix, matchers, True, max_new, seed)
+        return prefix, self._run([self.prompt_ids(ex) + prefix] * n, matchers, True, max_new, seed)
 
     def answer(self, tokens: list[int]) -> dict | None:
         try:

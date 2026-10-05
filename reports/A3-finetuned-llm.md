@@ -1,7 +1,7 @@
 # A3 — A fine-tuned open language model for argument relations
 
 > **What this is:** the report on approach A3, written for readers new to the project. Terms are explained where they first appear, and §3 collects them. It starts as the plan and the reasons behind it; results are added as each phase finishes.
-> **Status:** plan approved 2026-10-05 after an independent review (§12). **A3.1 passed** (§11): the model is Qwen3-4B-Instruct-2507, because Qwen3-8B doesn't fit the 8 GB card. Next: A3.2 (training loop).
+> **Status:** plan approved 2026-10-05 after an independent review (§12). **A3.1 and A3.2 passed** (§11): the model is Qwen3-4B-Instruct-2507, because Qwen3-8B doesn't fit the 8 GB card, and the training loop reproduces 32 memorised maps exactly. Next: A3.3 (the training run).
 > **Evidence (as phases finish):** `../results/a3/`. Decisions start at D065 in [`../decisionlog.md`](../decisionlog.md).
 > **Background:** [A1](A1-cross-encoder.md) (the trained pairwise encoder), [A2](A2-whole-map-llm.md) (Claude reading the whole map) and [the A2 discussion](A2-discussion.md) (why each wins where it does).
 
@@ -320,6 +320,34 @@ Evidence: [`../results/a3/check.json`](../results/a3/check.json), [`probe_qwen3-
   - no Unsloth (its current release needs an older torch);
   - greedy decoding to be batched across maps in A3.2, so checkpoints can be scored on all of dev in reasonable time.
 - **Consequences for the plan:** the 4B vs 8B ablation is dropped. H6 now tests only "fine-tuned vs untrained".
+
+### A3.2 Training loop — passed (2026-10-05)
+Evidence: [`../results/a3/overfit/`](../results/a3/overfit/) (`train_log.jsonl`, `overfit_report.json`, the greedy answers). Decision D067.
+
+**What was built**
+- **`train.py`:**
+  - one map per forward pass; gradients accumulated with every answer token weighted equally;
+  - paged 8-bit AdamW, linear warm-up and decay;
+  - an adapter every half epoch, with the dev answer loss;
+  - before training, a check that only the answer (plus the end-of-turn token) is trained on.
+- **`runner.py`:**
+  - generation with an on-disk cache keyed by everything that determines an answer, including a hash of the adapter weights;
+  - greedy decoding batched across maps;
+  - exports of the raw answers.
+- **`evaluate.py`:** the overfit gate, plus greedy dev ARI per adapter for A3.3.
+
+**The overfit test.** Can the loop teach the model 32 training maps by heart, and can generation read them back?
+
+| Gate item | Result |
+|---|---|
+| Training: 32 maps, 10 epochs, 320 updates | Loss 0.41 → 0.0003 in 8.6 min; peak 3.83 GiB; ~720 tokens/s |
+| Greedy answers vs gold | **32 / 32 identical**: 206 / 206 relations, every turn type right, all valid |
+| Loss masking | Verified on every example: 8,323 answer tokens trained on, 24,555 prompt tokens masked |
+| Greedy speed | ≈ 5.5 s per map in batches of 8, against ≈ 14 s one at a time |
+
+**Projection for A3.3:**
+- **Training:** an epoch is 1.48M tokens, ≈ 34 min. 3 epochs plus the dev-loss checks take ≈ 2 h.
+- **Checkpoint scoring:** greedy on the 225 dev maps takes ≈ 21 min per adapter, so ≈ 2 h for all 6.
 
 ---
 

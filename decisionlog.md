@@ -28,8 +28,8 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A2.4 | Assemble + ablations | Valid maps and dev Global; LLM turn types adopted only if they beat the labeller; free ablations + the minimal-reasoning dev pass | 225/225 valid; ablation table | A2 | **Passed (D063): honest dev Global 72.53 / 57.63 vs A1 70.29 / 56.63; reasoning only +1 on dev** |
 | A2.5 | Test run + report | Final A2 row; `reports/A2-whole-map-llm.md` | Run once, on the user's go | Final run | **Done (D064): test Global 73.67 / 58.27 (A1 72.01 / 57.53); ARI 55.77 / 33.34** |
 | A3.1 | Setup + feasibility | venv `~/.venvs/a3` (peft, bitsandbytes, xgrammar, Unsloth or trl + liger); `a3_finetune/data.py`, `schema.py` / `parse.py` without confidence, `check.py`; memory probe Qwen3-8B → Qwen3-4B-Instruct-2507; generation probe | Round trip 98.92 / 96.51; every gold answer passes its grammar; no leakage; model chosen by the D065 rule (≤ 7.5 GiB, ≥ 200 tok/s, batch ≥ 2) | A3 | **Passed (D066)**: round trip 98.92 / 96.51; 0 grammar rejections; 8B fails the memory rule → **Qwen3-4B-Instruct-2507** (4.25 GiB, 789 tok/s) |
-| A3.2 | Training loop | `train.py` (answer-only loss, adapter every half epoch, timing); `generate.py` (greedy types + seeded relation samples, grammar, cache; greedy batched across maps, D066) | Memorises 32 maps (≥ 95% relations exact); loss masking verified; epoch time and peak VRAM measured | A3 | **Next** |
-| A3.3 | Training run | 1,231 test-like train maps, 3 epochs | Greedy dev ARI at each half epoch; best adapter chosen; diversity rule applied | A3 | Approved (D065) |
+| A3.2 | Training loop | `train.py` (answer-only loss, adapter every half epoch, timing); `generate.py` (greedy types + seeded relation samples, grammar, cache; greedy batched across maps, D066) | Memorises 32 maps (≥ 95% relations exact); loss masking verified; epoch time and peak VRAM measured | A3 | **Passed (D067)**: 32/32 maps reproduced exactly (206/206 relations); masking verified; 3.83 GiB, ~720 tok/s; batched greedy ≈ 5.5 s per map |
+| A3.3 | Training run | 1,231 test-like train maps, 3 epochs | Greedy dev ARI at each half epoch; best adapter chosen; diversity rule applied | A3 | **Next** (≈ 2 h training + ≈ 2 h greedy scoring) |
 | A3.4 | Dev run + decision layer | Types + 8 relation samples × 225 dev maps (labeller links); scores → A1's pair format → cross-fitted thresholds | Honest dev ARI vs A1 (50.50 / 32.61) and A2 (54.63 / 34.12) with the bootstrap test; H1–H4 at matched density | A3 | Approved (D065) |
 | A3.5 | Assemble + ablations | Valid maps, dev Global; LLM turn types (strict rule); combination preview; ablations | 225/225 valid; combination test; ablation table | A3 | Approved (D065) |
 | A3.6 | Test run + report | Final A3 row; `reports/A3-finetuned-llm.md` | Run once, on the user's go | Final run | Approved (D065) |
@@ -865,3 +865,28 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - **Training:** an epoch is ≈ 1.5M tokens ≈ 33 min, so 3 epochs take ≈ 1.7 h.
   - **Dev run** (greedy + 8 samples × 225 maps): ≈ 2 h.
   - **Checkpoint scoring:** 6 checkpoints, greedy on all 225 dev maps one map at a time, would take ~5 h. So A3.2 adds greedy decoding batched across maps.
+
+### D067 — A3.2 result: the training loop memorises 32 maps exactly; the full run is projected at ~2 h
+- **2026-10-05 · A3.2 · by Claude · Finding + Done** (`results/a3/overfit/`: `train_log.jsonl`, `config.json`, `overfit_report.json`, `ep10.0_train_greedy.jsonl.gz`)
+- *Built:*
+  - **`train.py`:**
+    - one map per forward pass, gradient accumulation with every answer token weighted equally;
+    - paged 8-bit AdamW, linear warm-up and decay, gradient clipping;
+    - an adapter every half epoch, with the teacher-forced dev answer loss.
+    - Before every run it checks the loss mask: the labelled tokens must decode to exactly the gold answer plus `<|im_end|>`, with the prompt fully masked.
+  - **`runner.py`:** cached generation.
+    - Answers are keyed by base model, a hash of the adapter weights, prompt, mode, seed, length cap and grammar settings.
+    - Greedy decoding is batched across maps (left-padded, ≤ 16k tokens per batch); samples continue the greedy answer.
+    - `--export` writes committed `.jsonl.gz` files.
+  - **`evaluate.py`:** the overfit gate, plus greedy dev ARI per adapter and the checkpoint rule (for A3.3).
+- *Overfit test:* 32 seeded training maps, 10 epochs, 320 updates.
+  - Loss 0.41 → 0.0003.
+  - 8.6 min in total: 634 tokens/s overall, ~720 while training; peak 3.83 GiB.
+- *Gate:*
+  - Greedy answers are **identical to gold on 32 / 32 maps**: 206 / 206 relations (precision and recall 1.0), every turn type right, all valid and finished.
+  - Masking verified: 8,323 answer tokens trained on, 24,555 prompt tokens masked.
+- *Speed:* batched greedy takes ≈ 5.5 s per map at 8 maps per batch, against ≈ 14 s one at a time. Greedy on the 225 dev maps is therefore ≈ 21 min per adapter.
+- *Projection for A3.3:*
+  - An epoch is 1.48M tokens, 393k of them answer tokens: ≈ 34 min.
+  - 3 epochs plus 6 dev-loss passes (270k tokens each) take ≈ 2 h.
+  - Greedy scoring of the 6 adapters takes ≈ 2 h more, run after training.

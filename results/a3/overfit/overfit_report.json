@@ -1,0 +1,12 @@
+{
+ "run": "overfit",
+ "adapter": "ep10.0",
+ "maps": 32,
+ "valid": 32,
+ "identical_answers": 32,
+ "relations_gold": 206,
+ "relation_recall": 1.0,
+ "relation_precision": 1.0,
+ "turn_types_right": 1.0,
+ "gate_recall_0.95": true
+}
