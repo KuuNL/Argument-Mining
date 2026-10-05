@@ -1,0 +1,9 @@
+{
+ "run": "dev-v1",
+ "thresholds": {
+  "Inference": 0.35,
+  "Conflict": 0.5,
+  "Rephrase": 0.25
+ },
+ "objective": 54.81
+}

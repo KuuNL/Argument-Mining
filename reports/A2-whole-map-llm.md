@@ -1,7 +1,7 @@
 # A2 — A whole-map language model for argument relations
 
 > **What this is:** the report on approach A2, written for readers new to the project. Terms are explained where they first appear, and §3 collects them.
-> **Status:** A2.1 (setup) and A2.2 (prompt development) are done. Next is A2.3, the dev run (675 calls, about 2.5 hours), on the user's go.
+> **Status:** A2.1–A2.3 done: **honest dev ARI 54.63 / 34.12, above A1's 50.50 / 32.61**. Next is A2.4 (complete maps, turn types, ablations), on the user's go.
 > **Evidence:** [`../results/a2/`](../results/a2/) (summaries, scores and every raw model answer). Decisions D051–D059 are in [`../decisionlog.md`](../decisionlog.md).
 
 ## In one minute
@@ -13,6 +13,7 @@
   - **Reasoning is the strongest lever.** Sonnet only reasons before answering at effort `xhigh`, and that adds about 11 points of focused F1 on the pilot.
   - **Worked examples help** (+4–5 points), and **a prompt revision** driven by the errors fixed the main confusion (Rephrase read as Inference).
   - **The configuration is now frozen:** prompt v1, 4 worked examples, effort `xhigh`, 3 samples.
+  - **On dev, A2 beats A1:** honest ARI is 54.63 / 34.12 against 50.50 / 32.61, with better precision on every relation type. The two systems get different pairs right: picking the right one per pair would score 66.1 / 46.0.
 
 ---
 
@@ -219,7 +220,7 @@ flowchart LR
 |---|---|---|---|
 | **A2.1 Setup** | Build and verify everything between a map and a score | **Done** | 12 |
 | **A2.2 Prompt development** | Choose examples and effort, and revise the prompt, on a pilot | **Done**: prompt v1, k = 4, `xhigh` | 249 |
-| **A2.3 Dev run** | 3 answers × 225 dev maps; thresholds; honest score next to A1 | Next | 675 |
+| **A2.3 Dev run** | 3 answers × 225 dev maps; thresholds; honest score next to A1 | **Done**: 54.63 / 34.12 against A1's 50.50 / 32.61 | 675 |
 | **A2.4 Assembly + ablations** | Complete maps, turn types, ablations | Planned | 225 |
 | **A2.5 Test run** | The 11 test maps, once | Planned | 33 |
 
@@ -295,16 +296,48 @@ flowchart LR
 - **Turn types:** 97% right overall, and 19 of 25 rare (non-Asserting) types, which the ILO labeller misses entirely.
 - **Caveat:** these are training maps with annotated turn links and 1 answer each, so they compare settings. They aren't comparable with A1's dev score. A2.3 gives that.
 
-### A2.3 Dev run — next
-1. **Run:** 225 dev maps × 3 answers, at the frozen settings, with the ILO labeller's turn links (as on test).
-2. **Thresholds:** tune per relation type with A1's code, cross-fitted over the 5 dev episodes. This gives the **honest dev ARI next to A1's 50.50 / 32.61**.
-3. **Diagnostics:**
-   - per-type precision and recall;
-   - Inference direction;
-   - maps with an invented Conflict;
-   - relations per map;
-   - run-to-run spread;
-   - where A1 and A2 err differently, which is the input for a later combination.
+### A2.3 Dev run — done
+Evidence: [`../results/a2/dev-v1/dev_report.json`](../results/a2/dev-v1/dev_report.json) and `summary.json` (raw answers in `responses.jsonl.gz`).
+
+**What ran.**
+- 225 dev maps × 3 answers = 675 calls, at the frozen settings and in test conditions: each map's own answers hidden, turn links from the ILO labeller.
+- 675 / 675 answers were valid, all from Sonnet 5.5, at 13.7 s per call. The cost was $35.61 API-equivalent; $0 was spent.
+- The run spanned 3 Pro sessions: a full session holds about 450 calls at this effort. The runner slept through each reset by itself.
+
+**How it was scored.**
+1. Each pair's score is the stated confidence averaged over the 3 answers.
+2. Per-type thresholds are tuned to maximise general ARI (A1's code).
+3. The honest score is cross-fitted: tune on 4 dev episodes, score the 5th, rotate.
+
+| Dev ARI, general / focused | General | Focused |
+|---|---|---|
+| A1 (honest) | 50.50 | 32.61 |
+| A2, every listed relation kept (no thresholds) | 52.07 | **39.41** |
+| **A2, thresholds (honest)** | **54.63** | 34.12 |
+
+The thresholds are Inference 0.35, Conflict 0.50 and Rephrase 0.25, identical in 4 of 5 folds (one fold picks Conflict 0.35).
+
+| Per relation (pooled), precision / recall / F1 | A1 | A2 |
+|---|---|---|
+| Inference | 0.27 / 0.39 / 0.32 | **0.39 / 0.35 / 0.37** |
+| Conflict | 0.31 / 0.09 / 0.14 | **0.43 / 0.12 / 0.19** |
+| Rephrase | 0.42 / 0.53 / 0.47 | **0.48 / 0.55 / 0.51** |
+
+**Findings**
+- **A2 beats A1 on honest dev ARI** (+4.1 general, +1.5 focused), with better precision and F1 on every relation type. Inference direction is right for 85% of the Inferences found (A1: 81%).
+- **The over-linking is gone after thresholds:** 7.9 relations per map against 8.3 in gold (A1: 10.9). The rare-label trap is held as well as A1 holds it (8 maps with an invented Conflict for both).
+- **What it still misses:**
+  - Conflict recall is only 12%;
+  - only 0.7% of propositions start two or more relations, against 5.7% in gold, so it under-draws divergent arguments.
+- **Thresholds trade focused for general.** Keeping every listed relation gives the best focused score (39.4); tuning for general gives the best general score. As with A1, the decision layer optimises general.
+- **Three answers help a little:** a single answer scores 52.1–53.0 general; averaging three and thresholding adds about 2 points.
+- **A1 and A2 get different pairs right.** Among pairs where gold or either system has a relation:
+  - both right: 509;
+  - only A2 right: 1,173;
+  - only A1 right: 622;
+  - both wrong: 1,186.
+  - Picking the right system per pair would score **66.1 / 46.0**. That's an upper bound, but a large one, for the combination phase.
+- *Not yet:* turn types (Task B) and complete maps come in A2.4. Test comes in A2.5.
 
 ### A2.4 Assembly and ablations — planned
 1. **Turn types:** the LLM's types replace the labeller's only where they clear a tuned threshold, and only if honest dev ILO beats 90.08.
@@ -336,23 +369,23 @@ Each ablation switches off one component and re-scores.
 *Not run (user decision):* no written definitions, random examples, and a memorisation probe.
 
 ## 7. Budget and time
-- **Spent so far: $0.** 261 calls, 29 minutes of model time, **$10.15 API-equivalent** (computed from token counts at Sonnet 5.5 list prices).
+- **Spent so far: $0.** 936 calls, 187 minutes of model time, **$45.76 API-equivalent** (computed from token counts at Sonnet 5.5 list prices).
 - **Per call at the frozen settings:** ~13 s and ~$0.05 API-equivalent.
 - **Remaining:**
-  - about 930 calls: dev 675, reasoning ablation 225, test 33;
-  - about 3 hours of calls, run in the background;
-  - about $45 API-equivalent.
-- No usage limit has been hit yet.
+  - about 260 calls: reasoning ablation 225 (effort medium, ~5 s each) and test 33;
+  - about 30 minutes of calls;
+  - about $11 API-equivalent.
+- **Usage limits:** a full Pro session holds about 450 calls at effort `xhigh`. The dev run spanned 3 sessions, and the runner sleeps through each reset by itself (D060–D061).
 
 ## 8. Risks
 
 | Risk | Status |
 |---|---|
-| Usage limits make it slow | Not hit in 261 calls. The run pauses safely if they are |
+| Usage limits make it slow | Hit twice in the dev run; the runner slept through the resets by itself, by the wall clock (D060–D061) |
 | Claude Code adds hidden context or another model | Checked on every answer; resolved in A2.1 |
 | The samples barely differ | They differ (e.g. 19 vs 21 relations on one map) |
 | Pilot noise / prompt overfitting | Ties go to the cheaper setting; one revision only; dev unseen until A2.3 |
-| Over-linking | Still present (9.5 listed vs 7.9 gold per map). The thresholds are tuned on dev for exactly this |
+| Over-linking | Solved by the thresholds on dev: 7.9 relations per map against 8.3 in gold. It now under-draws divergent arguments instead |
 | Contamination | Stated as a caveat; dev → test shift compared with A1's |
 | No exact reruns (no seed) | Every raw answer committed; every number recomputed from them |
 
@@ -364,7 +397,8 @@ Each ablation switches off one component and re-scores.
 | Plan | Sonnet 5.5 on Claude Pro, $0; 3 answers; cross-fitted thresholds; one paid ablation | D051–D054 |
 | A2.1 Setup | Lossless (98.92 / 96.51); Sonnet-only; ~$0.03 and 4–9 s per answer; no reasoning by default | D055 |
 | A2.2 Prompt | Only `xhigh` reasons (+11.5 focused); 4 examples; prompt v1; pilot 50 → 20 maps | D056–D059 |
+| A2.3 Dev run | Honest dev ARI 54.63 / 34.12 (A1: 50.50 / 32.61); 675 calls, $35.61 API-equivalent; ~450 calls per Pro session | D060–D062 |
 </details>
 
 **Reproduce so far** (in WSL, from the repo root; needs Claude Code logged in to a Claude subscription):
-`python -m a2_llm.check` (gate checks, no calls) → `python -m a2_llm.pilot --choose` → `python -m a2_llm.runner --run=<name> --export` (e.g. `pilot-k4`, `pilot20-k4-xhigh-v1`) → `python -m a2_llm.pilot --score=<runs>` and `--errors=<run>`.
+`python -m a2_llm.check` (gate checks, no calls) → `python -m a2_llm.pilot --choose` → `python -m a2_llm.runner --run=<name> --export` (e.g. `pilot-k4`, `pilot20-k4-xhigh-v1`) → `python -m a2_llm.pilot --score=<runs>` and `--errors=<run>` → dev: `python -m a2_llm.runner --run=dev-v1 --export --workers=2 --until-done` → `python -m a2_llm.tune --run=dev-v1`.

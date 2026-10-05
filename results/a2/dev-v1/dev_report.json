@@ -1,0 +1,146 @@
+{
+ "run": "dev-v1",
+ "maps": 225,
+ "answers_per_map": {
+  "3": 225
+ },
+ "thresholds": {
+  "Inference": 0.35,
+  "Conflict": 0.5,
+  "Rephrase": 0.25
+ },
+ "dev_ari_f1": {
+  "all listed": {
+   "general": 52.07,
+   "focused": 39.41
+  },
+  "tuned on all dev (optimistic)": {
+   "general": 54.81,
+   "focused": 34.16
+  },
+  "cross-fitted (honest)": {
+   "general": 54.63,
+   "focused": 34.12
+  }
+ },
+ "a1_reference_honest": {
+  "general": 50.5,
+  "focused": 32.61
+ },
+ "folds": {
+  "0": {
+   "maps": 33,
+   "Inference": 0.35,
+   "Conflict": 0.5,
+   "Rephrase": 0.25
+  },
+  "3": {
+   "maps": 49,
+   "Inference": 0.35,
+   "Conflict": 0.5,
+   "Rephrase": 0.25
+  },
+  "10": {
+   "maps": 42,
+   "Inference": 0.35,
+   "Conflict": 0.35,
+   "Rephrase": 0.25
+  },
+  "18": {
+   "maps": 55,
+   "Inference": 0.35,
+   "Conflict": 0.5,
+   "Rephrase": 0.25
+  },
+  "19": {
+   "maps": 46,
+   "Inference": 0.35,
+   "Conflict": 0.5,
+   "Rephrase": 0.25
+  }
+ },
+ "diagnostics_tuned": {
+  "per_type": {
+   "Inference": {
+    "gold": 1060,
+    "predicted": 942,
+    "precision": 0.392,
+    "recall": 0.348,
+    "f1": 0.369
+   },
+   "Conflict": {
+    "gold": 130,
+    "predicted": 37,
+    "precision": 0.432,
+    "recall": 0.123,
+    "f1": 0.192
+   },
+   "Rephrase": {
+    "gold": 683,
+    "predicted": 792,
+    "precision": 0.476,
+    "recall": 0.552,
+    "f1": 0.511
+   }
+  },
+  "inference_direction_correct": 0.8542,
+  "inference_pairs_found": 432,
+  "maps_with_spurious_type": {
+   "Conflict": 8,
+   "Rephrase": 20,
+   "Inference": 3
+  }
+ },
+ "structure_tuned": {
+  "gold": {
+   "relations_per_map": 8.32,
+   "props_starting_2plus": 0.057
+  },
+  "predicted": {
+   "relations_per_map": 7.87,
+   "props_starting_2plus": 0.007
+  }
+ },
+ "single_answer_spread": {
+  "all listed": {
+   "general": [
+    52.09,
+    52.68,
+    53.04
+   ],
+   "focused": [
+    35.24,
+    36.16,
+    36.74
+   ]
+  },
+  "medium+": {
+   "general": [
+    53.59,
+    53.51,
+    53.73
+   ],
+   "focused": [
+    31.99,
+    32.09,
+    32.46
+   ]
+  }
+ },
+ "overlap_with_a1": {
+  "pairs_with_any_relation": {
+   "only A2 right": 1173,
+   "both right": 509,
+   "both wrong": 1186,
+   "only A1 right": 622
+  },
+  "a1_tuned_on_all_dev": {
+   "general": 50.9,
+   "focused": 33.91
+  },
+  "oracle_per_pair": {
+   "general": 66.12,
+   "focused": 46.04
+  }
+ }
+}

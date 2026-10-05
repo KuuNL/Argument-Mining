@@ -48,3 +48,6 @@ when,approach,stage,seconds,peak_vram_gib,host,info
 2026-10-04T23:52:04,a2,run:pilot20-k4,0.052,,KunalPC,"{""jobs"": 20, ""to_send"": 0, ""ok"": 20, ""failed"": 0, ""calls_made"": 20, ""api_equivalent_usd"": 0.7863}"
 2026-10-04T23:56:23,a2,run:pilot20-k4-xhigh,255.054,,KunalPC,"{""jobs"": 20, ""to_send"": 20, ""ok"": 20, ""failed"": 0, ""calls_made"": 20, ""api_equivalent_usd"": 0.9925}"
 2026-10-05T00:01:28,a2,run:pilot20-k4-xhigh-v1,273.684,,KunalPC,"{""jobs"": 20, ""to_send"": 20, ""ok"": 20, ""failed"": 0, ""calls_made"": 20, ""api_equivalent_usd"": 1.0711}"
+2026-10-05T00:23:03,a2,run:dev-v1,662.609,,KunalPC,"{""jobs"": 675, ""to_send"": 675, ""workers"": 2, ""ok"": 76, ""failed"": 0, ""calls_made"": 76, ""api_equivalent_usd"": 4.5307}"
+2026-10-05T04:07:29,a2,run:dev-v1,3181.120,,KunalPC,"{""jobs"": 675, ""to_send"": 599, ""workers"": 2, ""ok"": 533, ""failed"": 0, ""calls_made"": 533, ""api_equivalent_usd"": 27.6997}"
+2026-10-05T11:45:40,a2,run:dev-v1,1070.397,,KunalPC,"{""jobs"": 675, ""to_send"": 142, ""workers"": 2, ""ok"": 675, ""failed"": 0, ""calls_made"": 675, ""api_equivalent_usd"": 35.6102}"

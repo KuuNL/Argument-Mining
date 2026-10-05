@@ -24,7 +24,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A1.7 | Test run | Final A1 row | Run once only, on the user's go | Final run | **Done (D050): test Global 72.01 / 57.53, beating 2024's 67.05 / 48.25** |
 | A2.1 | Setup | `common/serialise.py` (map → text, shared with A3/A4); `a2_llm/`: per-map JSON schema, Claude Code caller (`claude -p`, Sonnet 5.5, Pro login), resumable runner with on-disk answer cache, parser → A1's pair format | Gold relations → JSON → parser → scorer gives the no-pruning ceiling (98.92 / 96.51); ~5 live calls valid, Sonnet 5.5 only, no hidden context; tokens, seconds and API-equivalent $ per call measured | A2 | **Passed (D055)**: round trip 98.92 / 96.51; Sonnet-only; ~$0.03 per answer API-equivalent |
 | A2.2 | Prompt development | Pilot (~50 train maps, 3 episodes), TF-IDF example retrieval, system prompt; sweeps at 1 sample: examples k ∈ {0,2,4,8}, effort low/medium/high; ≤ 2 revision rounds | Prompt and settings frozen from a pilot table; timeline projected from measured calls per usage window | A2 | **Passed (D056–D059): frozen = prompt v1, k = 4, effort `xhigh`; reasoning +11 focused on the pilot** |
-| A2.3 | Dev run + decision layer | Frozen settings, 3 samples × 225 dev maps (D054); per-type thresholds on confidence-weighted votes, cross-fitted | Honest dev ARI vs A1 (50.50 / 32.61); per-type P/R, direction, invented-Conflict maps; overlap of A1 and A2 errors | A2 | Approved (D051–D053) |
+| A2.3 | Dev run + decision layer | Frozen settings, 3 samples × 225 dev maps (D054); per-type thresholds on confidence-weighted votes, cross-fitted | Honest dev ARI vs A1 (50.50 / 32.61); per-type P/R, direction, invented-Conflict maps; overlap of A1 and A2 errors | A2 | **Passed (D060–D062): honest dev ARI 54.63 / 34.12 vs A1 50.50 / 32.61** |
 | A2.4 | Assemble + ablations | Valid maps and dev Global; LLM turn types adopted only if they beat the labeller; free ablations + the minimal-reasoning dev pass | 225/225 valid; ablation table | A2 | Approved (D051–D053) |
 | A2.5 | Test run + report | Final A2 row; `reports/A2-whole-map-llm.md` | Run once, on the user's go | Final run | Approved (D051–D053) |
 | A3 · A4 | Other approaches | Phased (A3.1, …) when each starts | — | A3 / A4 | Not started |
@@ -689,3 +689,32 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - **2026-10-05 · A2.3 · by Claude · Finding + Done**
 - *Capacity:* the session after the 3:10 am reset produced **457 answers** (2 at a time, ~50 minutes) before the limit. The first session's 76 was low because the pilot had already used most of it. 533 of 675 dev answers were done by ~04:00.
 - *Bug:* the runner slept with one `time.sleep(seconds)`. While the PC slept, WSL was paused and that timer stopped counting, so a wake-up due at 08:15 hadn't happened by 11:27. It now sleeps in 60-second steps against the real clock. The idle runner was stopped and relaunched at 11:28; no answers were lost.
+
+### D062 — A2.3 result: honest dev ARI 54.63 / 34.12, above A1's 50.50 / 32.61
+- **2026-10-05 · A2.3 · by Claude · Finding** (`results/a2/dev-v1/dev_report.json`, `thresholds.json`; `python -m a2_llm.tune --run=dev-v1`)
+- *Run:* 225 dev maps × 3 answers at the frozen settings (D059), with the ILO labeller's turn links. 675/675 valid, Sonnet-only, 13.7 s per call, $35.61 API-equivalent, $0 spent.
+- *Dev ARI:*
+
+  | | General | Focused |
+  |---|---|---|
+  | A1, honest (D044) | 50.50 | 32.61 |
+  | A2, every listed relation (no thresholds) | 52.07 | 39.41 |
+  | A2, tuned on all of dev (optimistic) | 54.81 | 34.16 |
+  | **A2, cross-fitted (honest)** | **54.63** | **34.12** |
+
+- *Thresholds (kept for test):* Inference 0.35, Conflict 0.50, Rephrase 0.25. They are the same in 4 of 5 folds; one fold picks Conflict 0.35.
+- *Per type (pooled, tuned), P / R / F1:*
+  - Inference 0.39 / 0.35 / 0.37 (A1: 0.27 / 0.39 / 0.32);
+  - Conflict 0.43 / 0.12 / 0.19 (A1: 0.31 / 0.09 / 0.14);
+  - Rephrase 0.48 / 0.55 / 0.51 (A1: 0.42 / 0.53 / 0.47).
+- *Other diagnostics:*
+  - Inference direction is right for 85% of the 432 found (A1: 81%);
+  - 7.9 relations per map against 8.3 in gold (A1: 10.9);
+  - 0.7% of propositions start 2+ relations against 5.7% in gold, so it under-draws divergent arguments;
+  - 8 maps have an invented Conflict (A1: 8).
+- *Run-to-run:* one answer alone scores 52.1–53.0 general (every listed relation); 3 answers with thresholds add about 2.
+- *Overlap with A1* (both tuned on all dev): of the pairs where gold or either system has a relation, both are right on 509, only A2 on 1,173, only A1 on 622, and neither on 1,186. **The oracle per-pair choice scores 66.1 / 46.0**, the upper bound for the combination phase.
+- *Reading:*
+  - A2 wins on general (+4.1) and focused (+1.5), with better precision on every type.
+  - Thresholds tuned for general give up focused F1 (39.4 → 34.1), as for A1.
+  - Conflict recall stays low (12%).
