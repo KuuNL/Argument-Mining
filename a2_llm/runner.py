@@ -278,10 +278,10 @@ def main():
                     f.write(json.dumps(r, ensure_ascii=False) + "\n")
         if not stopped or not until_done:
             break
-        wait = seconds_to_reset(stopped)
-        print(f"Usage limit: {stopped}\nSleeping {wait / 60:.0f} min, until {(datetime.now() + timedelta(seconds=wait)).isoformat(timespec='minutes')}",
-              flush=True)
-        time.sleep(wait)
+        until = datetime.now() + timedelta(seconds=seconds_to_reset(stopped))
+        print(f"Usage limit: {stopped}\nSleeping until {until.isoformat(timespec='minutes')}", flush=True)
+        while datetime.now() < until:                     # wall clock, in short steps: a single long sleep
+            time.sleep(60)                                # stretches while the PC (and so WSL) is suspended
     print(json.dumps(rep, indent=1))
     if stopped:
         print(f"\nStopped at the usage limit: {stopped}\nRe-run the same command to continue; answered jobs are kept.")

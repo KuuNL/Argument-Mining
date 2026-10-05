@@ -684,3 +684,8 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - *What happened:* the dev run (`dev-v1`, 2 calls at a time) hit the Pro **5-hour session limit after 76 of 675 answers** ("resets 3:10am (Europe/London)"). At effort `xhigh`, a session holds far fewer calls than the pilot's medium-effort calls suggested. The remaining 599 calls need about 8 sessions, so roughly 1.5–2 days of calendar time, unless the weekly limit binds first.
 - *Change:* `runner.py --until-done`. At a usage limit the runner reads the reset time in the message, sleeps until 5 minutes after it, and continues. This covers the 5-hour form and the weekly form with a date, and an unreadable message retries in 30 minutes. Answers are saved one by one, so nothing is lost or re-sent. This replaces D052's "pause; resume when I say" for A2's runs.
 - *Note for the user:* while it runs, it uses each fresh Pro session as soon as it resets, which competes with their own Claude use. Stopping it is safe at any time.
+
+### D061 — A full Pro session holds ~450 `xhigh` calls; the runner sleeps by the wall clock
+- **2026-10-05 · A2.3 · by Claude · Finding + Done**
+- *Capacity:* the session after the 3:10 am reset produced **457 answers** (2 at a time, ~50 minutes) before the limit. The first session's 76 was low because the pilot had already used most of it. 533 of 675 dev answers were done by ~04:00.
+- *Bug:* the runner slept with one `time.sleep(seconds)`. While the PC slept, WSL was paused and that timer stopped counting, so a wake-up due at 08:15 hadn't happened by 11:27. It now sleeps in 60-second steps against the real clock. The idle runner was stopped and relaunched at 11:28; no answers were lost.
