@@ -25,7 +25,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A2.1 | Setup | `common/serialise.py` (map → text, shared with A3/A4); `a2_llm/`: per-map JSON schema, Claude Code caller (`claude -p`, Sonnet 5.5, Pro login), resumable runner with on-disk answer cache, parser → A1's pair format | Gold relations → JSON → parser → scorer gives the no-pruning ceiling (98.92 / 96.51); ~5 live calls valid, Sonnet 5.5 only, no hidden context; tokens, seconds and API-equivalent $ per call measured | A2 | **Passed (D055)**: round trip 98.92 / 96.51; Sonnet-only; ~$0.03 per answer API-equivalent |
 | A2.2 | Prompt development | Pilot (~50 train maps, 3 episodes), TF-IDF example retrieval, system prompt; sweeps at 1 sample: examples k ∈ {0,2,4,8}, effort low/medium/high; ≤ 2 revision rounds | Prompt and settings frozen from a pilot table; timeline projected from measured calls per usage window | A2 | **Passed (D056–D059): frozen = prompt v1, k = 4, effort `xhigh`; reasoning +11 focused on the pilot** |
 | A2.3 | Dev run + decision layer | Frozen settings, 3 samples × 225 dev maps (D054); per-type thresholds on confidence-weighted votes, cross-fitted | Honest dev ARI vs A1 (50.50 / 32.61); per-type P/R, direction, invented-Conflict maps; overlap of A1 and A2 errors | A2 | **Passed (D060–D062): honest dev ARI 54.63 / 34.12 vs A1 50.50 / 32.61** |
-| A2.4 | Assemble + ablations | Valid maps and dev Global; LLM turn types adopted only if they beat the labeller; free ablations + the minimal-reasoning dev pass | 225/225 valid; ablation table | A2 | Approved (D051–D053) |
+| A2.4 | Assemble + ablations | Valid maps and dev Global; LLM turn types adopted only if they beat the labeller; free ablations + the minimal-reasoning dev pass | 225/225 valid; ablation table | A2 | **Passed (D063): honest dev Global 72.53 / 57.63 vs A1 70.29 / 56.63; reasoning only +1 on dev** |
 | A2.5 | Test run + report | Final A2 row; `reports/A2-whole-map-llm.md` | Run once, on the user's go | Final run | Approved (D051–D053) |
 | A3 · A4 | Other approaches | Phased (A3.1, …) when each starts | — | A3 / A4 | Not started |
 | — | Combination · Final run | — | — | Combination / Final run | Not started |
@@ -718,3 +718,29 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - A2 wins on general (+4.1) and focused (+1.5), with better precision on every type.
   - Thresholds tuned for general give up focused F1 (39.4 → 34.1), as for A1.
   - Conflict recall stays low (12%).
+
+### D063 — A2.4 result: honest dev Global 72.53 / 57.63; LLM turn types adopted; reasoning adds only ~1 on dev
+- **2026-10-05 · A2.4 · by Claude (pre-set rules) · Finding + Done** (`results/a2/dev-v1/a24_report.json`; `python -m a2_llm.evaluate`; reasoning run `dev-medium`: 225 calls, $9.39 API-equivalent)
+- *Turn types:*
+  - honest dev ILO goes from **90.16 / 80.67** (labeller alone) to **90.43 / 81.13** (with LLM overrides);
+  - the overrides that survive tuning are Asserting → Pure Questioning (9 right, 3 wrong) and 1 Default Illocuting;
+  - the other types are never overridden (threshold 1.01).
+  - **Adopted** (rule: beat the labeller alone).
+- *Complete maps:* 225/225 valid. Honest dev **ARI 54.63 / 34.12, ILO 90.43 / 81.13, Global 72.53 / 57.63**, against A1's 50.50 / 32.61, 90.08 / 80.64 and 70.29 / 56.63.
+- *Free ablations* (honest dev ARI; main 54.63 / 34.12):
+  - 1 answer: 53.53 / 33.03;
+  - 2 answers: 53.34 / 34.69;
+  - plain votes: 53.60 / 35.57;
+  - majority vote ≥ 2 of 3 (untuned): 53.34 / 36.14;
+  - the model's own Conflict / Rephrase direction: unchanged (54.83 vs 54.81, tuned on all dev);
+  - relations over 10 turns dropped: −0.05 (11 relations, 4 right).
+- *Reasoning on / off* (1 answer each, honest):
+  - **`xhigh` 53.53 / 33.03 vs medium 52.72 / 32.00 (+0.8 / +1.0)**;
+  - unthresholded, 52.09 / 35.24 vs 52.05 / 33.54;
+  - unchanged: Inference direction (85% / 85%) and Conflict F1 (0.21 / 0.22);
+  - what reasoning does change: Rephrase recall 0.57 vs 0.45, and invented-Conflict maps 12 vs 17.
+  - Cost: 13.7 s vs 5.1 s per call.
+- *Reading:*
+  - **The pilot's +4.5 / +11.5 for reasoning did not replicate on dev.** Likely causes: the pilot compared reasoning under prompt v0 (v1 fixes much of what reasoning compensated for), 20-map noise, and annotated links.
+  - A pilot effect's size must be confirmed on the larger set.
+  - The frozen settings (`xhigh`) stay for the test run as decided before dev was seen. Medium is the efficient choice for future runs and the combination.

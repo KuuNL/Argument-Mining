@@ -33,7 +33,8 @@ def pair_rows(s) -> list[dict]:
             for i in range(len(props)) for j in range(i + 1, len(props))]
 
 
-def pair_scores(s, answers: list[dict]) -> tuple[list[dict], np.ndarray]:
+def pair_scores(s, answers: list[dict], flat: bool = False) -> tuple[list[dict], np.ndarray]:
+    """flat: plain votes, so every listed relation weighs 1 whatever its stated confidence (an A2.4 ablation)."""
     rows = pair_rows(s)
     index = {(r["a"], r["b"]): k for k, r in enumerate(rows)}
     scores = np.zeros((len(rows), 5))
@@ -42,7 +43,7 @@ def pair_scores(s, answers: list[dict]) -> tuple[list[dict], np.ndarray]:
         for t, src, tgt, w in relations(answer, s):
             k, forward = (index[(src, tgt)], True) if (src, tgt) in index else (index[(tgt, src)], False)
             label = (1 if forward else 2) if t == "Inference" else LABEL[t]
-            one[(k, label)] = max(one[(k, label)], w)
+            one[(k, label)] = max(one[(k, label)], 1.0 if flat else w)
         for (k, label), w in one.items():
             scores[k, label] += w
     if answers:

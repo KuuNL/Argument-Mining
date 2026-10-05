@@ -1,0 +1,203 @@
+{
+ "run": "dev-v1",
+ "turn_types": {
+  "labeller alone": {
+   "general": 90.16,
+   "focused": 80.67
+  },
+  "llm types, tuned on all dev": {
+   "general": 90.92,
+   "focused": 81.8
+  },
+  "llm types, cross-fitted (honest)": {
+   "general": 90.43,
+   "focused": 81.13
+  },
+  "thresholds": {
+   "Asserting": 1.01,
+   "Pure Questioning": 0.33,
+   "Assertive Questioning": 1.01,
+   "Rhetorical Questioning": 1.01,
+   "Default Illocuting": 0.33,
+   "Agreeing": 1.01,
+   "Challenging": 1.01
+  },
+  "changes_on_dev": {
+   "Asserting -> Pure Questioning (right)": 9,
+   "Asserting -> Pure Questioning (was right)": 3,
+   "Asserting -> Default Illocuting (right)": 1
+  },
+  "adopted": true
+ },
+ "complete_maps": {
+  "A2 relations + labeller types, tuned on all dev": {
+   "invalid_maps": 0,
+   "ari": {
+    "general": 54.81,
+    "focused": 34.16
+   },
+   "ilo": {
+    "general": 90.16,
+    "focused": 80.67
+   },
+   "global": {
+    "general": 72.48,
+    "focused": 57.42
+   }
+  },
+  "A2 relations + chosen types, tuned on all dev": {
+   "invalid_maps": 0,
+   "ari": {
+    "general": 54.81,
+    "focused": 34.16
+   },
+   "ilo": {
+    "general": 90.92,
+    "focused": 81.8
+   },
+   "global": {
+    "general": 72.87,
+    "focused": 57.98
+   }
+  },
+  "A2 relations + chosen types, cross-fitted (honest)": {
+   "invalid_maps": 0,
+   "ari": {
+    "general": 54.63,
+    "focused": 34.12
+   },
+   "ilo": {
+    "general": 90.43,
+    "focused": 81.13
+   },
+   "global": {
+    "general": 72.53,
+    "focused": 57.63
+   }
+  },
+  "A1 reference (D045)": {
+   "tuned on all dev": [
+    70.53,
+    57.29
+   ],
+   "honest (approx.)": [
+    70.3,
+    56.6
+   ]
+  }
+ },
+ "ablations_ari": {
+  "1 answer(s)": {
+   "general": 53.53,
+   "focused": 33.03
+  },
+  "2 answer(s)": {
+   "general": 53.34,
+   "focused": 34.69
+  },
+  "3 answers (main)": {
+   "general": 54.63,
+   "focused": 34.12
+  },
+  "plain votes, tuned (confidence ignored)": {
+   "general": 53.6,
+   "focused": 35.57
+  },
+  "majority vote (>= 2 of 3), no tuning": {
+   "general": 53.34,
+   "focused": 36.14
+  },
+  "direction": {
+   "order rule": {
+    "general": 54.81,
+    "focused": 34.16
+   },
+   "model's own direction": {
+    "general": 54.83,
+    "focused": 34.18
+   }
+  },
+  "reach": {
+   "all relations": {
+    "general": 54.81,
+    "focused": 34.16
+   },
+   "relations over 10 turns dropped": {
+    "general": 54.76,
+    "focused": 34.05
+   },
+   "relations over 10 turns apart": 11,
+   "of which right": 4
+  },
+  "reasoning": {
+   "xhigh (reasons), answer 1": {
+    "honest": {
+     "general": 53.53,
+     "focused": 33.03
+    },
+    "thresholds": {
+     "Inference": 0.5,
+     "Conflict": 0.5,
+     "Rephrase": 0.05
+    },
+    "per_type": {
+     "Inference": {
+      "precision": 0.386,
+      "recall": 0.333,
+      "f1": 0.358
+     },
+     "Conflict": {
+      "precision": 0.388,
+      "recall": 0.146,
+      "f1": 0.212
+     },
+     "Rephrase": {
+      "precision": 0.443,
+      "recall": 0.567,
+      "f1": 0.497
+     }
+    },
+    "inference_direction_right": 0.8506,
+    "maps_with_invented_type": {
+     "Conflict": 12,
+     "Rephrase": 20,
+     "Inference": 2
+    }
+   },
+   "medium (no reasoning), 1 answer": {
+    "honest": {
+     "general": 52.72,
+     "focused": 32.0
+    },
+    "thresholds": {
+     "Inference": 0.5,
+     "Conflict": 0.5,
+     "Rephrase": 0.05
+    },
+    "per_type": {
+     "Inference": {
+      "precision": 0.369,
+      "recall": 0.349,
+      "f1": 0.359
+     },
+     "Conflict": {
+      "precision": 0.377,
+      "recall": 0.154,
+      "f1": 0.219
+     },
+     "Rephrase": {
+      "precision": 0.468,
+      "recall": 0.452,
+      "f1": 0.46
+     }
+    },
+    "inference_direction_right": 0.8486,
+    "maps_with_invented_type": {
+     "Conflict": 17,
+     "Rephrase": 20,
+     "Inference": 5
+    }
+   }
+  }
+ }
+}

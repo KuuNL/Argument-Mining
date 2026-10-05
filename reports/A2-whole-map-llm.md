@@ -1,7 +1,7 @@
 # A2 — A whole-map language model for argument relations
 
 > **What this is:** the report on approach A2, written for readers new to the project. Terms are explained where they first appear, and §3 collects them.
-> **Status:** A2.1–A2.3 done: **honest dev ARI 54.63 / 34.12, above A1's 50.50 / 32.61**. Next is A2.4 (complete maps, turn types, ablations), on the user's go.
+> **Status:** A2.1–A2.4 done. On dev, honest **ARI is 54.63 / 34.12 and Global 72.53 / 57.63**, both above A1 (50.50 / 32.61 and 70.29 / 56.63). Next is A2.5, the single test run (33 calls), on the user's go.
 > **Evidence:** [`../results/a2/`](../results/a2/) (summaries, scores and every raw model answer). Decisions D051–D059 are in [`../decisionlog.md`](../decisionlog.md).
 
 ## In one minute
@@ -10,10 +10,13 @@
 - **The idea.** Give **Claude Sonnet 5.5** the *whole* map and have it list every relation at once. Ask 3 times. How often, and how confidently, a relation is listed becomes its score, and tuned thresholds turn scores into decisions.
 - **Cost: $0.** Calls go through Claude Code on an existing Claude Pro subscription. The API-equivalent price is measured: $10 so far.
 - **Found so far:**
-  - **Reasoning is the strongest lever.** Sonnet only reasons before answering at effort `xhigh`, and that adds about 11 points of focused F1 on the pilot.
+  - **Reasoning helped less than it first seemed.** Sonnet only reasons at effort `xhigh`. That was worth +11 focused on the 20-map pilot but only about +1 on dev once the prompt was revised, and it doesn't fix direction or Conflict.
   - **Worked examples help** (+4–5 points), and **a prompt revision** driven by the errors fixed the main confusion (Rephrase read as Inference).
   - **The configuration is now frozen:** prompt v1, 4 worked examples, effort `xhigh`, 3 samples.
-  - **On dev, A2 beats A1:** honest ARI is 54.63 / 34.12 against 50.50 / 32.61, with better precision on every relation type. The two systems get different pairs right: picking the right one per pair would score 66.1 / 46.0.
+  - **On dev, A2 beats A1:**
+    - honest ARI is 54.63 / 34.12 against 50.50 / 32.61, with better precision on every relation type;
+    - complete maps score a Global of 72.53 / 57.63 against 70.29 / 56.63.
+    - The two systems get different pairs right: picking the right one per pair would score 66.1 / 46.0.
 
 ---
 
@@ -204,7 +207,7 @@ flowchart LR
 | **The labeller's turn links are given** | The model links turns itself | They're already 98.3% / 99.6% accurate. Giving them keeps A2's measurement on relations. |
 | **Structured output, per-map IDs** | Free text, parsed afterwards | Unparseable output sank the 2024 LLM entries. Here every answer is valid by construction. |
 | **4 retrieved worked examples** | 0, 2 or 8; fixed examples | The official guide is 2 pages, too thin to define the style. 4 is within noise of 8 at 40% fewer tokens (A2.2). |
-| **Effort `xhigh`** | medium, high | Only `xhigh` makes Sonnet reason on this task, worth +11 focused on the pilot (A2.2). |
+| **Effort `xhigh`** | medium, high | Only `xhigh` makes Sonnet reason. +11 focused on the pilot but only about +1 on dev (A2.4); kept for test as decided before dev was seen. |
 | **3 answers per map**, confidence-weighted | 1 answer; 5 answers | Thresholds need graded scores. 3 is the user's speed / quality trade-off (5 was planned). |
 | **A1's decision layer, cross-fitted** | Plain majority vote | The same protection and honest estimate as A1, so the two compare directly. Majority vote is tested for free. |
 | **Prompt developed on training maps** | Developing on dev | A2 never trains, so training maps are as unseen as dev. Dev stays clean. |
@@ -221,7 +224,7 @@ flowchart LR
 | **A2.1 Setup** | Build and verify everything between a map and a score | **Done** | 12 |
 | **A2.2 Prompt development** | Choose examples and effort, and revise the prompt, on a pilot | **Done**: prompt v1, k = 4, `xhigh` | 249 |
 | **A2.3 Dev run** | 3 answers × 225 dev maps; thresholds; honest score next to A1 | **Done**: 54.63 / 34.12 against A1's 50.50 / 32.61 | 675 |
-| **A2.4 Assembly + ablations** | Complete maps, turn types, ablations | Planned | 225 |
+| **A2.4 Assembly + ablations** | Complete maps, turn types, ablations | **Done**: honest dev Global 72.53 / 57.63 | 225 |
 | **A2.5 Test run** | The 11 test maps, once | Planned | 33 |
 
 ### A2.1 Setup — done
@@ -287,7 +290,7 @@ flowchart LR
 *ARI is general / focused F1.*
 
 **Findings**
-- **Reasoning is the biggest lever:** +4.5 general and **+11.5 focused**, and direction rises from 79% to 88%. This is early evidence for A2's central question.
+- **Reasoning is the biggest lever on the pilot:** +4.5 general and **+11.5 focused**, and direction rises from 79% to 88%. *On dev, with the revised prompt, the gain shrank to about +1 (A2.4).*
 - **Examples help with shrinking returns:** 4 is within noise of 8 at 40% fewer tokens.
 - **Prompt v1 came from reading the errors** ([`pilot_errors_pilot-k4.md`](../results/a2/pilot_errors_pilot-k4.md)):
   - the model called 47 of the annotators' restatements "Inference", so Rephrase now explicitly covers repeating, narrowing or sharpening the same point, and Inference needs a *different* point as reason;
@@ -339,10 +342,60 @@ The thresholds are Inference 0.35, Conflict 0.50 and Rephrase 0.25, identical in
   - Picking the right system per pair would score **66.1 / 46.0**. That's an upper bound, but a large one, for the combination phase.
 - *Not yet:* turn types (Task B) and complete maps come in A2.4. Test comes in A2.5.
 
-### A2.4 Assembly and ablations — planned
-1. **Turn types:** the LLM's types replace the labeller's only where they clear a tuned threshold, and only if honest dev ILO beats 90.08.
-2. **Complete maps:** must pass the validator (225/225), giving dev ARI / ILO / Global next to A1.
-3. **Ablations:** see §6.
+### A2.4 Complete maps, turn types and ablations — done
+Evidence: [`../results/a2/dev-v1/a24_report.json`](../results/a2/dev-v1/a24_report.json) and `results/a2/dev-medium/` (the 225 answers of the reasoning ablation).
+
+**Turn types (Task B).** The ILO labeller's links stay. The LLM's most-voted type replaces the labeller's only where its vote share clears a per-type threshold (tuned, cross-fitted).
+
+| Dev ILO, general / focused | |
+|---|---|
+| Labeller alone | 90.16 / 80.67 |
+| **Labeller + LLM types (honest)** | **90.43 / 81.13** |
+
+- Only two kinds of override survived tuning: Asserting → Pure Questioning (9 right, 3 wrong) and a single Default Illocuting.
+- The rare types that looked good on the pilot (Agreeing, Rhetorical and Assertive Questioning) were too noisy on dev to clear any threshold.
+- It's a small gain, and it's adopted under the pre-set rule (it beats the labeller alone).
+
+**Complete maps.** 225/225 pass the validator.
+
+| Dev, honest, general / focused | ARI | ILO | Global |
+|---|---|---|---|
+| A1 + labeller | 50.50 / 32.61 | 90.08 / 80.64 | 70.29 / 56.63 |
+| **A2 + labeller + LLM types** | **54.63 / 34.12** | **90.43 / 81.13** | **72.53 / 57.63** |
+
+**Ablations** (dev ARI, general / focused):
+
+| Setting | ARI | Change |
+|---|---|---|
+| **Main:** 3 answers, confidence-weighted, tuned thresholds (honest) | **54.63 / 34.12** | — |
+| 1 answer | 53.53 / 33.03 | −1.1 / −1.1 |
+| 2 answers | 53.34 / 34.69 | −1.3 / +0.6 |
+| Plain votes, confidence ignored (tuned) | 53.60 / 35.57 | −1.0 / +1.5 |
+| Majority vote, ≥ 2 of 3, no tuning | 53.34 / 36.14 | −1.3 / +2.0 |
+| The model's own Conflict / Rephrase direction, instead of the order rule* | 54.83 / 34.18 | ±0.0 |
+| Relations more than 10 turns apart dropped* | 54.76 / 34.05 | −0.1 (11 such relations, 4 right) |
+
+*\* Compared with the main setting tuned on all of dev (54.81 / 34.16), since only the decoding changes.*
+
+**Reasoning on / off on dev** (1 answer each, same prompt and examples):
+
+| Effort | ARI (honest) | ARI, no thresholds | Inference direction | Conflict F1 | Rephrase recall | Maps with an invented Conflict | Seconds per call | API-equivalent per call |
+|---|---|---|---|---|---|---|---|---|
+| `xhigh` (reasons, ~1.1k thinking tokens) | 53.53 / 33.03 | 52.09 / 35.24 | 85% | 0.21 | 0.57 | 12 | 13.7 | $0.053 |
+| medium (no reasoning) | 52.72 / 32.00 | 52.05 / 33.54 | 85% | 0.22 | 0.45 | 17 | 5.1 | $0.042 |
+
+**Findings**
+- **Reasoning adds only about 1 point on dev,** far below the pilot's +4.5 / +11.5.
+  - It doesn't fix Inference direction or Conflict. It mainly finds more Rephrases and invents fewer Conflicts.
+  - Why the pilot overstated it:
+    - the pilot compared reasoning under the old prompt (v0), and v1's clearer Rephrase / Inference rules recover much of what reasoning was compensating for;
+    - 20 maps make focused F1 noisy;
+    - the pilot used annotated turn links.
+  - **Lesson:** confirm a pilot effect's *size* on the larger set before relying on it.
+- **Each part of the decision layer adds about 1 general point and costs 1–2 focused:** 3 answers, the confidence weights and the tuned thresholds. They make A2 more cautious, which the general metric rewards.
+- **The direction rule isn't needed:** the model gets Conflict and Rephrase direction right by itself.
+- **Long-range relations rarely matter:** A2 links nearby propositions, as the annotators do.
+- **For the test run** the frozen settings stay, including `xhigh`, as decided before dev was seen. Medium would be 2.7× faster for nearly the same score, which is worth knowing for the combination phase.
 
 ### A2.5 Test run — planned
 1. **The run:** the 11 test maps, 3 answers each, with thresholds from all of dev.
@@ -357,24 +410,22 @@ Each ablation switches off one component and re-scores.
 | Ablation | Question | New calls | Status |
 |---|---|---|---|
 | Worked examples 0 / 2 / 4 / 8 | How much do examples help? | in pilot | **Done**: +4.5 general from 0 to 4 |
-| Effort medium vs `xhigh` (pilot) | How much does reasoning pay? | in pilot | **Done**: +4.5 / +11.5 |
-| **Reasoning on / off (dev)** | Does reasoning fix direction and Conflict, on dev? | 225 | A2.4 |
-| 1 / 2 / 3 answers | Does asking several times help? | 0 | A2.4 |
-| Votes vs stated confidence | Which confidence signal works? | 0 | A2.4 |
-| Thresholds vs majority vote (≥ 2 of 3) | Does the tuned decision layer help? | 0 | A2.4 |
-| Direction rule vs the model's own | Is the order rule still needed? | 0 | A2.4 |
-| Relations > 10 turns apart dropped | Do the long-range relations count? | 0 | A2.4 |
-| LLM vs labeller turn types | Does the LLM type turns better? | 0 | A2.4 |
+| Effort medium vs `xhigh` (pilot) | How much does reasoning pay? | in pilot | **Done**: +4.5 / +11.5 on 20 pilot maps |
+| **Reasoning on / off (dev)** | Does reasoning fix direction and Conflict, on dev? | 225 | **Done**: +0.8 / +1.0 only; direction and Conflict unchanged |
+| 1 / 2 / 3 answers | Does asking several times help? | 0 | **Done**: 3 answers +1.1 general over 1 |
+| Votes vs stated confidence | Which confidence signal works? | 0 | **Done**: confidence +1.0 general, −1.5 focused |
+| Thresholds vs majority vote (≥ 2 of 3) | Does the tuned decision layer help? | 0 | **Done**: thresholds +1.3 general, −2.0 focused |
+| Direction rule vs the model's own | Is the order rule still needed? | 0 | **Done**: no difference |
+| Relations > 10 turns apart dropped | Do the long-range relations count? | 0 | **Done**: −0.1 (11 relations) |
+| LLM vs labeller turn types | Does the LLM type turns better? | 0 | **Done**: +0.3 / +0.5 ILO, adopted |
 
 *Not run (user decision):* no written definitions, random examples, and a memorisation probe.
 
 ## 7. Budget and time
-- **Spent so far: $0.** 936 calls, 187 minutes of model time, **$45.76 API-equivalent** (computed from token counts at Sonnet 5.5 list prices).
+- **Spent so far: $0.** 1,161 calls, about 206 minutes of model time, **$55.15 API-equivalent** (computed from token counts at Sonnet 5.5 list prices).
 - **Per call at the frozen settings:** ~13 s and ~$0.05 API-equivalent.
 - **Remaining:**
-  - about 260 calls: reasoning ablation 225 (effort medium, ~5 s each) and test 33;
-  - about 30 minutes of calls;
-  - about $11 API-equivalent.
+  - the test run: 33 calls, about 4 minutes, about $1.75 API-equivalent.
 - **Usage limits:** a full Pro session holds about 450 calls at effort `xhigh`. The dev run spanned 3 sessions, and the runner sleeps through each reset by itself (D060–D061).
 
 ## 8. Risks
@@ -398,7 +449,8 @@ Each ablation switches off one component and re-scores.
 | A2.1 Setup | Lossless (98.92 / 96.51); Sonnet-only; ~$0.03 and 4–9 s per answer; no reasoning by default | D055 |
 | A2.2 Prompt | Only `xhigh` reasons (+11.5 focused); 4 examples; prompt v1; pilot 50 → 20 maps | D056–D059 |
 | A2.3 Dev run | Honest dev ARI 54.63 / 34.12 (A1: 50.50 / 32.61); 675 calls, $35.61 API-equivalent; ~450 calls per Pro session | D060–D062 |
+| A2.4 Maps + ablations | Honest dev Global 72.53 / 57.63 (A1: 70.29 / 56.63); LLM turn types +0.3 ILO; reasoning only +1 on dev | D063 |
 </details>
 
 **Reproduce so far** (in WSL, from the repo root; needs Claude Code logged in to a Claude subscription):
-`python -m a2_llm.check` (gate checks, no calls) → `python -m a2_llm.pilot --choose` → `python -m a2_llm.runner --run=<name> --export` (e.g. `pilot-k4`, `pilot20-k4-xhigh-v1`) → `python -m a2_llm.pilot --score=<runs>` and `--errors=<run>` → dev: `python -m a2_llm.runner --run=dev-v1 --export --workers=2 --until-done` → `python -m a2_llm.tune --run=dev-v1`.
+`python -m a2_llm.check` (gate checks, no calls) → `python -m a2_llm.pilot --choose` → `python -m a2_llm.runner --run=<name> --export` (e.g. `pilot-k4`, `pilot20-k4-xhigh-v1`) → `python -m a2_llm.pilot --score=<runs>` and `--errors=<run>` → dev: `python -m a2_llm.runner --run=dev-v1 --export --workers=2 --until-done` → `python -m a2_llm.tune --run=dev-v1` → `python -m a2_llm.runner --run=dev-medium --export --workers=2 --until-done` → `python -m a2_llm.evaluate`.

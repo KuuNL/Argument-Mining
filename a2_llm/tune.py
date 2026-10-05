@@ -42,20 +42,20 @@ def _answered(run: str) -> list:
 class Scores:
     """A2's pair scores over the dev maps; `use` picks which answers (sample numbers) are averaged."""
 
-    def __init__(self, run: str, use=None):
+    def __init__(self, run: str, use=None, flat: bool = False):
         by_map = defaultdict(list)
         for job, rec in _answered(run):
             if use is None or job["sample"] in use:
                 by_map[job["map"]].append((job, rec))
         paths = {p.stem: p for p in load_split("dev")}
         self.names, self.rows, self.gold, self.n_pairs, self.answers = sorted(by_map), [], {}, {}, {}
-        self.idx, blocks = defaultdict(list), []
+        self.idx, blocks, self.s, self.answer_lists = defaultdict(list), [], {}, {}
         for name in self.names:
             items = sorted(by_map[name], key=lambda x: x[0]["sample"])
             s = items[0][0]["s"]
             answers = [rec["attempts"][rec["answer"]]["result"]["structured_output"] for _, rec in items if rec and rec["ok"]]
-            self.answers[name] = len(answers)
-            rows, sc = pair_scores(s, answers)
+            self.answers[name], self.s[name], self.answer_lists[name] = len(answers), s, answers
+            rows, sc = pair_scores(s, answers, flat)
             self.idx[name] = list(range(len(self.rows), len(self.rows) + len(rows)))
             self.rows += rows
             blocks.append(sc)
