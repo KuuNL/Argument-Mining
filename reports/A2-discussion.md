@@ -6,6 +6,10 @@
 > - Error analysis: [`../results/a2/discussion.json`](../results/a2/discussion.json), from `python -m a2_llm.discuss`.
 >   - It covers the **225 dev maps** (1,873 gold relations), with both systems' thresholds fitted on all of dev.
 >   - The "why" questions use dev because it is 20× larger than test and reading it opens nothing sealed.
+>
+> **Published page:** https://claude.ai/artifact/B7wFwx2cGTbfNmGBXmnUCg (the same content).
+
+**In one line:** the encoder learns *the annotators*; the LLM applies *the definition*. Where the two agree, the LLM wins; where the annotation follows habit, the encoder does.
 
 ## 1. The task and the two systems
 - **The input.** A debate from BBC *Question Time* arrives as a **map**: its **turns** (who said what, in order) and the **propositions** those turns express.
@@ -14,6 +18,19 @@
 - **Scoring.** F1 is computed per map and then averaged.
   - *General* F1 counts every pair; *focused* F1 counts only pairs that have a true relation.
   - Every label present in a map counts equally. So one invented rare label can cut a map's score by a quarter: the **rare-label trap**.
+
+An illustrative map, written the way A2 reads it:
+```text
+T1  Host: should NHS staff get a pay rise
+    [P1] NHS staff should get a pay rise
+T2  Minister: yes, they deserve one
+    [P2] NHS staff deserve a pay rise
+T3  Minister: they worked through the pandemic
+    [P3] NHS staff worked through the pandemic
+
+To predict:  P2 Rephrase P1 · P3 Inference P2 · T1 Pure Questioning, T2 and T3 Asserting
+```
+*The turns and propositions are given. The last line is what a system must predict. An answer counts as a Rephrase of its question.*
 
 | | A1: cross-encoder | A2: whole-map LLM |
 |---|---|---|
