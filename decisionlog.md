@@ -1287,3 +1287,16 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - *Round 2* corrected the main lesson against the matched-density data, the None share (92% → 95%), "missing context didn't hold 2024 back" (a no-context ablation wasn't run) and "Jev needs no labels" (no labelled pairs or tuned thresholds). It added the focused-score insight (one missed gold relation adds None as a zero-scoring class), and cut the report from ~6,500 to ~5,500 words.
   - Pre-existing errors it found in other reports were fixed: A1's pruning cut-off is 10 turns, not 8 (A2 discussion); A2's test precision gain is on Inference only (A2 report); A3 is close to A2 on new-word restatements (comparison report).
 - *No new runs, no scoring, no spend.*
+
+### D087 — A short report: the project in about half the length of the final report, with a critical reading
+- **2026-10-06 · Final write-up · by Claude Science, at the user's request ("shorter … comprehensive … think critically throughout"; "commit it all") · Done** (`reports/06-short-report.md`)
+- *Content:* the task, the four approaches, the result against 2024, dev against test, Task A against Task B, what the output maps look like, cost, the scoring and the task, what it means for argument mining, the models and the output, what went right and wrong, and what to try next.
+- *New figures* (`reports/figures/short-*.png`), drawn from committed numbers: the Global margin over DFKI-MLST split into its illocution and relation parts for every system; dev paired-bootstrap differences beside per-map test ARI with 95% intervals; recall at matched density by relation kind, and what happens to the 1,060 dev gold Inferences; dev ARI against time per map, and the 2024 field and ours on the general/focused plane.
+- *New derived numbers* (`python reports/short_report_numbers.py` → `results/short_report/derived.json`; arithmetic on committed files only, `data/evaluation/` not read):
+  - each system's 11-map test ARI with a 95% bootstrap interval (20,000 resamples, seed 0): every interval contains DFKI's 55.33;
+  - the combination's pooled test relations: 56 of 124 gold right, 108 predicted (precision 0.52, recall 0.45);
+  - the share of the dev gap between predicting nothing (30.93) and the ceiling (98.64) that is closed: A1 0.29, combination 0.36;
+  - ILO's share of the Global margin: 0.93 general, 0.81 focused;
+  - per-map test ILO: 100 on 7 maps, 98.6 on map 6, about 73 on maps 1, 2 and 9 (bimodal; not diagnosed, since that would mean reading the test gold).
+- *Not new:* every other number is quoted from the final report, the comparison and per-approach reports, or the committed result files they cite.
+- *No new runs, no scoring, no spend.* The figures were drawn in Claude Science; their plotting code is not in the repository, but every plotted value is in a committed file.

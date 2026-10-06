@@ -1,0 +1,53 @@
+{
+ "headroom_share_combo": 0.363,
+ "headroom_share_A1": 0.289,
+ "combo_test_pooled": {
+  "gold": 124,
+  "correct": 56,
+  "predicted": 108,
+  "precision": 0.519,
+  "recall": 0.452
+ },
+ "test_ari_boot95": {
+  "A1": [
+   51.4,
+   43.7,
+   59.0
+  ],
+  "A2": [
+   55.8,
+   49.4,
+   62.6
+  ],
+  "A3": [
+   53.7,
+   47.4,
+   60.7
+  ],
+  "A4": [
+   54.2,
+   46.5,
+   62.2
+  ],
+  "A1+A2+A4": [
+   56.4,
+   48.4,
+   63.6
+  ]
+ },
+ "ilo_test_per_map": {
+  "map1": 73.51,
+  "map2": 72.72,
+  "map3": 100.0,
+  "map4": 100.0,
+  "map5": 100.0,
+  "map6": 98.64,
+  "map7": 100.0,
+  "map8": 100.0,
+  "map9": 74.14,
+  "map10": 100.0,
+  "map11": 100.0
+ },
+ "ilo_share_of_global_gain_general": 0.929,
+ "ilo_share_of_global_gain_focused": 0.81
+}
