@@ -1,0 +1,1181 @@
+{
+ "nodes": [
+  {
+   "nodeID": "2_168140467077630591",
+   "text": "the point of rewriting classics is xxx",
+   "type": "I"
+  },
+  {
+   "nodeID": "3_168140467077630591",
+   "text": "David Davies: what is the point of all this",
+   "type": "L"
+  },
+  {
+   "nodeID": "5_168140467077630591",
+   "text": "Tuuli: David Davies: what is the point of all this",
+   "type": "L"
+  },
+  {
+   "nodeID": "7_168140467077630591",
+   "text": "Rakie Ayola may have a point actually",
+   "type": "I"
+  },
+  {
+   "nodeID": "8_168140467077630591",
+   "text": "David Davies: Rakie may have a point actually",
+   "type": "L"
+  },
+  {
+   "nodeID": "10_168140467077630591",
+   "text": "Tuuli: David Davies: Rakie may have a point actually",
+   "type": "L"
+  },
+  {
+   "nodeID": "12_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "13_168140467077630591",
+   "text": "some of the publicists for these book companies are laughing their socks off at the thought of selling more and getting loads of free publicity for rewriting classics",
+   "type": "I"
+  },
+  {
+   "nodeID": "14_168140467077630591",
+   "text": "David Davies: I wonder if some of the publicists for these book companies are laughing their socks off at the thought of selling more and getting loads of free publicity for it",
+   "type": "L"
+  },
+  {
+   "nodeID": "16_168140467077630591",
+   "text": "Tuuli: David Davies: I wonder if some of the publicists for these book companies are laughing their socks off at the thought of selling more and getting loads of free publicity for it",
+   "type": "L"
+  },
+  {
+   "nodeID": "18_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "20_168140467077630591",
+   "text": "what really worries David Davies a lot more than anything he saw in those books are some of the misogynistic words which he has heard in a lot of the current music",
+   "type": "I"
+  },
+  {
+   "nodeID": "21_168140467077630591",
+   "text": "David Davies: what really worries me a lot more than anything I saw in those books are some of the misogynistic words which I\u2019ve heard in a lot of the music",
+   "type": "L"
+  },
+  {
+   "nodeID": "23_168140467077630591",
+   "text": "Tuuli: David Davies: what really worries me a lot more than anything I saw in those books are some of the misogynistic words which I\u2019ve heard in a lot of the music",
+   "type": "L"
+  },
+  {
+   "nodeID": "25_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "26_168140467077630591",
+   "text": "David Davie's children and other children, listen to the current music with misogynistic words",
+   "type": "I"
+  },
+  {
+   "nodeID": "27_168140467077630591",
+   "text": "David Davies: which children, my children and children, listen to at the moment",
+   "type": "L"
+  },
+  {
+   "nodeID": "29_168140467077630591",
+   "text": "Tuuli: David Davies: which children, my children and children, listen to at the moment",
+   "type": "L"
+  },
+  {
+   "nodeID": "31_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "38_168140467077630591",
+   "text": "discussing whether Augustus Gloop should be fat or enormous is pretty trivial compared to the absolutely appalling words in songs which David Davies thinks are quite mainstream on the radio at the moment",
+   "type": "I"
+  },
+  {
+   "nodeID": "39_168140467077630591",
+   "text": "David Davies: it\u2019s pretty trivial compared to the absolutely appalling words in songs which I think are quite mainstream on the radio at the moment",
+   "type": "L"
+  },
+  {
+   "nodeID": "41_168140467077630591",
+   "text": "Tuuli: David Davies: it\u2019s pretty trivial compared to the absolutely appalling words, which I couldn't even use, in songs which I think are quite mainstream on the radio at the moment",
+   "type": "L"
+  },
+  {
+   "nodeID": "46_168140467077630591",
+   "text": "there should be a discussion about some of the appalling words in current music as well",
+   "type": "I"
+  },
+  {
+   "nodeID": "47_168140467077630591",
+   "text": "David Davies: let\u2019s have a discussion about some of them as well",
+   "type": "L"
+  },
+  {
+   "nodeID": "49_168140467077630591",
+   "text": "Tuuli: David Davies: let\u2019s have a discussion about some of them as well",
+   "type": "L"
+  },
+  {
+   "nodeID": "52_168140467077630591",
+   "text": "there should be discussion about the impact on women\u2019s lives those words are having",
+   "type": "I"
+  },
+  {
+   "nodeID": "53_168140467077630591",
+   "text": "David Davies: the impact on women\u2019s lives those words are having",
+   "type": "L"
+  },
+  {
+   "nodeID": "55_168140467077630591",
+   "text": "Tuuli: David Davies: the impact on women\u2019s lives those words are having",
+   "type": "L"
+  },
+  {
+   "nodeID": "57_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "62_168140467077630591",
+   "text": "AudienceMember 20230330QT27 is not sure about censorship through the back door",
+   "type": "I"
+  },
+  {
+   "nodeID": "63_168140467077630591",
+   "text": "AudienceMember 20230330QT27: I\u2019m not sure about censorship through the back door",
+   "type": "L"
+  },
+  {
+   "nodeID": "65_168140467077630591",
+   "text": "Tuuli: AudienceMember 20230330QT27: I\u2019m not sure about censorship through the back door",
+   "type": "L"
+  },
+  {
+   "nodeID": "67_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "68_168140467077630591",
+   "text": "the rewriting of classics is blatant and egregious",
+   "type": "I"
+  },
+  {
+   "nodeID": "69_168140467077630591",
+   "text": "AudienceMember 20230330QT27: it\u2019s blatant and egregious",
+   "type": "L"
+  },
+  {
+   "nodeID": "71_168140467077630591",
+   "text": "Tuuli: AudienceMember 20230330QT27: it\u2019s blatant and egregious",
+   "type": "L"
+  },
+  {
+   "nodeID": "73_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "74_168140467077630591",
+   "text": "the rewriting of classics is bowdlerization and censorship quite frankly",
+   "type": "I"
+  },
+  {
+   "nodeID": "75_168140467077630591",
+   "text": "AudienceMember 20230330QT27: it\u2019s bowdlerization and censorship quite frankly",
+   "type": "L"
+  },
+  {
+   "nodeID": "77_168140467077630591",
+   "text": "Tuuli: AudienceMember 20230330QT27: it\u2019s bowdlerization and censorship quite frankly",
+   "type": "L"
+  },
+  {
+   "nodeID": "84_168140467077630591",
+   "text": "AudienceMember 20230330QT27 shares some of the characteristics of Augustus Gloop in so far as they have been known to be fat, quite frankly",
+   "type": "I"
+  },
+  {
+   "nodeID": "85_168140467077630591",
+   "text": "AudienceMember 20230330QT27: I share some of the characteristics of Augustus Gloop in so far as I\u2019ve been known to be fat, quite frankly",
+   "type": "L"
+  },
+  {
+   "nodeID": "87_168140467077630591",
+   "text": "Tuuli: AudienceMember 20230330QT27: I share some of the characteristics of Augustus Gloop in so far as I\u2019ve been known to be fat, quite frankly",
+   "type": "L"
+  },
+  {
+   "nodeID": "89_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "90_168140467077630591",
+   "text": "AudienceMember 20230330QT27 would much rather be called fat than enormous",
+   "type": "I"
+  },
+  {
+   "nodeID": "91_168140467077630591",
+   "text": "AudienceMember 20230330QT27: I\u2019d much rather be called fat than enormous",
+   "type": "L"
+  },
+  {
+   "nodeID": "93_168140467077630591",
+   "text": "Tuuli: AudienceMember 20230330QT27: I\u2019d much rather be called fat than enormous",
+   "type": "L"
+  },
+  {
+   "nodeID": "95_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "96_168140467077630591",
+   "text": "AudienceMember 20230330QT27 does not quite know what the sensitive reviewers are thinking there",
+   "type": "I"
+  },
+  {
+   "nodeID": "97_168140467077630591",
+   "text": "AudienceMember 20230330QT27: I don\u2019t quite know what the sensitive reviewers are thinking there",
+   "type": "L"
+  },
+  {
+   "nodeID": "99_168140467077630591",
+   "text": "Tuuli: AudienceMember 20230330QT27: I don\u2019t quite know what the sensitive reviewers are thinking there",
+   "type": "L"
+  },
+  {
+   "nodeID": "101_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "107_168140467077630591",
+   "text": "one can have a discussion about whether Augustus Gloop should be fat or enormous",
+   "type": "I"
+  },
+  {
+   "nodeID": "108_168140467077630591",
+   "text": "David Davies: have a discussion about whether Augustus Gloop should be fat or enormous",
+   "type": "L"
+  },
+  {
+   "nodeID": "110_168140467077630591",
+   "text": "Tuuli: David Davies: have a discussion about whether Augustus Gloop should be fat or enormous",
+   "type": "L"
+  },
+  {
+   "nodeID": "112_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "113_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "116_168140467077630591",
+   "text": "there are appalling words in current music that David Davies couldn't even use",
+   "type": "I"
+  },
+  {
+   "nodeID": "117_168140467077630591",
+   "text": "David Davies: which I couldn't even use",
+   "type": "L"
+  },
+  {
+   "nodeID": "119_168140467077630591",
+   "text": "Tuuli: David Davies: which I couldn't even use",
+   "type": "L"
+  },
+  {
+   "nodeID": "121_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "126_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "128_168140467077630591",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "a1_ya_0",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_1",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_2",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_3",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_4",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_5",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_6",
+   "type": "YA",
+   "text": "Pure Questioning"
+  },
+  {
+   "nodeID": "a1_ya_7",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_8",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_9",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_10",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_11",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_12",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_13",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_14",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_15",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_s_0",
+   "type": "MA",
+   "text": "Default Rephrase"
+  },
+  {
+   "nodeID": "a1_ta_ya_0",
+   "type": "YA",
+   "text": "Restating"
+  },
+  {
+   "nodeID": "a1_s_1",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_1",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_2",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_2",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_3",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_3",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_4",
+   "type": "MA",
+   "text": "Default Rephrase"
+  },
+  {
+   "nodeID": "a1_ta_ya_4",
+   "type": "YA",
+   "text": "Restating"
+  },
+  {
+   "nodeID": "a1_s_5",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_5",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_6",
+   "type": "MA",
+   "text": "Default Rephrase"
+  },
+  {
+   "nodeID": "a1_ta_ya_6",
+   "type": "YA",
+   "text": "Restating"
+  },
+  {
+   "nodeID": "a1_s_7",
+   "type": "MA",
+   "text": "Default Rephrase"
+  },
+  {
+   "nodeID": "a1_ta_ya_7",
+   "type": "YA",
+   "text": "Restating"
+  },
+  {
+   "nodeID": "a1_s_8",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_8",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_9",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_9",
+   "type": "YA",
+   "text": "Arguing"
+  }
+ ],
+ "edges": [
+  {
+   "edgeID": 9,
+   "fromID": "3_168140467077630591",
+   "toID": "12_168140467077630591"
+  },
+  {
+   "edgeID": 10,
+   "fromID": "12_168140467077630591",
+   "toID": "8_168140467077630591"
+  },
+  {
+   "edgeID": 15,
+   "fromID": "8_168140467077630591",
+   "toID": "18_168140467077630591"
+  },
+  {
+   "edgeID": 16,
+   "fromID": "18_168140467077630591",
+   "toID": "14_168140467077630591"
+  },
+  {
+   "edgeID": 21,
+   "fromID": "14_168140467077630591",
+   "toID": "25_168140467077630591"
+  },
+  {
+   "edgeID": 22,
+   "fromID": "25_168140467077630591",
+   "toID": "21_168140467077630591"
+  },
+  {
+   "edgeID": 27,
+   "fromID": "21_168140467077630591",
+   "toID": "31_168140467077630591"
+  },
+  {
+   "edgeID": 28,
+   "fromID": "31_168140467077630591",
+   "toID": "27_168140467077630591"
+  },
+  {
+   "edgeID": 41,
+   "fromID": "47_168140467077630591",
+   "toID": "57_168140467077630591"
+  },
+  {
+   "edgeID": 42,
+   "fromID": "57_168140467077630591",
+   "toID": "53_168140467077630591"
+  },
+  {
+   "edgeID": 51,
+   "fromID": "53_168140467077630591",
+   "toID": "67_168140467077630591"
+  },
+  {
+   "edgeID": 52,
+   "fromID": "67_168140467077630591",
+   "toID": "63_168140467077630591"
+  },
+  {
+   "edgeID": 57,
+   "fromID": "63_168140467077630591",
+   "toID": "73_168140467077630591"
+  },
+  {
+   "edgeID": 58,
+   "fromID": "73_168140467077630591",
+   "toID": "69_168140467077630591"
+  },
+  {
+   "edgeID": 73,
+   "fromID": "75_168140467077630591",
+   "toID": "89_168140467077630591"
+  },
+  {
+   "edgeID": 74,
+   "fromID": "89_168140467077630591",
+   "toID": "85_168140467077630591"
+  },
+  {
+   "edgeID": 79,
+   "fromID": "85_168140467077630591",
+   "toID": "95_168140467077630591"
+  },
+  {
+   "edgeID": 80,
+   "fromID": "95_168140467077630591",
+   "toID": "91_168140467077630591"
+  },
+  {
+   "edgeID": 85,
+   "fromID": "91_168140467077630591",
+   "toID": "101_168140467077630591"
+  },
+  {
+   "edgeID": 86,
+   "fromID": "101_168140467077630591",
+   "toID": "97_168140467077630591"
+  },
+  {
+   "edgeID": 99,
+   "fromID": "27_168140467077630591",
+   "toID": "112_168140467077630591"
+  },
+  {
+   "edgeID": 100,
+   "fromID": "112_168140467077630591",
+   "toID": "108_168140467077630591"
+  },
+  {
+   "edgeID": 101,
+   "fromID": "108_168140467077630591",
+   "toID": "113_168140467077630591"
+  },
+  {
+   "edgeID": 102,
+   "fromID": "113_168140467077630591",
+   "toID": "39_168140467077630591"
+  },
+  {
+   "edgeID": 111,
+   "fromID": "39_168140467077630591",
+   "toID": "121_168140467077630591"
+  },
+  {
+   "edgeID": 112,
+   "fromID": "121_168140467077630591",
+   "toID": "117_168140467077630591"
+  },
+  {
+   "edgeID": 119,
+   "fromID": "39_168140467077630591",
+   "toID": "126_168140467077630591"
+  },
+  {
+   "edgeID": 120,
+   "fromID": "126_168140467077630591",
+   "toID": "47_168140467077630591"
+  },
+  {
+   "edgeID": 123,
+   "fromID": "63_168140467077630591",
+   "toID": "128_168140467077630591"
+  },
+  {
+   "edgeID": 124,
+   "fromID": "128_168140467077630591",
+   "toID": "75_168140467077630591"
+  },
+  {
+   "edgeID": "a1_ya_0_in",
+   "fromID": "108_168140467077630591",
+   "toID": "a1_ya_0",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_0_out",
+   "fromID": "a1_ya_0",
+   "toID": "107_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_1_in",
+   "fromID": "117_168140467077630591",
+   "toID": "a1_ya_1",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_1_out",
+   "fromID": "a1_ya_1",
+   "toID": "116_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_2_in",
+   "fromID": "14_168140467077630591",
+   "toID": "a1_ya_2",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_2_out",
+   "fromID": "a1_ya_2",
+   "toID": "13_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_3_in",
+   "fromID": "21_168140467077630591",
+   "toID": "a1_ya_3",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_3_out",
+   "fromID": "a1_ya_3",
+   "toID": "20_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_4_in",
+   "fromID": "27_168140467077630591",
+   "toID": "a1_ya_4",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_4_out",
+   "fromID": "a1_ya_4",
+   "toID": "26_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_5_in",
+   "fromID": "39_168140467077630591",
+   "toID": "a1_ya_5",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_5_out",
+   "fromID": "a1_ya_5",
+   "toID": "38_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_6_in",
+   "fromID": "3_168140467077630591",
+   "toID": "a1_ya_6",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_6_out",
+   "fromID": "a1_ya_6",
+   "toID": "2_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_7_in",
+   "fromID": "47_168140467077630591",
+   "toID": "a1_ya_7",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_7_out",
+   "fromID": "a1_ya_7",
+   "toID": "46_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_8_in",
+   "fromID": "53_168140467077630591",
+   "toID": "a1_ya_8",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_8_out",
+   "fromID": "a1_ya_8",
+   "toID": "52_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_9_in",
+   "fromID": "63_168140467077630591",
+   "toID": "a1_ya_9",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_9_out",
+   "fromID": "a1_ya_9",
+   "toID": "62_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_10_in",
+   "fromID": "69_168140467077630591",
+   "toID": "a1_ya_10",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_10_out",
+   "fromID": "a1_ya_10",
+   "toID": "68_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_11_in",
+   "fromID": "75_168140467077630591",
+   "toID": "a1_ya_11",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_11_out",
+   "fromID": "a1_ya_11",
+   "toID": "74_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_12_in",
+   "fromID": "85_168140467077630591",
+   "toID": "a1_ya_12",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_12_out",
+   "fromID": "a1_ya_12",
+   "toID": "84_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_13_in",
+   "fromID": "8_168140467077630591",
+   "toID": "a1_ya_13",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_13_out",
+   "fromID": "a1_ya_13",
+   "toID": "7_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_14_in",
+   "fromID": "91_168140467077630591",
+   "toID": "a1_ya_14",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_14_out",
+   "fromID": "a1_ya_14",
+   "toID": "90_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_15_in",
+   "fromID": "97_168140467077630591",
+   "toID": "a1_ya_15",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_15_out",
+   "fromID": "a1_ya_15",
+   "toID": "96_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_0_in",
+   "fromID": "116_168140467077630591",
+   "toID": "a1_s_0",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_0_out",
+   "fromID": "a1_s_0",
+   "toID": "38_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_0_in",
+   "fromID": "121_168140467077630591",
+   "toID": "a1_ta_ya_0",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_0_out",
+   "fromID": "a1_ta_ya_0",
+   "toID": "a1_s_0",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_1_in",
+   "fromID": "13_168140467077630591",
+   "toID": "a1_s_1",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_1_out",
+   "fromID": "a1_s_1",
+   "toID": "7_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_1_in",
+   "fromID": "18_168140467077630591",
+   "toID": "a1_ta_ya_1",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_1_out",
+   "fromID": "a1_ta_ya_1",
+   "toID": "a1_s_1",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_2_in",
+   "fromID": "26_168140467077630591",
+   "toID": "a1_s_2",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_2_out",
+   "fromID": "a1_s_2",
+   "toID": "20_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_2_in",
+   "fromID": "31_168140467077630591",
+   "toID": "a1_ta_ya_2",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_2_out",
+   "fromID": "a1_ta_ya_2",
+   "toID": "a1_s_2",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_3_in",
+   "fromID": "38_168140467077630591",
+   "toID": "a1_s_3",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_3_out",
+   "fromID": "a1_s_3",
+   "toID": "46_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_3_in",
+   "fromID": "126_168140467077630591",
+   "toID": "a1_ta_ya_3",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_3_out",
+   "fromID": "a1_ta_ya_3",
+   "toID": "a1_s_3",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_4_in",
+   "fromID": "52_168140467077630591",
+   "toID": "a1_s_4",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_4_out",
+   "fromID": "a1_s_4",
+   "toID": "46_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_4_in",
+   "fromID": "57_168140467077630591",
+   "toID": "a1_ta_ya_4",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_4_out",
+   "fromID": "a1_ta_ya_4",
+   "toID": "a1_s_4",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_5_in",
+   "fromID": "68_168140467077630591",
+   "toID": "a1_s_5",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_5_out",
+   "fromID": "a1_s_5",
+   "toID": "62_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_5_in",
+   "fromID": "73_168140467077630591",
+   "toID": "a1_ta_ya_5",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_5_out",
+   "fromID": "a1_ta_ya_5",
+   "toID": "a1_s_5",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_6_in",
+   "fromID": "74_168140467077630591",
+   "toID": "a1_s_6",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_6_out",
+   "fromID": "a1_s_6",
+   "toID": "68_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_6_in",
+   "fromID": "128_168140467077630591",
+   "toID": "a1_ta_ya_6",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_6_out",
+   "fromID": "a1_ta_ya_6",
+   "toID": "a1_s_6",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_7_in",
+   "fromID": "7_168140467077630591",
+   "toID": "a1_s_7",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_7_out",
+   "fromID": "a1_s_7",
+   "toID": "2_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_7_in",
+   "fromID": "12_168140467077630591",
+   "toID": "a1_ta_ya_7",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_7_out",
+   "fromID": "a1_ta_ya_7",
+   "toID": "a1_s_7",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_8_in",
+   "fromID": "84_168140467077630591",
+   "toID": "a1_s_8",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_8_out",
+   "fromID": "a1_s_8",
+   "toID": "90_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_8_in",
+   "fromID": "95_168140467077630591",
+   "toID": "a1_ta_ya_8",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_8_out",
+   "fromID": "a1_ta_ya_8",
+   "toID": "a1_s_8",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_9_in",
+   "fromID": "90_168140467077630591",
+   "toID": "a1_s_9",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_9_out",
+   "fromID": "a1_s_9",
+   "toID": "96_168140467077630591",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_9_in",
+   "fromID": "101_168140467077630591",
+   "toID": "a1_ta_ya_9",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_9_out",
+   "fromID": "a1_ta_ya_9",
+   "toID": "a1_s_9",
+   "formEdgeID": null
+  }
+ ],
+ "locutions": [
+  {
+   "nodeID": "3_168140467077630591",
+   "personID": 81,
+   "start": "2023-02-23 23:13:08",
+   "end": null
+  },
+  {
+   "nodeID": "8_168140467077630591",
+   "personID": 81,
+   "start": "2023-02-23 23:13:10",
+   "end": null
+  },
+  {
+   "nodeID": "14_168140467077630591",
+   "personID": 81,
+   "start": "2023-02-23 23:13:12",
+   "end": null
+  },
+  {
+   "nodeID": "21_168140467077630591",
+   "personID": 81,
+   "start": "2023-02-23 23:13:22",
+   "end": null
+  },
+  {
+   "nodeID": "27_168140467077630591",
+   "personID": 81,
+   "start": "2023-02-23 23:13:27",
+   "end": null
+  },
+  {
+   "nodeID": "39_168140467077630591",
+   "personID": 81,
+   "start": "2023-02-23 23:13:39",
+   "end": null
+  },
+  {
+   "nodeID": "47_168140467077630591",
+   "personID": 81,
+   "start": "2023-02-23 23:13:42",
+   "end": null
+  },
+  {
+   "nodeID": "53_168140467077630591",
+   "personID": 81,
+   "start": "2023-02-23 23:13:45",
+   "end": null
+  },
+  {
+   "nodeID": "63_168140467077630591",
+   "personID": 112,
+   "start": "2023-02-23 23:13:49",
+   "end": null
+  },
+  {
+   "nodeID": "69_168140467077630591",
+   "personID": 112,
+   "start": "2023-02-23 23:13:55",
+   "end": null
+  },
+  {
+   "nodeID": "75_168140467077630591",
+   "personID": 112,
+   "start": "2023-02-23 23:13:58",
+   "end": null
+  },
+  {
+   "nodeID": "85_168140467077630591",
+   "personID": 112,
+   "start": "2023-02-23 23:14:03",
+   "end": null
+  },
+  {
+   "nodeID": "91_168140467077630591",
+   "personID": 112,
+   "start": "2023-02-23 23:14:14",
+   "end": null
+  },
+  {
+   "nodeID": "97_168140467077630591",
+   "personID": 112,
+   "start": "2023-02-23 23:14:19",
+   "end": null
+  },
+  {
+   "nodeID": "108_168140467077630591",
+   "personID": 81,
+   "start": "2023-02-23 23:13:32",
+   "end": null
+  },
+  {
+   "nodeID": "117_168140467077630591",
+   "personID": 81,
+   "start": "2023-02-23 23:13:37",
+   "end": null
+  }
+ ]
+}

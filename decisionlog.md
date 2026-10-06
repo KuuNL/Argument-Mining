@@ -38,8 +38,8 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A4.3 | Dev run + decision layer | 225 dev maps, frozen settings, labeller links; A1's temperature + thresholds, cross-fitted; calibration | Honest dev ARI next to A1–A3; success tests and H1–H5 decided | A4 | **Done (D079)**: honest dev ARI 52.17 / 32.45 (A1 50.50, A2 54.63); both success tests narrowly fail; H4, H5 pass; $0.62 |
 | A4.4 | Assembly + combination test | Valid maps, dev Global (labeller's turn types); A1 + A2 + A4 vs A1 + A2, from saved answers; no ablations (D076) | 225 / 225 valid; success test 2 | A4 | **Done (D079)**: 225 / 225 valid; honest dev Global 71.16 / 56.56; A1 + A2 + A4 = +0.39 over A1 + A2 |
 | A4.5 | Test run + report | Final A4 row; `reports/A4-jev.md` | Run once, on the user's go | Final run | **Done (D080)**: test Global 73.42 / 57.63 (ARI 54.21 / 30.98), between A3 and A2; A4 total $1.08 |
-| C | Combination | `combination/run.py`: mean of A1 + A2 + A4 pair scores → A1's decision layer, cross-fitted; test once (all answers cached) | Pre-registered main (A1 + A2 + A4) and comparison (A1 + A2) fixed before the test gold is read | Combination | In progress (D083) |
-| 4 | Four-approach comparison | `reports/04-comparison.md` | Every number from a committed result | Final run and write-up | In progress |
+| C | Combination | `combination/run.py`: mean of A1 + A2 + A4 pair scores → A1's decision layer, cross-fitted; test once (all answers cached) | Pre-registered main (A1 + A2 + A4) and comparison (A1 + A2) fixed before the test gold is read | Combination | **Done (D084)**: test Global 74.51 / 59.47 (main), the project's best pre-registered system; A1 + A2 75.17 / 60.32 |
+| 4 | Four-approach comparison | `reports/04-comparison.md` | Every number from a committed result | Final run and write-up | **Done (D085)** |
 
 ---
 
@@ -1239,3 +1239,36 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - Both give 225 / 225 valid maps.
 - **Pre-registered for the one test run (now, before the gold is read):** main = A1 + A2 + A4, the best on dev; A1 + A2 is reported beside it, to show what A4 adds on test.
   - Inputs: A1's saved test probabilities, A2's cached test-v1 answers, A4's test answers. No new calls; $0.
+
+### D084 — Combination test: A1 + A2 + A4 = Global 74.51 / 59.47, above every single system; A1 + A2 is higher still on test
+- **2026-10-06 · Combination · run once under D083's pre-registration · Finding** (`results/combination/test_global.json`, `test_predictions/`; `python -m combination.run --test`; $0, all inputs cached)
+- *Protocol:* 22 maps (11 per combination) assembled, validated and saved before the gold was read; all 1,208 of A1's test rows aligned.
+
+  | Test F1, general / focused | ARI | ILO | Global |
+  |---|---|---|---|
+  | Best 2024 entries | 55.33 / 35.89 | 81.17 / 72.09 | 67.05 / 48.25 |
+  | A2 alone (best single system, D064) | 55.77 / 33.34 | 91.56 / 83.20 | 73.67 / 58.27 |
+  | **A1 + A2 + A4 (pre-registered main)** | **56.39 / 34.65** | 92.64 / 84.28 | **74.51 / 59.47** |
+  | A1 + A2 (reported beside it) | 57.69 / 36.37 | 92.64 / 84.28 | 75.17 / 60.32 |
+
+- *Reading:*
+  - **Combining helps:** the main combination beats every single system on test (A2 +0.6 ARI, +0.8 Global), as on dev (+0.9 over A2).
+  - **A4's share doesn't hold up on test:** −1.30 / −1.72 against A1 + A2, after +0.39 / +0.83 on dev. Across 225 dev and 11 test maps, Jev adds about nothing to a combination that already has A1 and A2. The gain comes from A1's annotator habits plus A2's definitions (A2 discussion).
+  - A1 + A2 was not the pre-registered choice; it is reported, not substituted.
+  - *Against 2024:* ARI general 56.39 is above the best 2024 entry (55.33), and A1 + A2's 36.37 focused is above it too (35.89).
+
+### D085 — The four-approach comparison is written; the project's planned phases are complete
+- **2026-10-06 · Final write-up · by Claude, at the user's request ("a good report on how Jev compares and an overall good project on 4 approaches") · Done** (`reports/04-comparison.md`)
+- *Content:*
+  - test and honest dev results for A1–A4, the combination and the 2024 field;
+  - paired bootstraps (dev ranks A2 > A4 ≈ A1 > A3);
+  - cost, speed and data needs;
+  - a four-way matched-density table of what each system is good at;
+  - a critical answer to "is Jev impressive";
+  - the 2024 failures against the lever that fixed each;
+  - limits.
+- *Added for it:* the A2 − A1 paired bootstrap on dev, **+4.14 [2.21, 6.12]**, in `results/a4/robust.json`. No other new computation.
+- *Status of PLAN's success criteria:*
+  1. at least one system beats 67.05 / 48.25: all four and the combination do;
+  2. each approach has F1, time and cost recorded: yes, with ablations cut to the core for A3 and A4 by user decision (D071, D076);
+  3. which 2024 failure each lever fixed: report §5. Conflict remains unsolved by every method.

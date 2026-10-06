@@ -67,8 +67,11 @@ def main():
                  "A3 greedy, every listed relation (D069)": {"general": 49.46, "focused": 31.19},
                  "A4 argmax": both(s1.scores(s1.probs, None)),
                  "A4 argmax, mean of both passes": both(passes["mean of both passes"].scores(passes["mean of both passes"].probs, None))}
-    tuned = {"A1": both(a1_held), "A2": both(honest(a2)[1]), "A3": {"general": 47.65, "focused": 27.23}, "A4": run["pass 1"]["honest"]}
-    rep = {"run_to_run": run, "no_labels_decode": no_labels, "with_dev_thresholds (honest)": tuned}
+    a2_held = honest(a2)[1]
+    tuned = {"A1": both(a1_held), "A2": both(a2_held), "A3": {"general": 47.65, "focused": 27.23}, "A4": run["pass 1"]["honest"]}
+    pairs = {"A2 - A1": bootstrap(a2_held, a1_held, 0), "A4 (pass 1) - A2": bootstrap(held["pass 1"], a2_held, 0)}
+    rep = {"run_to_run": run, "no_labels_decode": no_labels, "with_dev_thresholds (honest)": tuned,
+           "paired_bootstrap_general": pairs}
     with open(OUT / "robust.json", "w", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(rep, indent=1, default=float))
     print(json.dumps(rep, indent=1, default=float))

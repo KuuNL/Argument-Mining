@@ -1,0 +1,1408 @@
+{
+ "nodes": [
+  {
+   "nodeID": "2_167596854281677896",
+   "text": "it would or would not be an idea for the whole of the public sector to get a pay rise all at the same time",
+   "type": "I"
+  },
+  {
+   "nodeID": "3_167596854281677896",
+   "text": "AudienceMember 20230209QT09: Would it not be an idea for the whole of the public sector to get a pay rise all at the same time",
+   "type": "L"
+  },
+  {
+   "nodeID": "5_167596854281677896",
+   "text": "Jordan: AudienceMember 20230209QT09: Would it not be an idea for the whole of the public sector to get a pay rise all at the same time",
+   "type": "L"
+  },
+  {
+   "nodeID": "7_167596854281677896",
+   "text": "government can give the public sector a pay rise",
+   "type": "I"
+  },
+  {
+   "nodeID": "8_167596854281677896",
+   "text": "AudienceMember 20230209QT09: government can give them a pay rise",
+   "type": "L"
+  },
+  {
+   "nodeID": "10_167596854281677896",
+   "text": "Jordan: AudienceMember 20230209QT09: government can give them a pay rise",
+   "type": "L"
+  },
+  {
+   "nodeID": "12_167596854281677896",
+   "text": "government are the public sector",
+   "type": "I"
+  },
+  {
+   "nodeID": "13_167596854281677896",
+   "text": "AudienceMember 20230209QT09: they're the public sector",
+   "type": "L"
+  },
+  {
+   "nodeID": "15_167596854281677896",
+   "text": "Jordan: AudienceMember 20230209QT09: they're the public sector",
+   "type": "L"
+  },
+  {
+   "nodeID": "17_167596854281677896",
+   "text": "the rest of the public sector should get a pay rise too",
+   "type": "I"
+  },
+  {
+   "nodeID": "20_167596854281677896",
+   "text": "Jordan: AudienceMember 20230209QT09: why can't the rest of the public sector get it too",
+   "type": "L"
+  },
+  {
+   "nodeID": "18_167596854281677896",
+   "text": "AudienceMember 20230209QT09: why can't the rest of the public sector get it too",
+   "type": "L"
+  },
+  {
+   "nodeID": "24_167596854281677896",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "25_167596854281677896",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "28_167596854281677896",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "30_167596854281677896",
+   "text": "a public sector pay rise would be fair across the board too",
+   "type": "I"
+  },
+  {
+   "nodeID": "31_167596854281677896",
+   "text": "AudienceMember 20230209QT09: It would be fair across the board too",
+   "type": "L"
+  },
+  {
+   "nodeID": "33_167596854281677896",
+   "text": "Jordan: AudienceMember 20230209QT09: It would be fair across the board too",
+   "type": "L"
+  },
+  {
+   "nodeID": "35_167596854281677896",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "38_167596854281677896",
+   "text": "AudienceMember 20230209QT09 does or does not wonder where the money for a public sector pay rise might come from",
+   "type": "I"
+  },
+  {
+   "nodeID": "39_167596854281677896",
+   "text": "Fiona Bruce: Do you wonder where the money might come from",
+   "type": "L"
+  },
+  {
+   "nodeID": "41_167596854281677896",
+   "text": "Jordan: Fiona Bruce: Do you wonder where the money might come from",
+   "type": "L"
+  },
+  {
+   "nodeID": "43_167596854281677896",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "44_167596854281677896",
+   "text": "the government can give themselves a pay rise",
+   "type": "I"
+  },
+  {
+   "nodeID": "45_167596854281677896",
+   "text": "AudienceMember 20230209QT10: the government can give themselves a pay rise",
+   "type": "L"
+  },
+  {
+   "nodeID": "47_167596854281677896",
+   "text": "Jordan: AudienceMember 20230209QT10: the government can give themselves a pay rise",
+   "type": "L"
+  },
+  {
+   "nodeID": "49_167596854281677896",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "52_167596854281677896",
+   "text": "the government can find a way to give everybody a pay rise",
+   "type": "I"
+  },
+  {
+   "nodeID": "55_167596854281677896",
+   "text": "Jordan: AudienceMember 20230209QT10: they can find a way to give everybody a pay rise",
+   "type": "L"
+  },
+  {
+   "nodeID": "53_167596854281677896",
+   "text": "AudienceMember 20230209QT10: they can find a way to give everybody a pay rise",
+   "type": "L"
+  },
+  {
+   "nodeID": "58_167596854281677896",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "60_167596854281677896",
+   "text": " AudienceMember 20230209QT10 does or does not mean the Scottish government",
+   "type": "I"
+  },
+  {
+   "nodeID": "61_167596854281677896",
+   "text": "Fiona Bruce: Do you mean the Scottish government",
+   "type": "L"
+  },
+  {
+   "nodeID": "63_167596854281677896",
+   "text": "Jordan: Fiona Bruce: Do you mean the Scottish government",
+   "type": "L"
+  },
+  {
+   "nodeID": "65_167596854281677896",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "66_167596854281677896",
+   "text": "AudienceMember 20230209QT11 don't understand why the government thinks that one part of the public sector works harder than the other",
+   "type": "I"
+  },
+  {
+   "nodeID": "67_167596854281677896",
+   "text": "AudienceMember 20230209QT11: I don't understand why the government thinks that one part of the public sector works harder than the other",
+   "type": "L"
+  },
+  {
+   "nodeID": "69_167596854281677896",
+   "text": "Jordan: AudienceMember 20230209QT11: I don't understand why the government thinks that one part of the public sector works harder than the other",
+   "type": "L"
+  },
+  {
+   "nodeID": "3_167596923956537341",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "5_167596923956537341",
+   "text": "one part of the public sector can get a pay rise and the other can't",
+   "type": "I"
+  },
+  {
+   "nodeID": "6_167596923956537341",
+   "text": "AudienceMember 20230209QT11: it can get a pay rise and the other can't",
+   "type": "L"
+  },
+  {
+   "nodeID": "8_167596923956537341",
+   "text": "Jordan: AudienceMember 20230209QT11: it can get a pay rise and the other can't",
+   "type": "L"
+  },
+  {
+   "nodeID": "11_167596923956537341",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "13_167596923956537341",
+   "text": "without the inspiration of the teachers",
+   "type": "I"
+  },
+  {
+   "nodeID": "14_167596923956537341",
+   "text": "Ian Murray: Without that inspiration of the teachers",
+   "type": "L"
+  },
+  {
+   "nodeID": "16_167596923956537341",
+   "text": "Jordan: Ian Murray: Without that inspiration of the teachers",
+   "type": "L"
+  },
+  {
+   "nodeID": "18_167596923956537341",
+   "text": "without the great learning Ian Murray got and his colleagues got from teachers",
+   "type": "I"
+  },
+  {
+   "nodeID": "19_167596923956537341",
+   "text": "Ian Murray: the great learning I got and my colleagues got",
+   "type": "L"
+  },
+  {
+   "nodeID": "21_167596923956537341",
+   "text": "Jordan: Ian Murray: the great learning I got and my colleagues got",
+   "type": "L"
+  },
+  {
+   "nodeID": "23_167596923956537341",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "24_167596923956537341",
+   "text": "we would not have any social mobility whatsoever",
+   "type": "I"
+  },
+  {
+   "nodeID": "25_167596923956537341",
+   "text": "Ian Murray: I'm not sure we would have any social mobility whatsoever",
+   "type": "L"
+  },
+  {
+   "nodeID": "27_167596923956537341",
+   "text": "Jordan: Ian Murray: I'm not sure we would have any social mobility whatsoever",
+   "type": "L"
+  },
+  {
+   "nodeID": "31_167596923956537341",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "32_167596923956537341",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "35_167596923956537341",
+   "text": "politics is all about choices",
+   "type": "I"
+  },
+  {
+   "nodeID": "36_167596923956537341",
+   "text": "Ian Murray: Politics is all about choices, isn't it",
+   "type": "L"
+  },
+  {
+   "nodeID": "38_167596923956537341",
+   "text": "Jordan: Ian Murray: Politics is all about choices, isn't it",
+   "type": "L"
+  },
+  {
+   "nodeID": "40_167596923956537341",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "41_167596923956537341",
+   "text": "we released some figures that show AudienceMember 20230209QT11's wages, Alison, the other teacher here, is on average across Scotland \u00a3800 lower since 2010",
+   "type": "I"
+  },
+  {
+   "nodeID": "42_167596923956537341",
+   "text": "Ian Murray: We released some figures that show your wages, Alison, the other teacher here, is on average across Scotland \u00a3800 lower since 2010",
+   "type": "L"
+  },
+  {
+   "nodeID": "44_167596923956537341",
+   "text": "Jordan: Ian Murray: We released some figures that show your wages, Alison, the other teacher here, is on average across Scotland \u00a3800 lower since 2010",
+   "type": "L"
+  },
+  {
+   "nodeID": "49_167596923956537341",
+   "text": "the chickens are now coming home to roost",
+   "type": "I"
+  },
+  {
+   "nodeID": "50_167596923956537341",
+   "text": "Ian Murray: The chickens are now coming home to roost",
+   "type": "L"
+  },
+  {
+   "nodeID": "52_167596923956537341",
+   "text": "Jordan: Ian Murray: The chickens are now coming home to roost",
+   "type": "L"
+  },
+  {
+   "nodeID": "54_167596923956537341",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "57_167596923956537341",
+   "text": "teachers were asked to help the government out of the hole they were in",
+   "type": "I"
+  },
+  {
+   "nodeID": "58_167596923956537341",
+   "text": "Ian Murray: You were asked to help the government out of the hole they were in out of all of the",
+   "type": "L"
+  },
+  {
+   "nodeID": "60_167596923956537341",
+   "text": "Jordan: Ian Murray: You were asked to help the government out of the hole they were in out of all of the",
+   "type": "L"
+  },
+  {
+   "nodeID": "62_167596923956537341",
+   "text": "now teachers are being asked for inflation being out of control",
+   "type": "I"
+  },
+  {
+   "nodeID": "63_167596923956537341",
+   "text": "Ian Murray: now you are being asked for inflation being out of control",
+   "type": "L"
+  },
+  {
+   "nodeID": "65_167596923956537341",
+   "text": "Jordan: Ian Murray: now you are being asked for inflation being out of control",
+   "type": "L"
+  },
+  {
+   "nodeID": "69_167596923956537341",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "70_167596923956537341",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "73_167596923956537341",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "a1_ya_0",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_1",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_2",
+   "type": "YA",
+   "text": "Rhetorical Questioning"
+  },
+  {
+   "nodeID": "a1_ya_3",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_4",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_5",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_6",
+   "type": "YA",
+   "text": "Assertive Questioning"
+  },
+  {
+   "nodeID": "a1_ya_7",
+   "type": "YA",
+   "text": "Pure Questioning"
+  },
+  {
+   "nodeID": "a1_ya_8",
+   "type": "YA",
+   "text": "Pure Questioning"
+  },
+  {
+   "nodeID": "a1_ya_9",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_10",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_11",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_12",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_13",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_14",
+   "type": "YA",
+   "text": "Pure Questioning"
+  },
+  {
+   "nodeID": "a1_ya_15",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_16",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_17",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_18",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_s_0",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_0",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_1",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_1",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_2",
+   "type": "MA",
+   "text": "Default Rephrase"
+  },
+  {
+   "nodeID": "a1_ta_ya_2",
+   "type": "YA",
+   "text": "Restating"
+  },
+  {
+   "nodeID": "a1_s_3",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_3",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_4",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_4",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_5",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_5",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_6",
+   "type": "MA",
+   "text": "Default Rephrase"
+  },
+  {
+   "nodeID": "a1_ta_ya_6",
+   "type": "YA",
+   "text": "Restating"
+  },
+  {
+   "nodeID": "a1_s_7",
+   "type": "MA",
+   "text": "Default Rephrase"
+  },
+  {
+   "nodeID": "a1_ta_ya_7",
+   "type": "YA",
+   "text": "Restating"
+  },
+  {
+   "nodeID": "a1_s_8",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_8",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_9",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_9",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_10",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_10",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_11",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_11",
+   "type": "YA",
+   "text": "Arguing"
+  }
+ ],
+ "edges": [
+  {
+   "edgeID": 20,
+   "fromID": "24_167596854281677896",
+   "toID": "18_167596854281677896"
+  },
+  {
+   "edgeID": 21,
+   "fromID": "8_167596854281677896",
+   "toID": "24_167596854281677896"
+  },
+  {
+   "edgeID": 22,
+   "fromID": "25_167596854281677896",
+   "toID": "18_167596854281677896"
+  },
+  {
+   "edgeID": 23,
+   "fromID": "13_167596854281677896",
+   "toID": "25_167596854281677896"
+  },
+  {
+   "edgeID": 28,
+   "fromID": "3_167596854281677896",
+   "toID": "28_167596854281677896"
+  },
+  {
+   "edgeID": 29,
+   "fromID": "28_167596854281677896",
+   "toID": "8_167596854281677896"
+  },
+  {
+   "edgeID": 36,
+   "fromID": "18_167596854281677896",
+   "toID": "35_167596854281677896"
+  },
+  {
+   "edgeID": 37,
+   "fromID": "35_167596854281677896",
+   "toID": "31_167596854281677896"
+  },
+  {
+   "edgeID": 46,
+   "fromID": "43_167596854281677896",
+   "toID": "39_167596854281677896"
+  },
+  {
+   "edgeID": 47,
+   "fromID": "31_167596854281677896",
+   "toID": "43_167596854281677896"
+  },
+  {
+   "edgeID": 52,
+   "fromID": "39_167596854281677896",
+   "toID": "49_167596854281677896"
+  },
+  {
+   "edgeID": 53,
+   "fromID": "49_167596854281677896",
+   "toID": "45_167596854281677896"
+  },
+  {
+   "edgeID": 64,
+   "fromID": "45_167596854281677896",
+   "toID": "58_167596854281677896"
+  },
+  {
+   "edgeID": 65,
+   "fromID": "58_167596854281677896",
+   "toID": "53_167596854281677896"
+  },
+  {
+   "edgeID": 72,
+   "fromID": "53_167596854281677896",
+   "toID": "65_167596854281677896"
+  },
+  {
+   "edgeID": 73,
+   "fromID": "65_167596854281677896",
+   "toID": "61_167596854281677896"
+  },
+  {
+   "edgeID": 80,
+   "fromID": "61_167596854281677896",
+   "toID": "3_167596923956537341"
+  },
+  {
+   "edgeID": 81,
+   "fromID": "3_167596923956537341",
+   "toID": "67_167596854281677896"
+  },
+  {
+   "edgeID": 90,
+   "fromID": "67_167596854281677896",
+   "toID": "11_167596923956537341"
+  },
+  {
+   "edgeID": 91,
+   "fromID": "11_167596923956537341",
+   "toID": "6_167596923956537341"
+  },
+  {
+   "edgeID": 102,
+   "fromID": "6_167596923956537341",
+   "toID": "23_167596923956537341"
+  },
+  {
+   "edgeID": 103,
+   "fromID": "23_167596923956537341",
+   "toID": "14_167596923956537341"
+  },
+  {
+   "edgeID": 111,
+   "fromID": "14_167596923956537341",
+   "toID": "31_167596923956537341"
+  },
+  {
+   "edgeID": 112,
+   "fromID": "31_167596923956537341",
+   "toID": "25_167596923956537341"
+  },
+  {
+   "edgeID": 113,
+   "fromID": "19_167596923956537341",
+   "toID": "32_167596923956537341"
+  },
+  {
+   "edgeID": 114,
+   "fromID": "32_167596923956537341",
+   "toID": "25_167596923956537341"
+  },
+  {
+   "edgeID": 121,
+   "fromID": "25_167596923956537341",
+   "toID": "40_167596923956537341"
+  },
+  {
+   "edgeID": 122,
+   "fromID": "40_167596923956537341",
+   "toID": "36_167596923956537341"
+  },
+  {
+   "edgeID": 131,
+   "fromID": "42_167596923956537341",
+   "toID": "54_167596923956537341"
+  },
+  {
+   "edgeID": 132,
+   "fromID": "54_167596923956537341",
+   "toID": "50_167596923956537341"
+  },
+  {
+   "edgeID": 145,
+   "fromID": "36_167596923956537341",
+   "toID": "69_167596923956537341"
+  },
+  {
+   "edgeID": 146,
+   "fromID": "69_167596923956537341",
+   "toID": "42_167596923956537341"
+  },
+  {
+   "edgeID": 147,
+   "fromID": "50_167596923956537341",
+   "toID": "70_167596923956537341"
+  },
+  {
+   "edgeID": 148,
+   "fromID": "70_167596923956537341",
+   "toID": "58_167596923956537341"
+  },
+  {
+   "edgeID": 152,
+   "fromID": "50_167596923956537341",
+   "toID": "73_167596923956537341"
+  },
+  {
+   "edgeID": 153,
+   "fromID": "73_167596923956537341",
+   "toID": "63_167596923956537341"
+  },
+  {
+   "edgeID": "a1_ya_0_in",
+   "fromID": "13_167596854281677896",
+   "toID": "a1_ya_0",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_0_out",
+   "fromID": "a1_ya_0",
+   "toID": "12_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_1_in",
+   "fromID": "14_167596923956537341",
+   "toID": "a1_ya_1",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_1_out",
+   "fromID": "a1_ya_1",
+   "toID": "13_167596923956537341",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_2_in",
+   "fromID": "18_167596854281677896",
+   "toID": "a1_ya_2",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_2_out",
+   "fromID": "a1_ya_2",
+   "toID": "17_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_3_in",
+   "fromID": "19_167596923956537341",
+   "toID": "a1_ya_3",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_3_out",
+   "fromID": "a1_ya_3",
+   "toID": "18_167596923956537341",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_4_in",
+   "fromID": "25_167596923956537341",
+   "toID": "a1_ya_4",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_4_out",
+   "fromID": "a1_ya_4",
+   "toID": "24_167596923956537341",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_5_in",
+   "fromID": "31_167596854281677896",
+   "toID": "a1_ya_5",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_5_out",
+   "fromID": "a1_ya_5",
+   "toID": "30_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_6_in",
+   "fromID": "36_167596923956537341",
+   "toID": "a1_ya_6",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_6_out",
+   "fromID": "a1_ya_6",
+   "toID": "35_167596923956537341",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_7_in",
+   "fromID": "39_167596854281677896",
+   "toID": "a1_ya_7",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_7_out",
+   "fromID": "a1_ya_7",
+   "toID": "38_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_8_in",
+   "fromID": "3_167596854281677896",
+   "toID": "a1_ya_8",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_8_out",
+   "fromID": "a1_ya_8",
+   "toID": "2_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_9_in",
+   "fromID": "42_167596923956537341",
+   "toID": "a1_ya_9",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_9_out",
+   "fromID": "a1_ya_9",
+   "toID": "41_167596923956537341",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_10_in",
+   "fromID": "45_167596854281677896",
+   "toID": "a1_ya_10",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_10_out",
+   "fromID": "a1_ya_10",
+   "toID": "44_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_11_in",
+   "fromID": "50_167596923956537341",
+   "toID": "a1_ya_11",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_11_out",
+   "fromID": "a1_ya_11",
+   "toID": "49_167596923956537341",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_12_in",
+   "fromID": "53_167596854281677896",
+   "toID": "a1_ya_12",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_12_out",
+   "fromID": "a1_ya_12",
+   "toID": "52_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_13_in",
+   "fromID": "58_167596923956537341",
+   "toID": "a1_ya_13",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_13_out",
+   "fromID": "a1_ya_13",
+   "toID": "57_167596923956537341",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_14_in",
+   "fromID": "61_167596854281677896",
+   "toID": "a1_ya_14",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_14_out",
+   "fromID": "a1_ya_14",
+   "toID": "60_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_15_in",
+   "fromID": "63_167596923956537341",
+   "toID": "a1_ya_15",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_15_out",
+   "fromID": "a1_ya_15",
+   "toID": "62_167596923956537341",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_16_in",
+   "fromID": "67_167596854281677896",
+   "toID": "a1_ya_16",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_16_out",
+   "fromID": "a1_ya_16",
+   "toID": "66_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_17_in",
+   "fromID": "6_167596923956537341",
+   "toID": "a1_ya_17",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_17_out",
+   "fromID": "a1_ya_17",
+   "toID": "5_167596923956537341",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_18_in",
+   "fromID": "8_167596854281677896",
+   "toID": "a1_ya_18",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_18_out",
+   "fromID": "a1_ya_18",
+   "toID": "7_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_0_in",
+   "fromID": "12_167596854281677896",
+   "toID": "a1_s_0",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_0_out",
+   "fromID": "a1_s_0",
+   "toID": "7_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_0_in",
+   "fromID": "28_167596854281677896",
+   "toID": "a1_ta_ya_0",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_0_out",
+   "fromID": "a1_ta_ya_0",
+   "toID": "a1_s_0",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_1_in",
+   "fromID": "13_167596923956537341",
+   "toID": "a1_s_1",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_1_out",
+   "fromID": "a1_s_1",
+   "toID": "24_167596923956537341",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_1_in",
+   "fromID": "31_167596923956537341",
+   "toID": "a1_ta_ya_1",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_1_out",
+   "fromID": "a1_ta_ya_1",
+   "toID": "a1_s_1",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_2_in",
+   "fromID": "17_167596854281677896",
+   "toID": "a1_s_2",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_2_out",
+   "fromID": "a1_s_2",
+   "toID": "2_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_2_in",
+   "fromID": "24_167596854281677896",
+   "toID": "a1_ta_ya_2",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_2_out",
+   "fromID": "a1_ta_ya_2",
+   "toID": "a1_s_2",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_3_in",
+   "fromID": "30_167596854281677896",
+   "toID": "a1_s_3",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_3_out",
+   "fromID": "a1_s_3",
+   "toID": "17_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_3_in",
+   "fromID": "35_167596854281677896",
+   "toID": "a1_ta_ya_3",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_3_out",
+   "fromID": "a1_ta_ya_3",
+   "toID": "a1_s_3",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_4_in",
+   "fromID": "41_167596923956537341",
+   "toID": "a1_s_4",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_4_out",
+   "fromID": "a1_s_4",
+   "toID": "49_167596923956537341",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_4_in",
+   "fromID": "54_167596923956537341",
+   "toID": "a1_ta_ya_4",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_4_out",
+   "fromID": "a1_ta_ya_4",
+   "toID": "a1_s_4",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_5_in",
+   "fromID": "44_167596854281677896",
+   "toID": "a1_s_5",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_5_out",
+   "fromID": "a1_s_5",
+   "toID": "52_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_5_in",
+   "fromID": "58_167596854281677896",
+   "toID": "a1_ta_ya_5",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_5_out",
+   "fromID": "a1_ta_ya_5",
+   "toID": "a1_s_5",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_6_in",
+   "fromID": "44_167596854281677896",
+   "toID": "a1_s_6",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_6_out",
+   "fromID": "a1_s_6",
+   "toID": "7_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_6_in",
+   "fromID": "49_167596854281677896",
+   "toID": "a1_ta_ya_6",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_6_out",
+   "fromID": "a1_ta_ya_6",
+   "toID": "a1_s_6",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_7_in",
+   "fromID": "52_167596854281677896",
+   "toID": "a1_s_7",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_7_out",
+   "fromID": "a1_s_7",
+   "toID": "7_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_7_in",
+   "fromID": "58_167596854281677896",
+   "toID": "a1_ta_ya_7",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_7_out",
+   "fromID": "a1_ta_ya_7",
+   "toID": "a1_s_7",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_8_in",
+   "fromID": "57_167596923956537341",
+   "toID": "a1_s_8",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_8_out",
+   "fromID": "a1_s_8",
+   "toID": "49_167596923956537341",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_8_in",
+   "fromID": "70_167596923956537341",
+   "toID": "a1_ta_ya_8",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_8_out",
+   "fromID": "a1_ta_ya_8",
+   "toID": "a1_s_8",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_9_in",
+   "fromID": "5_167596923956537341",
+   "toID": "a1_s_9",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_9_out",
+   "fromID": "a1_s_9",
+   "toID": "66_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_9_in",
+   "fromID": "11_167596923956537341",
+   "toID": "a1_ta_ya_9",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_9_out",
+   "fromID": "a1_ta_ya_9",
+   "toID": "a1_s_9",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_10_in",
+   "fromID": "62_167596923956537341",
+   "toID": "a1_s_10",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_10_out",
+   "fromID": "a1_s_10",
+   "toID": "49_167596923956537341",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_10_in",
+   "fromID": "73_167596923956537341",
+   "toID": "a1_ta_ya_10",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_10_out",
+   "fromID": "a1_ta_ya_10",
+   "toID": "a1_s_10",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_11_in",
+   "fromID": "7_167596854281677896",
+   "toID": "a1_s_11",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_11_out",
+   "fromID": "a1_s_11",
+   "toID": "17_167596854281677896",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_11_in",
+   "fromID": "24_167596854281677896",
+   "toID": "a1_ta_ya_11",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_11_out",
+   "fromID": "a1_ta_ya_11",
+   "toID": "a1_s_11",
+   "formEdgeID": null
+  }
+ ],
+ "locutions": [
+  {
+   "nodeID": "3_167596854281677896",
+   "personID": 159,
+   "start": "2023-02-02 22:46:42",
+   "end": null
+  },
+  {
+   "nodeID": "8_167596854281677896",
+   "personID": 159,
+   "start": "2023-02-02 22:46:48",
+   "end": null
+  },
+  {
+   "nodeID": "13_167596854281677896",
+   "personID": 159,
+   "start": "2023-02-02 22:46:50",
+   "end": null
+  },
+  {
+   "nodeID": "18_167596854281677896",
+   "personID": 159,
+   "start": "2023-02-02 22:46:53",
+   "end": null
+  },
+  {
+   "nodeID": "31_167596854281677896",
+   "personID": 159,
+   "start": "2023-02-02 22:46:56",
+   "end": null
+  },
+  {
+   "nodeID": "39_167596854281677896",
+   "personID": 15,
+   "start": "2023-02-02 22:46:58",
+   "end": null
+  },
+  {
+   "nodeID": "45_167596854281677896",
+   "personID": 160,
+   "start": "2023-02-02 22:47:02",
+   "end": null
+  },
+  {
+   "nodeID": "53_167596854281677896",
+   "personID": 160,
+   "start": "2023-02-02 22:47:04",
+   "end": null
+  },
+  {
+   "nodeID": "61_167596854281677896",
+   "personID": 15,
+   "start": "2023-02-02 22:47:06",
+   "end": null
+  },
+  {
+   "nodeID": "67_167596854281677896",
+   "personID": 161,
+   "start": "2023-02-02 22:47:08",
+   "end": null
+  },
+  {
+   "nodeID": "6_167596923956537341",
+   "personID": 161,
+   "start": "2023-02-02 22:47:19",
+   "end": null
+  },
+  {
+   "nodeID": "14_167596923956537341",
+   "personID": 148,
+   "start": "2023-02-02 22:46:50",
+   "end": null
+  },
+  {
+   "nodeID": "19_167596923956537341",
+   "personID": 148,
+   "start": "2023-02-02 22:46:53",
+   "end": null
+  },
+  {
+   "nodeID": "25_167596923956537341",
+   "personID": 148,
+   "start": "2023-02-02 22:47:39",
+   "end": null
+  },
+  {
+   "nodeID": "36_167596923956537341",
+   "personID": 148,
+   "start": "2023-02-02 22:47:45",
+   "end": null
+  },
+  {
+   "nodeID": "42_167596923956537341",
+   "personID": 148,
+   "start": "2023-02-02 22:47:49",
+   "end": null
+  },
+  {
+   "nodeID": "50_167596923956537341",
+   "personID": 148,
+   "start": "2023-02-02 22:48:02",
+   "end": null
+  },
+  {
+   "nodeID": "58_167596923956537341",
+   "personID": 148,
+   "start": "2023-02-02 22:48:06",
+   "end": null
+  },
+  {
+   "nodeID": "63_167596923956537341",
+   "personID": 148,
+   "start": "2023-02-02 22:48:15",
+   "end": null
+  }
+ ]
+}

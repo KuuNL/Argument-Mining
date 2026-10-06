@@ -120,7 +120,8 @@ Key numbers (training):
 | Ours: A1 + ILO labeller, test (2026-10-03) | 51.4 / 30.8 | **92.6 / 84.3** | 72.01 / 57.53: see `reports/A1-cross-encoder.md` |
 | **Ours: A2 (Sonnet 5.5, whole map) + ILO labeller, test (2026-10-05)** | **55.8** / 33.3 | 91.6 / 83.2 | **73.67 / 58.27**: see `reports/A2-whole-map-llm.md` |
 | Ours: A3 (fine-tuned Qwen3-4B) + ILO labeller, test (2026-10-06) | 53.7 / 32.1 | 92.6 / 84.3 | 73.17 / 58.17: see `reports/A3-finetuned-llm.md` (on dev it trails A1 and A2) |
-| Ours: A4 (Jev, no training) + ILO labeller, test (2026-10-06) | 54.2 / 31.0 | 92.6 / 84.3 | 73.42 / 57.63: see `reports/A4-jev.md` (2nd on dev too; $1.08 in all) |
+| Ours: A4 (Jev, no training) + ILO labeller, test (2026-10-06) | 54.2 / 31.0 | 92.6 / 84.3 | 73.42 / 57.63: see `reports/A4-jev.md` (2nd on dev too; $1.70 in all) |
+| **Ours: A1 + A2 + A4 averaged (pre-registered combination), test (2026-10-06)** | **56.4** / 34.7 | 92.6 / 84.3 | **74.51 / 59.47**: see `reports/04-comparison.md` (A1 + A2 alone: 75.17 / 60.32) |
 
 Every winning system was a **pairwise encoder classifier** (DeBERTa/RoBERTa). It read two sentences at a time with no
 surrounding dialogue. This caused five failures:
@@ -205,6 +206,7 @@ Each question is asked in two option orders, and the probabilities are averaged.
 
 **Combination.** The methods have complementary strengths. A1 or A4 is fast and calibrated, and A2 is slow but reasons.
 So a cheap pass decides the confident pairs, and only the uncertain ones go to A2.
+- **Outcome (D083–D084):** the simplest form, the mean of A1 + A2 + A4 pair scores, gives test Global 74.51 / 59.47, the best pre-registered system. Routing was not run. All four approaches are compared in `reports/04-comparison.md`.
 
 **Measured for every approach:** ARI / ILO / Global (general and focused), training time, inference time, cost, and
 *ablations* (switch off one component, such as context, pruning, thresholds or the LLM step, and re-score to see what it contributed).

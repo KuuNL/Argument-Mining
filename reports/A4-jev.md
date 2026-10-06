@@ -13,7 +13,7 @@
 - **The idea:** put the whole map in the state, ask about every candidate relation as a typed question, and get a **probability for every pair**. That gives whole-map context, as in A2, and a continuous score per pair, as in A1, with no training. Those scores go through the decision layer the other approaches already share.
 - **What's new in A4:** besides one question per pair (A1's 5 labels), it asks **one question per proposition**: "which of your candidate propositions do you relate to, and how?" All of a proposition's candidate targets then compete inside one probability distribution. A2 found that deciding jointly was the LLM's real advantage over the encoder, and this is a way to get it without generating text.
 - **Cost (measured in A4.1):** the state is billed once per request, so **a dev pass costs ≈ $0.63** at list price, and everything left (pilot, dev, test) ≈ $0.80. Jev turned out not to be on the gateway's free tier (D074), so A4 runs on a small paid credit with a cap (D075).
-- **Success (fixed in advance):** with no training, A4 beats A1 on honest dev ARI, *or* adding A4 to the A1 + A2 average gains ≥ 1.0. **Both narrowly fail:** +1.68 over A1 with a 95% interval of [−0.20, +3.65], and +0.39 in the combination.
+- **Success (fixed in advance):** with no training, A4 beats A1 on honest dev ARI, *or* adding A4 to the A1 + A2 average gains ≥ 1.0. **Both narrowly fail:** +1.68 over A1 with a 95% interval of [−0.20, +3.65], and +0.39 in the combination. A second identical dev pass scores 51.75 (+1.25 over A1). With no tuned thresholds at all, Jev scores 50.84 against A1's 50.08 (D082). In the test-set combination it adds nothing (D084).
 - **Test result (11 maps, scored once): Global 73.42 / 57.63**, ARI 54.21 / 30.98. That is 1st on Global and 2nd on ARI general against the 2024 field (best 67.05 / 48.25), and 2nd of our four systems.
 - **On dev (225 maps, the reliable comparison): honest ARI 52.17 / 32.45**, between A1 (50.50 / 32.61) and A2 (54.63 / 34.12), and above A3 (47.65 / 27.23).
 - **What Jev does well:**
@@ -319,6 +319,6 @@ None beyond the core (user, D076). The only comparisons are the ones the tests n
   - Competing per-proposition questions over-link less but lose direction.
   - Averaging the two is what lifts Jev from A1's level to between A1 and A2.
 - **Calibration is uneven:** good for Conflict and Rephrase, over-confident for Inference. So the decision layer's thresholds were still needed.
-- **As a component, it adds little to A1 + A2 on general** (+0.39), but somewhat more on focused (+0.83). Its value is that it costs almost nothing, and that it finds relations the others miss.
-- **Not separated:** Jev against the guide's wording (only one wording fix was tried), and run-to-run variation. Repeat requests differ by up to 0.17 in probability; one dev pass was run.
-- Discussion: [`A4-discussion.md`](A4-discussion.md).
+- **As a component, it adds nothing reliable:** against A1 + A2, +0.39 / +0.83 on dev but −1.30 / −1.72 on test (D084).
+- **Not separated:** Jev against the guide's wording (only one wording fix was tried). Run-to-run variation is small: a second dev pass scores 51.75 / 32.24 (D082).
+- Discussion: [`A4-discussion.md`](A4-discussion.md). Cross-approach comparison: [`04-comparison.md`](04-comparison.md).

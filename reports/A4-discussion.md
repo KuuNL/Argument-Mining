@@ -21,7 +21,7 @@
 | Per map | ~1 s, after 94 min of training | ~25 s, $0.18 API-equivalent | ~40 s, after 110 min of training | **0.8 s, $0.003** |
 
 - **Jev ranks 2nd on both dev and test.** The order A1 < A4 < A2 is the same on both, and the dev → test change (+2.0) is close to A1's and A2's (about +1). A3's (+6) was the unstable one.
-- **Both pre-registered success tests narrowly fail.** Against A1, +1.68 with an interval of [−0.20, +3.65]; added to A1 + A2, +0.39 general (+0.83 focused).
+- **Both pre-registered success tests narrowly fail.** Against A1, +1.68 with an interval of [−0.20, +3.65]; added to A1 + A2, +0.39 general (+0.83 focused). A second identical dev pass scores 51.75 (+1.25 over A1), so the dev result is stable to about 0.4 (D082).
 
 ## 2. Where Jev is strong and where it is weak (dev, matched density)
 
@@ -88,9 +88,9 @@
 - **Answers aren't deterministic.** The same request gives the same choice 98% of the time, but probabilities can differ by up to 0.17. Option order matters more: forward and reversed orders agree on 91% of choices, so both orders are needed.
 
 ## 4. Where a decision model is useful in argument mining
-- **As a no-training substitute for a trained encoder.** Relation scores at or above encoder level (+1.7 on dev, not significant; +2.8 on test) at $0.003 and under a second per map. It needs no GPU and no labelled pairs, only a one-page guide (whose base rates were measured on the corpus). For a new corpus or annotation scheme without training data, this is the cheapest strong baseline we have.
+- **As a no-training substitute for a trained encoder.** Relation scores at or above encoder level (+1.7 on dev, not significant; +2.8 on test) at $0.003 and under a second per map. It needs no GPU and no labelled pairs, only a one-page guide (whose base rates were measured on the corpus). Even with no labelled data at all (untuned argmax) it scores 50.84, against A1's 50.08 (D082). For a new corpus or annotation scheme without training data, this is the cheapest strong baseline we have.
 - **For the parts of the task that are plain reading:** finding support and its direction, including between distant turns, and attacks between speakers.
-- **As a cheap component:** it finds relations the others miss. Adding it to A1 + A2 gains a little (+0.39 general, +0.83 focused) for under a dollar.
+- **Not as a third member of a combination:** adding it to A1 + A2 gained +0.39 on dev but lost 1.3 on test (D084). The encoder and the LLM already cover what it finds.
 - **Not for convention-heavy labels** (Rephrase vs Inference, concession as Conflict): there an LLM applying definitions with examples (A2) or a model trained on the annotations (A1) does better.
 - **Not without engineering in our code:** two question forms, two option orders, thresholds and consistency all live in the pipeline, not in the model.
 
@@ -104,7 +104,7 @@
   - linked and convergent structure is not modelled, as for every system here.
 
 ## 6. Limits
-- **One dev pass, one seed.** Jev isn't deterministic, so the ±1–2 point differences between A4, A1 and A2 sit near run-to-run noise. Success test 1's interval touches 0.
+- **Run-to-run noise is small but real:** two identical dev passes give 52.17 and 51.75 (D082). A4's edge over A1 (+1.3 to +1.7) is never significant.
 - **Only one wording fix was tried** (A4.2), and the full-definition arm was dropped (D076). So "Jev can't apply the Rephrase convention" is not separated from "our options didn't state it".
 - **The 11 test maps** move each system by several points per map: A4 is the best of the four on map 11 (79.3) and the worst on map 9 (32.8).
 - *Measures:* matched density uses one threshold per system. "Neighbouring" means one turn apart. Word overlap is the Jaccard overlap of content words.

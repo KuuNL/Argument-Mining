@@ -234,6 +234,8 @@ The hypotheses H1–H5 each have a pass rule (report §6): calibration, competit
 ---
 
 ## Combination
+**Outcome (D083–D084):** the mean of A1 + A2 + A4 pair scores, pre-registered, gives test Global **74.51 / 59.47** (ARI 56.39 / 34.65); A1 + A2 alone gives 75.17 / 60.32. Routing was not run. Comparison: `reports/04-comparison.md`.
+
 Route by confidence. Each approach does what it's best at:
 1. A **fast calibrated pass** (A1 or A4, whichever scored better on dev) decides the confident pairs.
 2. **Uncertain pairs** (probability within a band) go to A2 or A3 to adjudicate with whole-map reasoning.
@@ -242,6 +244,7 @@ Route by confidence. Each approach does what it's best at:
 - **Expected best on the metric:** calibrated probabilities where they're reliable, reasoning where they aren't.
 
 ## Final run and write-up
+- **Done (D085):** [`reports/04-comparison.md`](reports/04-comparison.md) compares the four approaches and the combination.
 - **Write-up sources:** the per-phase findings reports in `reports/` (index: `reports/README.md`), plus `decisionlog.md`.
 - **One run per system** on the 11 test maps, scored with the official logic.
 - **Main table:** A1–A4 plus the combination, against the 2024 results. Columns: ARI / ILO / Global (general and focused), training time, inference time, cost.

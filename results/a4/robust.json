@@ -108,5 +108,27 @@
    "general": 52.17,
    "focused": 32.45
   }
+ },
+ "paired_bootstrap_general": {
+  "A2 - A1": {
+   "maps": 225,
+   "mean_difference": 4.14,
+   "ci95": [
+    2.21,
+    6.12
+   ],
+   "a_better_maps": 137,
+   "b_better_maps": 87
+  },
+  "A4 (pass 1) - A2": {
+   "maps": 225,
+   "mean_difference": -2.46,
+   "ci95": [
+    -4.19,
+    -0.73
+   ],
+   "a_better_maps": 88,
+   "b_better_maps": 133
+  }
  }
 }
