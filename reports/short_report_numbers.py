@@ -98,7 +98,27 @@ def main():
     dev_to_test = {k: round(test_ari[k] - dev_honest[k]["general"], 2) for k in test_ari}
     dev_to_test["A1+A2+A4"] = round(g("ari", "general") - dev_combo, 2)
 
+    # README figures that use single systems only (the README does not present the combination).
+    a2_pt = a2["diagnostics"]["per_type"]
+    a2_gold = sum(t["gold"] for t in a2_pt.values())
+    a2_pred = sum(t["predicted"] for t in a2_pt.values())
+    a2_correct = sum(round(t["recall"] * t["gold"]) for t in a2_pt.values())
+    singles = {"A1": a1, "A2": a2, "A3": a3, "A4": a4}
+    readme = {
+        "a2_test_pooled": {"gold": a2_gold, "correct": a2_correct, "predicted": a2_pred,
+                           "precision": round(a2_correct / a2_pred, 3), "recall": round(a2_correct / a2_gold, 3),
+                           "conflict_found": round(a2_pt["Conflict"]["recall"] * a2_pt["Conflict"]["gold"]),
+                           "conflict_gold": a2_pt["Conflict"]["gold"]},
+        "headroom_share_A2": closed(dev_honest["A2"]["general"]),
+        "metric_dilution_A1_to_A2_test": {"inference_f1": [a1_pt["Inference"]["f1"], a2_pt["Inference"]["f1"]],
+                                          "ari_general": [round(a1["ari"]["general"][2], 2), round(a2["ari"]["general"][2], 2)]},
+        "test_ranges_single_systems": {
+            t: [round(min(v[t]["general"][2] for v in singles.values()), 2), round(max(v[t]["general"][2] for v in singles.values()), 2)]
+            for t in ("ari", "ilo", "global")},
+    }
+
     out = {
+        "readme_single_systems": readme,
         "relation_errors_dev_matched_density": errors,
         "relation_recall_by_distance_dev": recall_by_distance,
         "protocol_cost_a1_ari_general": protocol_cost_a1,

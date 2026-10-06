@@ -61,10 +61,10 @@ def systems():
             "A4": load("a4/test_global.json"), "A1+A2+A4": comb}
 
 
-def fig_gain(S):
+def fig_gain(S, keys=None, out_name="short-gain-vs-2024.png"):
     names = {"A1": "A1 · encoder", "A2": "A2 · Claude", "A3": "A3 · fine-tuned Qwen", "A4": "A4 · Jev",
              "A1+A2+A4": "A1+A2+A4 (pre-registered)"}
-    keys = list(names)[::-1]
+    keys = (keys or list(names))[::-1]
     y = np.arange(len(keys))
     fig, axs = plt.subplots(1, 2, figsize=(7.2, 3.1), sharey=True)
     for ax, (si, s) in zip(axs, enumerate(("general", "focused"))):
@@ -88,7 +88,7 @@ def fig_gain(S):
     for a, l in zip(axs, "ab"):
         letter(a, l)
     fig.tight_layout(rect=(0, 0.07, 1, 1))
-    fig.savefig(OUT / "short-gain-vs-2024.png")
+    fig.savefig(OUT / out_name)
     plt.close(fig)
 
 
@@ -308,6 +308,7 @@ def main():
     style()
     S = systems()
     fig_gain(S)
+    fig_gain(S, keys=["A1", "A2", "A3", "A4"], out_name="readme-gain-vs-2024.png")  # README: single systems only
     fig_dev_vs_test(S, derived)
     fig_strengths()
     fig_cost_and_scoring(S)
