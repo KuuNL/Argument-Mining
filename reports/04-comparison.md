@@ -6,7 +6,7 @@
 > - dev: `results/a4/dev/dev_report.json`, `results/a4/robust.json`, `results/a4/discussion.json`, `results/a3/v1/discussion.json`, `results/combination/dev_report.json`;
 > - timing: `results/timing.csv`.
 >
-> Decisions D050, D064, D072, D079–D084. Per-approach reports: [A1](A1-cross-encoder.md), [A2](A2-whole-map-llm.md) · [discussion](A2-discussion.md), [A3](A3-finetuned-llm.md) · [discussion](A3-discussion.md), [A4](A4-jev.md) · [discussion](A4-discussion.md).
+> Decisions D050, D064, D072, D079–D085. Per-approach reports: [A1](A1-cross-encoder.md), [A2](A2-whole-map-llm.md) · [discussion](A2-discussion.md), [A3](A3-finetuned-llm.md) · [discussion](A3-discussion.md), [A4](A4-jev.md) · [discussion](A4-discussion.md).
 
 ## In one minute
 - **All four approaches beat the 2024 winner on Global** (67.05 / 48.25), and so does their combination. Most of that margin is the shared, trained ILO labeller (92.6 test ILO, against 2024's 81.2), so the systems are told apart by **relations (ARI)**.
