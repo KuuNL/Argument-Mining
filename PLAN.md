@@ -37,8 +37,7 @@ Measure the hypotheses that later phases rely on:
 - Speaker patterns (CA across speakers? RA within the same speaker?), Q→MA frequency, and direction statistics for MA, CA and RA.
 - Label distribution per map (how often a map has *no* CA, which is the rare-label trap in numbers).
 - **Leakage check:** do the 11 test maps overlap training text?
-- **Jev-assisted profiling** (cheap, run over the full corpus): per locution `choice` {claim, question, answer, agreement, reported speech};
-  per pair `boolean` "does B contradict A?". Compare with gold to see which relations are visible on the surface and which need reasoning.
+- ~~Jev-assisted profiling~~ (a turn-kind `choice` per locution, a contradiction yes/no per pair): moved to A4 (D017), then dropped (D073), because A4.3's per-type breakdown answers the same question.
 - **Deliverable:** a short EDA note plus the pruning window. Every number is used by a later phase.
 
 ## Shared ILO labeller (trained)
@@ -182,48 +181,57 @@ The hypotheses H1–H6 each have a pass rule (report §7).
 
 ---
 
-## Approach 4 — Jev System One decisions (no training; Vercel AI SDK)
-**Idea.** Jev (TypeSafe AI) answers **typed questions with calibrated probabilities** instead of writing text. That combines A2's
-whole-map view with A1's probabilities.
+## Approach 4 — Jev System One decisions (no training)
+**Idea.** Jev (TypeSafe AI) answers **typed questions with probabilities** instead of writing text. With the whole map in its state, it gives
+A2's whole-map view and A1's per-pair probabilities, with no training.
+Full plan, concepts, the reason for each choice and the hypotheses: [`reports/A4-jev.md`](reports/A4-jev.md) (D073).
 
-**How Jev sees the problem.** Every question is answered against the **same state**, which holds the whole map, so context
-is shared. But answers are produced **in parallel and don't see each other**: the answer for (A,B) doesn't know what was said
-for (B,C). Consistency has to come from our code, or from iterating (4b).
+**Model and route (D073).** `typesafe-ai/jev` (jev-1.13 today; the version is logged on every answer), called from Python with `httpx` at the Vercel AI Gateway's `POST /v1/evaluate`.
+- The gateway's free tier ($5 a month) keeps spend at $0. Credits are never bought: that would cost money and end the free tier.
+- Limits: 64k tokens per request (32k for the state plus the longest question) and ≤ 255 options per choice.
 
-**End to end (4a, a single pass):**
-1. **State (≤32k tokens):** the target map (I-nodes and speaker-tagged dialogue in order) plus 1–2 retrieved training maps with gold relations as
-   worked examples. This is our form of few-shot, since Jev has no example slot.
-2. **Questions, one request per map:**
-   - per candidate pair (pruned as in A1): `choice` {A→B inference, B→A inference, conflict, rephrase, none}.
-     **The label definitions go in each option's description.**
-   - per dialogue L-node: `choice` over candidate I-nodes, then `choice` over illocution types (definitions in the options).
-3. **Decide:** thresholds on the returned probabilities (tuned on dev) + consistency repair → AIF.
-4. **Calibration check:** reliability plot and ECE on dev. Vendor claims are tested, not assumed.
+**How Jev sees the problem.** Every question is answered against the **same state**, so context is shared. But answers come out **in parallel and don't see each other**, so consistency comes from our code, and from the source questions below.
 
-**4b — iterative commitment (our extension).** Decisions condition on earlier *committed* decisions:
-- **Round 1:** ask everything, and commit only the high-confidence answers.
-- **Write the commitments into the state** ("I3 → I2: Inference (decided)").
-- **Round 2 onwards:** re-ask only the uncertain pairs. Stop when nothing changes or after N rounds, and fall back to thresholds.
-- **Order from easy to hard:** L→I alignment and type → question/answer MA → RA and CA with direction.
-  This mirrors 2024's finding that doing illocutions first helped.
-- **Risk:** an early wrong commitment spreads, so the commit threshold is kept high and tuned on dev.
+**End to end:**
+1. **State:** a guide (A2's `system_v1` definitions and measured habits, condensed, plus the concession rule for Conflict) and the serialised map (`common/serialise.py`, D029). No worked examples by default: Jev's accuracy drops as unrelated content grows in the state, so the pilot tests k = 1.
+2. **Questions, in one request per map** (split if a map exceeds the request limit):
+   - **pair:** one 5-label `choice` per candidate pair (A1's labels, pruned at 10 turns);
+   - **source:** one `choice` per proposition over its candidate targets × relation types, plus "none". The targets compete. Conflict and Rephrase are offered only towards earlier propositions (D020);
+   - **turn type:** one `choice` per labeller link over the 7 scored types.
+   - Every question is asked in **two option orders** and the probabilities averaged, against Jev's documented first-option bias.
+3. **Scores:** answers → A1's 5-label pair format (pair view, source view, or their mean, chosen in the pilot).
+4. **Decide:** A1's temperature + per-type thresholds, cross-fitted by dev episode; then A1's `build_map`. Jev's turn types replace the labeller's only under A3's strict rule (≥ +0.5 honest ILO and a win in ≥ 4 of 5 folds).
+5. **Calibration check:** a reliability plot and class-wise ECE on dev, against A1 on the same pairs. Vendor claims are tested, not assumed.
 
-**Why it beats 2024.** Each decision uses whole-map context (which 2024's pairwise encoders lacked) *and* comes with probabilities (which
-2024's LLMs lacked), so the rare-label trap can be controlled. It is also cheap enough to tune on the full dev set: $0.042 per 1M input tokens,
-and output is free.
+**Phases:**
+- **A4.1** setup and feasibility: lossless round trip; live probes on 5 training maps measure billing, the request limit, repeatability, option-order bias and the free-tier rate limit; budget projection;
+- **A4.2** question pilot on A2's 50 *training* maps: definitions in the guide vs in every option, k = 0 / 1 examples, ≤ 2 wording revisions, then frozen. Dev stays untouched;
+- **A4.3** dev run, thresholds, honest score next to A1–A3;
+- **A4.4** complete maps, turn types, combination preview, ablations;
+- **A4.5** one test run.
 
-**Ablations:** 4a vs 4b · k example maps in the state (0/1/2) · definitions in the option descriptions vs none · with vs without pruning.
-**Timing/cost:** per-request latency (tests the speed claim), requests per map in 4b, and $.
-**Setup (at the start of this phase):**
-- `experimental_evaluate({ model:'typesafe-ai/jev', state, questions })` via the Vercel AI Gateway (`AI_GATEWAY_API_KEY`).
-- A small Node runner (`jev/`) that exchanges JSON with the Python pipeline.
-- **Find out first:** the maximum questions per request (about 120–240 pairs per map, batched if needed) and the rate limits.
+**Success (honest dev), fixed in advance.** A4 succeeds if either holds:
+- with no training, it beats A1's ARI general (50.50), with a paired per-map bootstrap interval above 0;
+- adding A4's pair scores to the A1 + A2 average gains ≥ 1.0 general.
 
+The hypotheses H1–H5 each have a pass rule (report §6): calibration, competition between targets, concessive Conflict, direction without reasoning, speed.
+
+**Deferred: iterative commitment ("4b").** Commit the confident answers, write them into the state, and re-ask the rest. The source questions test the same idea in one pass, with no risk that an early mistake spreads. 4b runs only if H2 fails (D073).
+
+**Why it might beat 2024.** Each decision uses whole-map context, which 2024's pairwise encoders lacked, *and* comes with probabilities, which 2024's LLMs lacked, so the rare-label trap can be controlled.
+
+**Ablations:**
+- *Free, re-scored from saved answers:* pair vs source vs both · 1 vs 2 option orders · thresholds vs argmax · temperature · probabilities vs Jev's confidence.
+- *From the pilot:* definitions placement · k = 0 / 1 examples.
+- *New calls (cheap):* no pruning · no guide · option names without descriptions.
+
+**Timing/cost:** seconds per request and per map (tests the speed claim), tokens, and the gateway's API-equivalent $ per request. Expected: ≈ $2 for all of A4 at list price if the state is billed once per request, up to ≈ $20 if once per question; spend $0 on the free credit, with a fixed trimming order if the projection doesn't fit (report §8).
 **Risks:**
-- *Our hypothesis, not TypeSafe's:* with no step-by-step reasoning it may lag on RA direction and implicit CA.
-- It can't be fine-tuned.
-- It's early access (API changes).
-- We don't know whether it has seen QT30.
+- Jev not on the free tier, or a low rate limit (stop and ask);
+- early-access API changes (the version is logged and raw answers committed);
+- first-option bias and distractor state (two orders, no examples by default);
+- over-linking from independent questions (source questions, thresholds);
+- unknown training data, so contamination is reported as a caveat, with the dev → test change compared against A1–A3.
 
 ---
 

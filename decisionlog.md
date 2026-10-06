@@ -33,7 +33,11 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A3.4 | Dev run + decision layer | Types + 8 relation samples × 225 dev maps (labeller links); scores → A1's pair format → cross-fitted thresholds | Honest dev ARI vs A1 (50.50 / 32.61) and A2 (54.63 / 34.12) with the bootstrap test; H1–H4 at matched density | A3 | **Done (D070)**: honest dev ARI 47.65 / 27.23, below A1 and A2; both success tests fail; H2 holds, H1/H3/H4 fail |
 | A3.5 | Assemble + ablations | Valid maps, dev Global; LLM turn types (strict rule); combination preview; ablations | 225/225 valid; combination test; ablation table | A3 | **Done, reduced (D071–D072)**: 225 / 225 valid, dev Global 68.90 / 53.95; no ablations (user) |
 | A3.6 | Test run + report | Final A3 row; `reports/A3-finetuned-llm.md` | Run once, on the user's go | Final run | **Done (D072)**: test Global 73.17 / 58.17, ARI 53.70 / 32.05 (between A1 and A2; dev ranks A3 below both) |
-| A4 | Jev | Phased (A4.1, …) when it starts | — | A4 | Not started |
+| A4.1 | Setup + feasibility | Vercel AI Gateway key (free tier); `a4_jev/`: HTTP client (`/v1/evaluate`), state + pair / source / turn-type questions, cached runner, parser → A1's pair format, `check.py` | Round trip 98.64 / 94.44 with no call; live answers on 5 training maps valid; billing per request, seconds, request limit, repeatability, first-option bias, free-tier eligibility measured; budget projection fits the free credit | A4 | Approved (D073); not started |
+| A4.2 | Question pilot | 50 training-split maps (A2's `maps_50`, gold links): definitions in guide vs per option; examples k = 0 / 1; ≤ 2 wording revisions | Configuration frozen by the pre-set rule (≥ +1.0 matched-density general, else the cheaper arm) | A4 | Approved (D073); not started |
+| A4.3 | Dev run + decision layer | 225 dev maps, frozen settings, labeller links; A1's temperature + thresholds, cross-fitted; calibration | Honest dev ARI next to A1–A3; success tests and H1–H5 decided | A4 | Approved (D073); not started |
+| A4.4 | Assembly + ablations | Valid maps, dev Global; turn types (A3's strict rule); combination preview; ablations | 225 / 225 valid; ablation table | A4 | Approved (D073); not started |
+| A4.5 | Test run + report | Final A4 row; `reports/A4-jev.md` | Run once, on the user's go | Final run | Approved (D073); not started |
 | — | Combination · Final run | — | — | Combination / Final run | Not started |
 
 ---
@@ -1002,3 +1006,39 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - **Per map it's a split:** A3 beats A1 on 5 of 11 maps and A2 on 5.
   - **A3's own outputs are unstable:** votes and greedy differ by up to 21 points on one map.
   - *Reading:* the test ranking (A1 < A3 < A2) differs from dev's (A3 < A1 < A2). The dev set is 20× larger, so its ranking stands. A jump this size is uncommon but within 11-map variation; contamination isn't supported, but no memorisation probe was run.
+
+### D073 — A4 plan: Jev answers typed questions about the whole map; pair and source questions feed A1's decision layer
+- **2026-10-06 · A4 · by Claude · Approved by user 2026-10-06** ("update everything else", with the gateway key supplied). Open items 2–4 take their recommended defaults (below). The full plan is in [`reports/A4-jev.md`](reports/A4-jev.md). Jev facts come from TypeSafe's and Vercel's docs, read 2026-10-06.
+- *Question:* can a decision model with no training and no reasoning step reach encoder level, given whole-map context and a probability for every pair? Does it add a useful, different opinion to the A1 + A2 combination?
+- *Design:*
+  - **State:** a guide (A2's `system_v1` definitions and measured habits, condensed, plus a concession rule for Conflict) and the serialised map (`common/serialise.py`, D029).
+  - **Questions, all in one request per map:**
+    - one 5-label `choice` per candidate pair (A1's labels, pruned at 10 turns);
+    - one `choice` per proposition over its candidate targets × relation types, plus "none". The targets compete: this tests A2 discussion Q1 without generation;
+    - one `choice` per labeller link over the 7 turn types.
+  - Every question is asked in two option orders and the probabilities averaged, against Jev's documented first-option bias.
+  - **Scores:** answers → A1's 5-label pair format → A1's temperature + per-type thresholds, cross-fitted by episode → `build_map`.
+  - **Turn types:** the labeller's, unless Jev's pass A3's strict rule (D065).
+  - **Development on training maps only:** A2's 50-map pilot set; dev is used once, for thresholds and the honest score.
+- *Route:* Python posts to the Vercel AI Gateway's `/v1/evaluate` with `httpx` (already in the venv). The AI Gateway free tier gives $5 a month, so the expected spend is $0 (the no-spend rule). Credits are never bought, which would also end the free tier.
+  - This replaces PLAN's Node runner: the HTTP endpoint didn't exist when PLAN was written.
+  - A4.1 verifies that Jev is on the free-tier model list.
+- *Success (honest dev), fixed now:* either
+  1. A4's ARI general > A1's 50.50, with a paired bootstrap 95% interval above 0; or
+  2. A1 + A2 + A4 averaged beats A1 + A2 (55.12) by ≥ 1.0 general.
+- *Hypotheses (matched density):*
+  - H1: class-wise ECE ≤ A1's;
+  - H2: source view ≥ pair view + 1.0 general, with ≤ 90% of its invented relations;
+  - H3: within-speaker Conflict recall ≥ 15%;
+  - H4: Inference direction ≥ 85%;
+  - H5: ≤ 1 s per map.
+- *Estimated cost:* ≈ $2 at list price for all of A4 if the state is billed once per request; up to ≈ $20 if it is billed once per question (A4.1 measures this). If the projection exceeds the free credit, a fixed trimming order applies, then the user decides.
+- *Changes on approval (done):*
+  - PLAN.md's Approach 4 section is rewritten to match: HTTP route, source questions, 4b deferred, the pilot on training maps, the success tests. Its EDA bullet on Jev profiling is marked dropped;
+  - CLAUDE.md §7's A4 setup (`experimental_evaluate` is now a deprecated alias of `experimental_decide`; no Node runner; free tier, never buy credits);
+  - the phase-map rows A4.1–A4.5 are approved.
+- *Settled at approval:*
+  1. **Key:** the user supplied an AI Gateway key. It is saved as `AI_GATEWAY_API_KEY` in WSL `~/.profile` (mode 600), not in the repo. No request has been sent yet, so the free tier is checked in A4.1.
+  2. **Iterative commitment (4b):** deferred. It runs only if H2 fails.
+  3. **D017's Jev corpus profiling:** dropped, because A4.3's per-type breakdown covers it.
+  4. **Success test 1's bar:** beat A1.

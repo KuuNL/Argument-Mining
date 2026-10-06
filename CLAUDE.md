@@ -174,7 +174,11 @@ It runs through Claude Code's scripted mode (`claude -p`) on the user's Claude P
 
 **A4 — Jev (TypeSafe AI's System One model), no training.** Jev doesn't write text. It takes a *state* (up to 32k tokens) and a set of typed
 questions (`choice` among up to 255 options, `score` on a rubric, `boolean`), and answers all of them in parallel with probabilities.
-We put the whole map in the state and ask one `choice` question per candidate pair: {A→B inference, B→A inference, conflict, rephrase, none}.
+We put the whole map in the state and ask, in one request per map:
+- one `choice` per candidate pair: {A→B inference, B→A inference, conflict, rephrase, none};
+- one `choice` per proposition over its candidate targets × relation types, plus "none". The targets compete, which tests whether deciding jointly (A2's advantage) works without generating text.
+
+Each question is asked in two option orders, and the probabilities are averaged.
 - **Why it fits:**
   - Every scored item here is exactly such a decision.
   - It sees the whole-map context like A2, and gives calibrated probabilities like A1. Those are needed for thresholding against the rare-label trap.
@@ -185,9 +189,13 @@ We put the whole map in the state and ask one `choice` question per candidate pa
   - Calibration and speed are vendor claims, so we measure them ourselves.
   - It's in early access (since 2026-09-15).
   - *Our* hypothesis, not TypeSafe's: with no step-by-step reasoning before answering, it may lag on RA direction and implicit conflict.
-- **Setup (later):** Vercel AI SDK v7 `experimental_evaluate({ model: 'typesafe-ai/jev', state, questions })` via AI Gateway (`AI_GATEWAY_API_KEY`).
-  Confidence is in `result.providerMetadata.typesafe.confidence`. A small Node runner (`jev/`) exchanges JSON with the Python pipeline.
-  Unknowns: the maximum number of questions per request, and rate limits.
+- **Setup (D073):**
+  - Python (`a4_jev/`, in the `dialam` venv, using `httpx`) posts `{model: "typesafe-ai/jev", state, questions}` to the Vercel AI Gateway's `POST https://ai-gateway.vercel.sh/v1/evaluate`. There is no Node runner; the AI SDK's `experimental_evaluate` is now a deprecated alias of `experimental_decide`.
+  - The key is `AI_GATEWAY_API_KEY` in WSL `~/.profile`, never in the repo.
+  - It runs on the gateway's **free tier** ($5 of credit a month), so spend is $0. **Never buy credits:** that costs money and also ends the free tier permanently.
+  - Limits: 64k tokens per request (32k for the state plus the longest question) and up to 255 options per choice.
+  - A4.1 measures what the docs don't give: the maximum number of questions per request, the free-tier rate limit, and whether the state is billed once per request or once per question.
+- **Plan and status:** `reports/A4-jev.md` and the phase map (A4.1–A4.5).
 
 **Combination.** The methods have complementary strengths. A1 or A4 is fast and calibrated, and A2 is slow but reasons.
 So a cheap pass decides the confident pairs, and only the uncertain ones go to A2.
