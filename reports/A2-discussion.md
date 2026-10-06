@@ -36,7 +36,7 @@ To predict:  P2 Rephrase P1 · P3 Inference P2 · T1 Pure Questioning, T2 and T3
 |---|---|---|
 | Model | ModernBERT-base (~150M parameters), fine-tuned on 1,250 maps | Claude Sonnet 5.5, not trained; 4 similar solved maps in the prompt |
 | Reads | two propositions plus the whole dialogue | the whole map |
-| Decides | each pair separately, as a probability per label; pairs more than 8 turns apart are skipped | all relations at once, as one list; asked 3 times, and the votes become scores |
+| Decides | each pair separately, as a probability per label; pairs more than 10 turns apart are skipped | all relations at once, as one list; asked 3 times, and the votes become scores |
 | Then | per-type thresholds tuned on dev (the same decision layer for both) | |
 | Turn types | the trained ILO labeller (also ModernBERT) | the same labeller, which the LLM may override |
 | Cost | 94 min of training on an 8 GB GPU; 1.2 s per map | no training; ~25 s per map; $0 on a Claude Pro plan ($0.18 per map at API prices) |
@@ -152,7 +152,7 @@ To predict:  P2 Rephrase P1 · P3 Inference P2 · T1 Pure Questioning, T2 and T3
 | Not inventing relations | LLM | It decides all pairs together and follows a stated base rate |
 | Direction of support | LLM | It reads which statement is the reason |
 | Telling attack from support | LLM | It understands contrast in meaning |
-| Rephrase in different words; distant relations | LLM | It reads meaning, not surface; and A1 skips pairs more than 8 turns apart |
+| Rephrase in different words; distant relations | LLM | It reads meaning, not surface; and A1 skips pairs more than 10 turns apart |
 | Loose support between neighbouring turns | Encoder | It learned the annotators' habit |
 | Rephrase with heavy word overlap | Encoder | It matches words |
 | Turn types | Encoder | It learned the conventions and a cautious prior |
@@ -168,6 +168,13 @@ To predict:  P2 Rephrase P1 · P3 Inference P2 · T1 Pure Questioning, T2 and T3
 - **A3 (a fine-tuned open LLM)** tests Q2, Q4 and Q7 directly: can an LLM that *learns the annotators* keep its own strengths and gain the encoder's?
 - **A4 (Jev)** gives whole-map context and probabilities but has no reasoning step. Q3 and Q6 suggest that's less of a handicap than we assumed, because direction came from reading, not thinking.
 - **Conflict remains the open problem for every approach.** The next lever is teaching the convention (concession examples), not more reasoning.
+
+**What happened next** (details in [`04-comparison.md`](04-comparison.md) and the [final report](05-final-report.md)):
+- **Combining:** a plain average of A1 + A2 pair scores beat A2 alone (dev ARI 55.12; test Global 75.17 / 60.32). It captures only a small part of the 66.1 oracle, and the propose-and-check split above was not built.
+- **Q2's premise reverses at matched density.** When every system predicts as many relations as gold, A1's recall of neighbouring Inferences is 0.39 against A2's 0.42 (A3 report, H1). A1's lead in Q2 came from its looser thresholds, not from learning a habit A2 lacks.
+- **A3** answered Q2 and Q4 negatively. Fine-tuning a 4B LLM on the annotations taught the format and the density, but not the neighbour habit or concessive Conflict, and it scored below both A1 and A2 on dev. Q7 (turn types) was not tested.
+- **A4** confirmed Q3: Jev got Inference direction right 87% of the time with no reasoning step at all.
+- **Conflict** stayed unsolved by every approach: within-speaker recall 7–12% at matched density.
 
 *Limits:*
 - Thresholds were fitted on all of dev, so absolute dev numbers are slightly optimistic for both systems.

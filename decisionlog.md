@@ -40,6 +40,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A4.5 | Test run + report | Final A4 row; `reports/A4-jev.md` | Run once, on the user's go | Final run | **Done (D080)**: test Global 73.42 / 57.63 (ARI 54.21 / 30.98), between A3 and A2; A4 total $1.08 |
 | C | Combination | `combination/run.py`: mean of A1 + A2 + A4 pair scores → A1's decision layer, cross-fitted; test once (all answers cached) | Pre-registered main (A1 + A2 + A4) and comparison (A1 + A2) fixed before the test gold is read | Combination | **Done (D084)**: test Global 74.51 / 59.47 (main), the project's best pre-registered system; A1 + A2 75.17 / 60.32 |
 | 4 | Four-approach comparison | `reports/04-comparison.md` | Every number from a committed result | Final run and write-up | **Done (D085)** |
+| 5 | Final report | `reports/05-final-report.md`; per-approach reports updated with the final results | Two independent reviews, each followed by a revision; every number from a committed result or the 2024 overview paper | Final run and write-up | **Done (D086)** |
 
 ---
 
@@ -1272,3 +1273,17 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   1. at least one system beats 67.05 / 48.25: all four and the combination do;
   2. each approach has F1, time and cost recorded: yes, with ablations cut to the core for A3 and A4 by user decision (D071, D076);
   3. which 2024 failure each lever fixed: report §5. Conflict remains unsolved by every method.
+
+### D086 — The final report merges every report into one end-to-end account; the per-approach reports are brought up to date
+- **2026-10-06 · Final write-up · by Claude, at the user's request (one comprehensive but concise report, reviewed twice by an independent agent and revised after each review; approach reports edited "now that all testing is run") · Done** (`reports/05-final-report.md`)
+- *Content:* the aim and success criteria; the task, IAT and the scorer; the data's shape; the 2024 field and why it scored as it did; the shared pipeline and the four approaches; how to read dev against test; results; each model's strengths and weaknesses; a critique of what the benchmark measures and misses; limits; conclusions.
+- *New figures:*
+  - *derived* (arithmetic on committed or published numbers): the split of the combination's Global margin over DFKI-MLST into +6.93 from ILO and +0.53 from ARI, since Global is the mean of the two (DFKI's ILO 78.78 and ARI 55.33 are from the overview paper);
+  - *derived:* about 95% of the scorer's ordered proposition pairs are None (per-map mean 95.0% on dev, 96.1% pooled; EDA's 92% counted unordered pairs). The report states it as arithmetic on committed numbers: ~200 ordered pairs and ~8 relations per map;
+  - *quoted:* QT30's inter-annotator agreement, 0.56 CASS (overview paper §3.1).
+- *Updated reports:* "what came after" notes in A1–A4 and the discussions; A4's total cost is $1.70 with the D082 re-run; the ILO report records its test score (92.64 / 84.28) and D029's approval; the index starts with the final report.
+- *Reviews:* two independent reviewer agents, each followed by a revision.
+  - *Round 1* corrected the rare-label trap (a missed gold Conflict also scores 0, so the asymmetry is that a guess pays only on the exact pair), "decisions matter as much as models" (the labeller's model adds +13.5 ILO, thresholds +0.6), "direction fixed" (divergent structure is still wrong), the unsourced 2024-LLM explanation (now our hypothesis), the test-noise rule (about ±8 ARI) and the claim that no Conflict was invented on test (5 of 10 predictions were wrong).
+  - *Round 2* corrected the main lesson against the matched-density data, the None share (92% → 95%), "missing context didn't hold 2024 back" (a no-context ablation wasn't run) and "Jev needs no labels" (no labelled pairs or tuned thresholds). It added the focused-score insight (one missed gold relation adds None as a zero-scoring class), and cut the report from ~6,500 to ~5,500 words.
+  - Pre-existing errors it found in other reports were fixed: A1's pruning cut-off is 10 turns, not 8 (A2 discussion); A2's test precision gain is on Inference only (A2 report); A3 is close to A2 on new-word restatements (comparison report).
+- *No new runs, no scoring, no spend.*

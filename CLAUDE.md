@@ -104,7 +104,7 @@ Consequences:
 | `eda/` | Exploratory data analysis: findings with figures (`README.md`), `run_eda.py`, `findings.json` |
 | `decisionlog.md` | Every decision, plus the phase map: the single record of phase numbering and status |
 | `ilo/` | Shared trained ILO labeller (Task B, and the L→I links ARI needs on test maps): `python -m ilo.train / tune / evaluate --run=<run>`; results per run in `results/ilo/<run>/`, the run in use named in `results/ilo/selected.json` |
-| `reports/` | One findings report per phase; the source for the final write-up (`reports/README.md` is the index) |
+| `reports/` | One findings report per phase, plus the **final report** `reports/05-final-report.md` (the whole project end to end; start there). `reports/README.md` is the index |
 | `reference/` | Overview paper, annotation and data-format specs, official scorers (`eval-scripts/`) |
 
 Key numbers (training):
@@ -206,7 +206,7 @@ Each question is asked in two option orders, and the probabilities are averaged.
 
 **Combination.** The methods have complementary strengths. A1 or A4 is fast and calibrated, and A2 is slow but reasons.
 So a cheap pass decides the confident pairs, and only the uncertain ones go to A2.
-- **Outcome (D083–D084):** the simplest form, the mean of A1 + A2 + A4 pair scores, gives test Global 74.51 / 59.47, the best pre-registered system. Routing was not run. All four approaches are compared in `reports/04-comparison.md`.
+- **Outcome (D083–D084):** the simplest form, the mean of A1 + A2 + A4 pair scores, gives test Global 74.51 / 59.47, the best pre-registered system. Routing was not run. All four approaches are compared in `reports/04-comparison.md`, and the whole project is written up in `reports/05-final-report.md` (D086).
 
 **Measured for every approach:** ARI / ILO / Global (general and focused), training time, inference time, cost, and
 *ablations* (switch off one component, such as context, pruning, thresholds or the LLM step, and re-score to see what it contributed).

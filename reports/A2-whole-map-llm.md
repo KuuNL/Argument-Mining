@@ -4,6 +4,7 @@
 > **Status:** final (2026-10-05). The test set was scored once, with nothing changed afterwards: **Global 73.67 / 58.27**, against A1's 72.01 / 57.53 and the 2024 best of 67.05 / 48.25.
 > **Evidence:** [`../results/a2/`](../results/a2/) (summaries, scores and every raw model answer). Decisions D051–D064 are in [`../decisionlog.md`](../decisionlog.md).
 > **Discussion:** [`A2-discussion.md`](A2-discussion.md) asks why A2 and A1 each win where they do.
+> **What came after:** A2 stayed the best single system of the four on dev (A2 > A4 ≈ A1 > A3). Averaged with A1 and A4 it forms the project's best pre-registered system (test Global 74.51 / 59.47). See [`04-comparison.md`](04-comparison.md) and the [final report](05-final-report.md).
 
 ## In one minute
 - **The task.** A televised debate is turned into a *map*: **propositions** (claims) and **turns** (who said what, in order). A system must say which propositions **support** (Inference), **attack** (Conflict) or **restate** (Rephrase) which others, and *how* each turn was said (asserting, questioning, …).
@@ -13,7 +14,7 @@
 - **Test result (11 maps, scored once): Global 73.67 / 58.27**, above A1 (72.01 / 57.53) and the 2024 best (67.05 / 48.25).
   - Relations (ARI) score 55.77 / 33.34: +4.4 general over A1, and the best general ARI against the 2024 field (DFKI 55.33).
 - **What we learned:**
-  - **Reading the whole map beats judging pairs** for relations: better precision on every relation type, on dev and test. The gain is mostly in Inference.
+  - **Reading the whole map beats judging pairs** for relations: better precision on every relation type on dev, and on Inference on test (Conflict and Rephrase precision on test are not better). The gain is mostly in Inference.
   - **Reasoning helped less than it first seemed:** +11 focused on a 20-map pilot, but only about +1 on dev, and it doesn't fix direction or Conflict. **Worked examples** (+4–5) and **an error-driven prompt revision** mattered more.
   - **Conflict is still mostly missed:** 2 of 13 on test.
   - **The LLM's turn types**, adopted on a thin dev gain, hurt on test: 3 changes, all wrong, −1.1 ILO.
@@ -490,10 +491,12 @@ Each ablation switches off one component and re-scores.
 - **The pilot misled twice.** Its reasoning gain didn't hold on dev, and the turn types that looked good there hurt on test. 20 maps and a changing prompt were too thin a basis.
 - **Small evidence:** one model and one prompt family; 11 test maps with a wide spread; no seed, so no exact reruns (the raw answers are committed instead).
 
-**For the combination phase**
-- **A1 and A2 get different pairs right** (dev oracle 66.1 / 46.0), so combining them is the clear next step.
-- **Use effort medium** for further LLM passes: nearly the same quality at 2.7× the speed.
-- **Keep the ILO labeller's turn types.**
+**For the combination phase, and what happened**
+- **A1 and A2 get different pairs right** (dev oracle 66.1 / 46.0), so combining them was the clear next step.
+  - *Outcome (D083–D084):* the plain average of A1 + A2 pair scores gives honest dev ARI 55.12 (+0.5 over A2), and test Global 75.17 / 60.32. The pre-registered A1 + A2 + A4 average gives test Global 74.51 / 59.47.
+  - Averaging captures only a small part of the 66.1 oracle. Routing only the uncertain pairs to the LLM was not tried.
+- **Use effort medium** for further LLM passes: nearly the same quality at 2.7× the speed. *(Not needed in the end: the combination reused the cached answers, so no new calls were made.)*
+- **Keep the ILO labeller's turn types.** *(Done: every later system and the combination use them.)*
 
 ---
 <details><summary>Decisions and build log</summary>

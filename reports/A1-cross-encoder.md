@@ -2,6 +2,7 @@
 
 > **What this is:** the report on approach A1, from idea to final test result. It's written for readers new to the project; terms are explained where they first appear.
 > **Status:** final (2026-10-03). The test set was scored once, with nothing tuned afterwards (D049).
+> **What came after:** A2 (Claude reading the whole map) beat A1's relations on dev by +4.1 (significant), and A4 (Jev) matched them with no training. A1 is part of the best pre-registered system, the averaged A1 + A2 + A4 (test Global 74.51 / 59.47). See [`04-comparison.md`](04-comparison.md) and the project's [final report](05-final-report.md).
 > **Evidence:** every number comes from a committed file in [`../results/a1/`](../results/a1/); the test predictions are in [`../results/a1/v1/test_predictions/`](../results/a1/v1/test_predictions/). Decisions D018–D050 are in [`../decisionlog.md`](../decisionlog.md).
 
 ## In one minute
@@ -109,7 +110,7 @@ xychart-beta
 | Relations lack context | Whole-dialogue input | **Partly:** +1.5 / +2.3 in ablation (dev), but test ARI is still at 2024 level |
 | Conflict missed or invented | Strict Conflict threshold (0.65) | **Half:** no invented Conflict in any test map, but only 2 of 13 found |
 | Direction errors | Direction in the label, plus an order rule | **Mostly:** direction right for 78% (test) / 81% (dev) of Inferences found |
-| No global consistency | — (pairs judged one at a time) | **Not addressed;** the case for A2 / the combination |
+| No global consistency | — (pairs judged one at a time) | **Not addressed by A1.** A2's single list per map later cut invented relations (697 against A1's 1,278 on dev) |
 
 **Relations on test** (pooled): Inference F1 0.29 (precision 0.31, recall 0.28); Conflict 0.25 (2 of 13 found, 2 of 3 predictions right); Rephrase 0.53 (precision 0.46, recall 0.63).
 
@@ -189,7 +190,7 @@ xychart-beta
 
 **Takeaways**
 - **On this task, illocutions are where a careful trained pipeline pays off most;** relations remain the bottleneck.
-- **More context helps a pairwise model only a little.** The missing piece is reasoning across the map: comparing conclusions, staying consistent, spotting implicit conflict. That is what A2 (a whole-map LLM) and the combination phase are for.
+- **More context helps a pairwise model only a little.** The missing piece is reasoning across the map: comparing conclusions, staying consistent, spotting implicit conflict. A2 (a whole-map LLM) later supplied the first two and beat A1 on dev; neither it nor any other approach solved implicit conflict.
 - **With macro-F1, decisions matter as much as models.** Thresholds and honest tuning prevented the rare-label trap and flattering numbers.
 
 **What we'd do differently**
@@ -201,7 +202,7 @@ xychart-beta
 - **A larger encoder** (large models with an 8-bit optimizer, about 4–5 h per run) and seed ensembles.
 - **More Conflict signal:** the chunked giant maps, transition-anchored Disagreeing examples, a focal loss.
 - **Map-level decoding:** choose a map's relations jointly.
-- **LLM adjudication** of uncertain pairs (the combination phase).
+- **LLM adjudication** of uncertain pairs. The combination phase averaged A1's and the LLMs' pair scores instead (D083–D084); routing only the uncertain pairs was not run.
 
 ---
 <details><summary>Build log (A1.1–A1.7)</summary>

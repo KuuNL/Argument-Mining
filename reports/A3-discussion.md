@@ -128,7 +128,7 @@ Test ARI from the overview paper (Table 1) and ours, on the same 11 maps and sco
   - On dev its direction (83% at matched density) is close to A1's and A2's.
 
 ## 5. What this means for the project
-- **A3 is not added to the combination.** Adding its pair scores to an A1 + A2 average lowers dev ARI (55.12 → 54.24). The plain A1 + A2 average is already above A2 alone, so the Combination phase should start there.
+- **A3 is not added to the combination.** Adding its pair scores to an A1 + A2 average lowers dev ARI (55.12 → 54.24). The plain A1 + A2 average is already above A2 alone, so the Combination phase should start there. *(It did: the final combination averages A1, A2 and A4, without A3, D083–D084.)*
 - **For a whole-map LLM, model competence matters more than learning the convention.** At this size and data volume, fine-tuning taught the format and the base rate but not the judgement. A2 (a larger model, a definition and 4 examples) beat it.
 - **If A3 were revisited:**
   - greedy or low-temperature decoding instead of temperature-1 votes;

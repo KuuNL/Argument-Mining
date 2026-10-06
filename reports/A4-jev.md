@@ -1,14 +1,15 @@
 # A4 — Jev: typed decisions with probabilities, no training
 
-> **What this is:** the plan for approach A4. Like the A2 and A3 reports, it reads as a plan until each phase runs, then becomes the record of that phase.
-> **Status:** final (2026-10-06). The test set was scored once, with nothing changed afterwards: **Global 73.42 / 57.63** (ARI 54.21 / 30.98), between A3 (73.17 / 58.17) and A2 (73.67 / 58.27). On dev (225 maps) A4 is 2nd of the four systems (honest ARI 52.17 / 32.45), and both pre-registered success tests narrowly fail. All of A4 cost **$1.08**, with no training. At the user's request the scope was kept to A4's core (D076–D077).
+> **What this is:** the report on approach A4, from plan to final test result. Each phase was written as a plan first and then became the record of what ran.
+> **Status:** final (2026-10-06). The test set was scored once, with nothing changed afterwards: **Global 73.42 / 57.63** (ARI 54.21 / 30.98), between A3 (73.17 / 58.17) and A2 (73.67 / 58.27). On dev (225 maps) A4 is 2nd of the four systems (honest ARI 52.17 / 32.45), and both pre-registered success tests narrowly fail. The planned phases cost **$1.08**, and a later robustness re-run $0.62 more (D082), with no training. At the user's request the scope was kept to A4's core (D076–D077).
+> **What came after:** a second identical dev pass scored 51.75 (D082), and in the final combination A4 added nothing reliable (+0.4 on dev, −1.3 on test, D084). See [`04-comparison.md`](04-comparison.md) and the [final report](05-final-report.md).
 > **Discussion:** [`A4-discussion.md`](A4-discussion.md) asks how Jev performs on argument mining, and where a decision model is useful.
 > **Evidence:** [`../results/a4/`](../results/a4/). Decisions D073–D081 in [`../decisionlog.md`](../decisionlog.md).
 > **Background:** [A1](A1-cross-encoder.md) (trained pairwise encoder), [A2](A2-whole-map-llm.md) and [its discussion](A2-discussion.md) (Claude reading the whole map), [A3](A3-finetuned-llm.md) and [its discussion](A3-discussion.md) (fine-tuned Qwen3-4B).
 > **Jev facts** are from TypeSafe's docs (docs.typesafe.ai: models, API, confidence, "jev-1.13 jaggedness") and Vercel's AI Gateway docs, read on 2026-10-06. A4.1 measured the ones the plan depends on (§5).
 
 ## In one minute
-- **Where the project stands (honest dev ARI, general / focused):** A2 54.63 / 34.12 > A1 50.50 / 32.61 > A3 47.65 / 27.23. An A1 + A2 average already scores 55.12 / 36.18, and the per-pair oracle is 66.1 / 46.0. Every approach misses Conflict.
+- **Where the project stood before A4 (honest dev ARI, general / focused):** A2 54.63 / 34.12 > A1 50.50 / 32.61 > A3 47.65 / 27.23. An A1 + A2 average already scores 55.12 / 36.18, and the per-pair oracle is 66.1 / 46.0. Every approach misses Conflict.
 - **What Jev is:** a *decision model*. It takes a **state** (up to 32k tokens) and many **typed questions**, and for each question returns a **probability over a fixed set of options**. It writes no text. Questions are answered in parallel, in one pass. It costs $0.042 per 1M input tokens, output is free, and it can't be fine-tuned.
 - **The idea:** put the whole map in the state, ask about every candidate relation as a typed question, and get a **probability for every pair**. That gives whole-map context, as in A2, and a continuous score per pair, as in A1, with no training. Those scores go through the decision layer the other approaches already share.
 - **What's new in A4:** besides one question per pair (A1's 5 labels), it asks **one question per proposition**: "which of your candidate propositions do you relate to, and how?" All of a proposition's candidate targets then compete inside one probability distribution. A2 found that deciding jointly was the LLM's real advantage over the encoder, and this is a way to get it without generating text.
@@ -282,7 +283,7 @@ None beyond the core (user, D076). The only comparisons are the ones the tests n
 ---
 
 ## 8. Budget and time
-- **Spent: $1.08** of the $10 budget (D077); the balance is $13.92.
+- **Spent: $1.08** on the planned phases, of the $10 budget (D077). The robustness re-run of the dev set (D082) added $0.62, so A4 cost **$1.70 in all**.
 
   | Phase | Cost |
   |---|---|

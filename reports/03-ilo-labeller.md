@@ -4,6 +4,7 @@
 > **Branch / commits:** `phase3-ilo`: `c34e68c` (3.1–3.2), `66df3ad` (3.3–3.5), `2d70813` (iteration v2).
 > **Sources:** every number below comes from a committed file in [`../results/ilo/`](../results/ilo/): `dataset.json` for the data, and `v1/` and `v2/` for each run (training log, summary, thresholds, dev report, headroom). Decisions are D025 and D028–D039 in [`../decisionlog.md`](../decisionlog.md).
 > **Scope:** Task B (ILO) for every approach, plus the turn↔proposition links that the ARI approaches need on test maps.
+> **Test result (scored with A1, D050):** ILO **92.64 / 84.28** on the 11 test maps, perfect on 7 of them, against 2024's best of 81.17 / 72.09. Every system uses its links, and all but A2's submission (which let Claude override 3 types) use its turn types, so it is behind most of the project's Global margin over 2024 ([final report](05-final-report.md)).
 
 ## At a glance
 
@@ -174,7 +175,7 @@ Fitted on dev, and scored honestly by **leave-one-episode-out** (tune on 4 dev e
 | Gold / predicted | 2,992 / 2,988 | 162 / 176 | 29 / 14 | 19 / 6 | 26 / **0** |
 | F1 | 0.98 | 0.87 | 0.51 | 0.40 | 0 |
 
-**For reference only:** 2024's best ILO was 81.2 / 72.1, but on the 11 *test* maps, so it isn't directly comparable.
+**For reference only:** 2024's best ILO was 81.2 / 72.1, but on the 11 *test* maps, so it isn't directly comparable. On those same test maps, the labeller later scored 92.64 / 84.28 (A1.7, D050).
 
 ## 7. The rare-type iteration: v2 (D038–D039)
 
@@ -231,7 +232,8 @@ Linking costs under 1 point; minority-type typing holds about 7. These are upper
 
 ## 10. Open items
 - **Rare types** (not planned now): add transition-anchored Agreeing / Disagreeing / Challenging examples as training signal; give reply turns the turn they answer as explicit context; or revisit after A1, if ILO becomes the bottleneck.
-- **D029** (no node-ID shortcuts) still needs a user decision. It affects every approach.
+  - *Outcome:* ILO never became the bottleneck, so the labeller was not retrained. A2 let Claude override its turn types: +0.3 on dev, but −1.1 on test (3 changes, all wrong; D063–D064). A3, A4 and the combination keep the labeller's types.
+- ~~**D029** (no node-ID shortcuts) still needs a user decision.~~ Approved on 2026-10-01; every approach follows it.
 
 ## Reproduce
 ```bash

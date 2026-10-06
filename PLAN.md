@@ -186,7 +186,7 @@ The hypotheses H1–H6 each have a pass rule (report §7).
 A2's whole-map view and A1's per-pair probabilities, with no training.
 Full plan, concepts, the reason for each choice and the hypotheses: [`reports/A4-jev.md`](reports/A4-jev.md) (D073).
 
-**Outcome (final, D079–D081):** test Global 73.42 / 57.63 (ARI 54.21 / 30.98); honest dev ARI 52.17 / 32.45, 2nd of four systems. Both success tests narrowly fail; H4 (direction) and H5 (speed) pass. $1.08 in all. Report: `reports/A4-jev.md`; discussion: `reports/A4-discussion.md`.
+**Outcome (final, D079–D081):** test Global 73.42 / 57.63 (ARI 54.21 / 30.98); honest dev ARI 52.17 / 32.45, 2nd of four systems. Both success tests narrowly fail; H4 (direction) and H5 (speed) pass. $1.70 in all, including a robustness re-run of dev (D082). Report: `reports/A4-jev.md`; discussion: `reports/A4-discussion.md`.
 
 **Model and route (D073, D075).** `typesafe-ai/jev` (jev-1.13 today; the version is logged on every answer), called from Python with `httpx` at the Vercel AI Gateway's `POST /v1/evaluate`.
 - Jev isn't on the gateway's free tier (D074), so A4 runs on a small paid credit, with auto top-up off and a cap (D075).
@@ -245,6 +245,7 @@ Route by confidence. Each approach does what it's best at:
 
 ## Final run and write-up
 - **Done (D085):** [`reports/04-comparison.md`](reports/04-comparison.md) compares the four approaches and the combination.
+- **Done (D086):** [`reports/05-final-report.md`](reports/05-final-report.md) is the final report: the whole project end to end, including a critique of what the benchmark measures. The per-approach reports were brought up to date with the final results.
 - **Write-up sources:** the per-phase findings reports in `reports/` (index: `reports/README.md`), plus `decisionlog.md`.
 - **One run per system** on the 11 test maps, scored with the official logic.
 - **Main table:** A1–A4 plus the combination, against the 2024 results. Columns: ARI / ILO / Global (general and focused), training time, inference time, cost.

@@ -6,6 +6,8 @@
 > - dev: `results/a4/dev/dev_report.json`, `results/a4/robust.json`, `results/a4/discussion.json`, `results/a3/v1/discussion.json`, `results/combination/dev_report.json`;
 > - timing: `results/timing.csv`.
 >
+> **The whole project, end to end** (task, data, 2024, approaches, results and a critique of the benchmark): the [final report](05-final-report.md).
+>
 > Decisions D050, D064, D072, D079–D085. Per-approach reports: [A1](A1-cross-encoder.md), [A2](A2-whole-map-llm.md) · [discussion](A2-discussion.md), [A3](A3-finetuned-llm.md) · [discussion](A3-discussion.md), [A4](A4-jev.md) · [discussion](A4-discussion.md).
 
 ## In one minute
@@ -75,7 +77,7 @@
 
 **Which system is best at what:**
 - **A4 (Jev)** finds the most support relations, at any distance, with the best direction. It also finds the most Conflicts, though every system misses most of them.
-- **A2 (Claude)** is the most balanced, and the only one that recognises restatements in new words.
+- **A2 (Claude)** is the most balanced, and the best, with A3 close behind, at recognising restatements in new words.
 - **A3** is best at restatements between neighbouring turns, but loses Inference to Rephrase.
 - **A1** is strong on restatements that share words.
 - **No system solves Conflict within one speaker's talk** (7–12%).

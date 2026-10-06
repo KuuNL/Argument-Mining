@@ -5,6 +5,8 @@
 > - [`../results/a4/discussion.json`](../results/a4/discussion.json): `python -m a4_jev.discuss`, a read-only error analysis of the 225 dev maps;
 > - [`dev/dev_report.json`](../results/a4/dev/dev_report.json) and [`test_global.json`](../results/a4/test_global.json).
 >
+> **The whole project, end to end:** the [final report](05-final-report.md).
+>
 > As in the A3 discussion, systems are compared at **matched density** (each predicts as many relations as gold, 8.3 per map), so differences reflect the models, not their thresholds.
 
 **In one line:** Jev reads each question literally and fast. That makes it the best of the four at finding support and its direction, and the worst at the annotators' conventions (restatement, concession), at $0.003 a map with no training.

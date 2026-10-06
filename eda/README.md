@@ -54,7 +54,7 @@ A typical map is a question and the discussion it starts:
 
 - 27% of training maps open with the host, Fiona Bruce.
 - Almost half of all L-nodes (**46.6%**) are *analyst copies*: annotation bookkeeping such as `"Anna: Helen Whately : …"`. They never sit in the dialogue chain and never express a proposition, so they are removed from the dialogue (decision D014).
-- **19 training maps are giants**, with 41 to 287 propositions. They hold only 12.8% of the relations but **60% of all proposition pairs**, because pairs grow with the square of map size. Left in, they would dominate every pair-level statistic and most of the training data, so this document excludes them from pair statistics. Phase A1.1 decides how A1 trains on them.
+- **19 training maps are giants**, with 41 to 287 propositions. They hold only 12.8% of the relations but **60% of all proposition pairs**, because pairs grow with the square of map size. Left in, they would dominate every pair-level statistic and most of the training data, so this document excludes them from pair statistics. Phase A1.1 decides how A1 trains on them. *(In the end no model trained on them: A1 and A3 left them out, D022, D065.)*
 
 Here is one real test-like map (training map `nodeset18299`). It already shows most of what makes the task hard:
 

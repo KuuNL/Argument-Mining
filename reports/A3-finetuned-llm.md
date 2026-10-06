@@ -5,6 +5,7 @@
 > **Evidence:** [`../results/a3/`](../results/a3/). Decisions D065–D072 in [`../decisionlog.md`](../decisionlog.md).
 > **Discussion:** [`A3-discussion.md`](A3-discussion.md) asks why A3 lands where it does against A1, A2 and the 2024 systems.
 > **Background:** [A1](A1-cross-encoder.md) (a trained pairwise encoder), [A2](A2-whole-map-llm.md) (Claude reading the whole map) and [the A2 discussion](A2-discussion.md) (why each wins where it does).
+> **What came after:** A4 (Jev) also ranked above A3 on dev, so A3 is last of the four (A2 > A4 ≈ A1 > A3). It was left out of the final combination because it lowered the dev score. See [`04-comparison.md`](04-comparison.md) and the [final report](05-final-report.md).
 
 ## In one minute
 - **The task.** A televised debate becomes a *map*: **propositions** (claims) and **turns** (who said what, in order). A system must say which propositions **support** (Inference), **attack** (Conflict) or **restate** (Rephrase) which others, and *how* each turn was said.
