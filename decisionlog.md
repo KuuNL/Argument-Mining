@@ -41,6 +41,8 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | C | Combination | `combination/run.py`: mean of A1 + A2 + A4 pair scores → A1's decision layer, cross-fitted; test once (all answers cached) | Pre-registered main (A1 + A2 + A4) and comparison (A1 + A2) fixed before the test gold is read | Combination | **Done (D084)**: test Global 74.51 / 59.47 (main), the project's best pre-registered system; A1 + A2 75.17 / 60.32 |
 | 4 | Four-approach comparison | `reports/04-comparison.md` | Every number from a committed result | Final run and write-up | **Done (D085)** |
 | 5 | Final report | `reports/05-final-report.md`; per-approach reports updated with the final results | Two independent reviews, each followed by a revision; every number from a committed result or the 2024 overview paper | Final run and write-up | **Done (D086)** |
+| 6 | Short report | `reports/06-short-report.md`, `reports/figures/short-*.png`, `reports/short_report_numbers.py`, `reports/short_report_figures.py` | Every number and figure recomputed from committed files | Final run and write-up | **Done (D087)** |
+| 7 | Final README + relation-plateau analysis | `README.md`; §10 of the final report and §6 of the short report; `reports/figures/short-why-relations.png` | Every claim traced to a committed file; every link resolves | Final run and write-up | **Done (D088)** |
 
 ---
 
@@ -1301,3 +1303,17 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - *Not new:* every other number is quoted from the final report, the comparison and per-approach reports, or the committed result files they cite.
 - *Reproduce:* `python reports/short_report_numbers.py`, then `python reports/short_report_figures.py` (numpy and matplotlib only; matplotlib is not in the pinned ML venv, so any Python with both works). The figure script reads only `results/` plus a few quoted constants, each with its source in the file: the 2024 field (overview paper), the dev floor and ceiling (D044) and the time per map (final report §7.3).
 - *No new runs, no scoring, no spend.*
+
+### D088 — Why relation mining barely moved since 2024, and the final README
+- **2026-10-06 · Final write-up · by Claude Science, at the user's request** ("what has led to not a high increase in relation linking from 2024 … was it the testing checks? the data? training, dev, test? … add this to the reports … create a readme that will be final … commit all changes to main") **· Done**
+- *Analysis* (§10 of `reports/05-final-report.md`, §6 of `reports/06-short-report.md`): each candidate cause of the relation plateau, with a verdict from committed evidence.
+  - **Our safeguards: not the cause.** Cross-fitting costs A1 0.40 ARI against thresholds tuned on all of dev (`results/a1/v1/thresholds.json`). D029 concerns turn–proposition links. Freezing each test configuration removes test-set tuning, which can only inflate a score.
+  - **The pipeline: not the cause.** Candidate ceiling 98.64 / 94.44 (D041); turn linking 98.3%.
+  - **The split: not the cause.** Every system scores higher on test than on dev (A1 +0.88, A2 +1.14, A3 +6.05, A4 +2.04, combination +0.88).
+  - **The test set's size: hides a real gain.** Every 11-map 95% interval contains DFKI's 55.33 (D087).
+  - **Training data and model scale: contributes, not fully tested** (1,232 Conflicts; giant maps unused; 150M encoder and 4-bit 4B LLM; context +1.5 for A1, reasoning +0.8 for A2).
+  - **The task and its labels: main cause.** At matched density on dev, **82–86% of each system's errors are missed or invented relations**, not a wrong type or direction (A1 86%, A2 82%, A4 84% of errors). Recall between adjacent turns is 41–46% for every system; two to ten turns apart the encoder falls to 16% / 12% while Claude keeps 37% / 30%. Type errors follow the conventions, within-speaker attacks stay at 7–12% recall, and annotators agree at 0.56 CASS. The metric dilutes gains: +17 points of pooled test Inference F1 (A1 → combination) moved ARI by 5.0.
+- *New derived numbers* (`reports/short_report_numbers.py` → `results/short_report/derived.json`, from `results/a4/discussion.json`, `results/a1/v1/thresholds.json`, `results/a4/robust.json` and the test files): `relation_errors_dev_matched_density`, `relation_recall_by_distance_dev`, `protocol_cost_a1_ari_general`, `metric_dilution_test`, `dev_to_test_ari_general`. Earlier keys unchanged. New figure `reports/figures/short-why-relations.png`, drawn by `reports/short_report_figures.py`.
+- *README* (`README.md`): the project's front page, written for a reader with a few minutes: question, results table, pipeline, safeguards, six findings, repository map, reproduction outline, how it was built, limits and references. Every number is copied from the reports or `results/`; the data sources (dialam.arg.tech, corpora.aifdb.org/qt30) and the QT30 citation come from the 2024 overview paper.
+- *Structure:* kept as is. The layout already follows the work (shared code in `common/`, one folder per approach, every number under `results/`); moving folders would break the module commands and links that every report and log entry uses. `CLAUDE.md` stays at the root, where Claude Code reads it, and the README explains it.
+- *No new runs, no scoring, no spend; `data/evaluation/` not read.*

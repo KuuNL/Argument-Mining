@@ -59,7 +59,51 @@ def main():
     ilo_half = {s: (g("ilo", s) - d) / 2 for s, d in (("general", 78.78), ("focused", 66.10))}
     ari_half = {s: (g("ari", s) - d) / 2 for s, d in (("general", 55.33), ("focused", 30.40))}
 
+    # Why relations barely moved (section "Why relation mining barely moved since 2024" in both reports).
+    disc = load("a4/discussion.json")
+    systems = {"A1": "A1", "A2": "A2", "A4": "A4 both"}
+    errors = {}
+    for name, key in systems.items():
+        wg, inv = disc["what_gold_becomes"][key], disc["invented_by_type"][key]
+        right = sum(wg[t].get("right", 0) for t in wg)
+        # Same relation type, other direction ("Inference, reversed"; for Rephrase / Conflict the same label, not right).
+        reversed_ = wg["Inference"].get("Inference, reversed", 0) + wg["Rephrase"].get("Rephrase", 0) + wg["Conflict"].get("Conflict", 0)
+        missed = sum(wg[t].get("None", 0) for t in wg)
+        n_rel = sum(sum(v.values()) for v in wg.values())
+        wrong_type = n_rel - right - reversed_ - missed
+        invented = sum(inv.values())
+        errors[name] = {"gold": n_rel, "right": right, "reversed": reversed_, "wrong_type": wrong_type,
+                        "missed": missed, "invented": invented,
+                        "share_of_errors_on_whether_related": round((missed + invented) / (missed + invented + wrong_type + reversed_), 3)}
+    recall_by_distance = {}
+    for name, key in systems.items():
+        rec = disc["recall"][key]
+        row = {}
+        for dist in ("1 turn", "2-3 turns", "4-10 turns"):
+            cells = [rec[f"{t}, {dist}"] for t in ("Inference", "Rephrase", "Conflict") if f"{t}, {dist}" in rec]
+            n_gold = sum(c["gold"] for c in cells)
+            row[dist] = {"gold": n_gold, "recall": round(sum(c["recall"] * c["gold"] for c in cells) / n_gold, 3)}
+        recall_by_distance[name] = row
+    # The honest protocol's cost for A1: thresholds tuned on all of dev vs cross-fitted by episode.
+    a1_dev = load("a1/v1/thresholds.json")["dev_ari_f1"]
+    protocol_cost_a1 = round(a1_dev["tuned_on_all_dev (optimistic)"]["general"] - a1_dev["cross_fitted (honest)"]["general"], 2)
+    # How the per-map metric dilutes relation gains: test Inference F1 and ARI, A1 against the combination.
+    a1_pt = a1["diagnostics"]["per_type"]
+    dilution = {"A1": {"inference_f1": a1_pt["Inference"]["f1"], "ari_general": round(a1["ari"]["general"][2], 2)},
+                "A1+A2+A4": {"inference_f1": pt["Inference"]["f1"], "ari_general": round(g("ari", "general"), 2)}}
+    # Dev -> test change in ARI general for each system (honest dev against the single test run).
+    dev_honest = load("a4/robust.json")["with_dev_thresholds (honest)"]
+    test_ari = {"A1": a1["ari"]["general"][2], "A2": load("a2/test_global.json")["ari"]["general"][2],
+                "A3": a3["ari"]["general"][2], "A4": a4["ari"]["general"][2]}
+    dev_to_test = {k: round(test_ari[k] - dev_honest[k]["general"], 2) for k in test_ari}
+    dev_to_test["A1+A2+A4"] = round(g("ari", "general") - dev_combo, 2)
+
     out = {
+        "relation_errors_dev_matched_density": errors,
+        "relation_recall_by_distance_dev": recall_by_distance,
+        "protocol_cost_a1_ari_general": protocol_cost_a1,
+        "metric_dilution_test": dilution,
+        "dev_to_test_ari_general": dev_to_test,
         "headroom_share_combo": closed(dev_combo),
         "headroom_share_A1": closed(dev_a1),
         "combo_test_pooled": {"gold": gold, "correct": correct, "predicted": pred,

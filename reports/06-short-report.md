@@ -1,6 +1,6 @@
 # DialAM-2024 revisited: the short report
 
-*6 October 2026 · a condensed, critical companion to the [final report](05-final-report.md). Every number comes from a committed file under `results/` or `eda/`, from the [decision log](../decisionlog.md) (D001–D087), or from the 2024 overview paper. The per-map bootstrap intervals, pooled test counts and gain split are recomputed by `python reports/short_report_numbers.py` into [`results/short_report/derived.json`](../results/short_report/derived.json); the figures are redrawn from committed files by `python reports/short_report_figures.py`.*
+*6 October 2026 · a condensed, critical companion to the [final report](05-final-report.md). Every number comes from a committed file under `results/` or `eda/`, from the [decision log](../decisionlog.md) (D001–D088), or from the 2024 overview paper. The per-map bootstrap intervals, pooled test counts and gain split are recomputed by `python reports/short_report_numbers.py` into [`results/short_report/derived.json`](../results/short_report/derived.json); the figures are redrawn from committed files by `python reports/short_report_figures.py`.*
 
 ---
 
@@ -10,7 +10,7 @@
 - **Result.** All four of our systems beat it, and the pre-registered combination scores **74.51 / 59.47**. But **93% of that margin (81% under focused scoring) comes from Task B, illocutions**, where a trained labeller scores 92.6 against 2024's best of 81.2. **On Task A, relations, we are level with 2024**: within ±8 points on 11 test maps, which cannot separate the systems.
 - **Best method.** On the 225-map dev set, which *can* rank systems, **Claude reading the whole map is best at relations** (+4.1 over a trained encoder, significant). **Jev, with no training, matches the trained encoder** at $0.003 a map. **Fine-tuning a 4B open LLM was the worst trade-off.**
 - **The hard truth.** Four very different methods land within 7 points of each other. They close only about **a third of the gap** between predicting nothing (30.9) and labelling every candidate pair correctly (98.6). On test, the best system gets **56 of 124 annotated relations** right and finds **2 of 13 Conflicts**.
-- **Why.** Much of what remains is **annotation convention** (an elaboration counts as a "rephrase", a concession as an "attack"), together with a metric that punishes guessing rare labels. Model size or cleverness does not fix either.
+- **Why (§6).** Not our safeguards, the pipeline or the later test debates: 82–86% of every system's errors are about *whether* two propositions are related at all, the labels follow conventions annotators only moderately agree on (CASS 0.56), and the per-map metric dilutes relation gains. An 11-map test is also too small to show the modest gain dev does.
 
 ---
 
@@ -104,11 +104,35 @@ One shared pipeline: the official scorer (ported, 688/688 agreement), a **traine
 - Inference direction is right 83–87% of the time on dev for every method.
 - Pooled over the 11 test maps, the combination predicts 108 relations, of which 56 are right (52% precision), and recovers 56 of the 124 gold relations (45%). **An analyst would still need to fix about half of every map.**
 
-## 6. Cost, and the scoring itself
+## 6. Why relation mining barely moved since 2024
+
+Four very different methods (a pair classifier, a frontier LLM, a fine-tuned LLM and a decision model) land within 7 points of each other on dev, about a third of the way from "predict nothing" to the pipeline's ceiling. When methods this different converge, the limit is more likely in the task than in any one method. Each candidate cause, checked against the evidence:
+
+| Candidate cause | Verdict | Evidence |
+|---|---|---|
+| Our safeguards (cross-fitting, single frozen test runs, no node-ID shortcuts) | Not the cause | Cross-fitting costs A1 0.4 ARI against tuning on all of dev; the node-ID ban concerns turn–proposition links, not relations |
+| The pipeline (pruning, candidates, predicted turn links) | Not the cause | Labelling every candidate pair correctly would score 98.6; turn linking is 98.3% |
+| The split: later, harder test debates | Not the cause | Every system scores *higher* on test than on dev (+0.9 to +2.0; A3 +6.1) |
+| The test set's size | Hides a real gain | An 11-map interval spans about ±8 points, so Claude's +4.1 dev gain over the encoder can't show |
+| Training data and model scale | Contributes; not fully tested | 1,232 Conflicts in the whole training corpus; the 19 giant maps (12.8% of relations) and models beyond a 150M encoder or a 4B LLM were not tried. The untrained models still land in the same band |
+| **The task itself** | **Main cause** | Below |
+
+![Why relations are hard](figures/short-why-relations.png)
+
+*Figure 4: **a**, the errors each system makes on the 1,873 dev gold relations when it predicts as many relations as gold (matched density). **b**, recall by turn distance between the two propositions. Source: `results/short_report/derived.json` (from `results/a4/discussion.json`).*
+
+- **The hard question is whether two propositions are connected at all.** 82–86% of every system's errors are missed or invented relations; a wrong type or direction is the minority. A map has some 200 ordered pairs and about 8 relations, and the connection is often implicit: a concession with no "but" still counts as an attack.
+- **Distance separates the methods.** Every system finds 41–46% of relations between adjacent turns. Two or more turns apart, the pairwise encoder falls to 16% and 12%, while Claude keeps 37% and 30%: most of Claude's advantage is long-range.
+- **The labels are conventions people only moderately agree on** (QT30 agreement 0.56 CASS). An elaboration is a "rephrase" and a concession an "attack". The type confusions follow these conventions (Jev turns 169 rephrases into support; the fine-tuned Qwen turns 252 supports into rephrases), and attacks within one speaker's talk, 70% of dev Conflicts, stay at 7–12% recall.
+- **The metric dilutes gains.** ARI averages the relation classes together with the near-perfect "None" class, so a 17-point gain in pooled test Inference F1 (A1 0.29 → combination 0.46), with small gains elsewhere, moves ARI by only 5.0.
+
+**Bottom line:** the plateau sits in the task and its labels, not in our protocol, and an 11-map test is too small to show the modest real gain that dev does.
+
+## 7. Cost, and the scoring itself
 
 ![Cost and scoring](figures/short-cost-and-scoring.png)
 
-*Figure 4: **a**, honest dev relation F1 against time per map (log scale), with the two reference points: predicting no relations, and labelling every candidate pair correctly. **b**, test relation F1 under the two scoring settings for the 2024 field (squares, from the overview paper) and our systems (dots).*
+*Figure 5: **a**, honest dev relation F1 against time per map (log scale), with the two reference points: predicting no relations, and labelling every candidate pair correctly. **b**, test relation F1 under the two scoring settings for the 2024 field (squares, from the overview paper) and our systems (dots).*
 
 - **Price and time per map differ by 30–60× across a 7-point accuracy spread.** Jev gets encoder-level accuracy for $1.70 over the whole project. Claude is best, at about 60× Jev's price per map (but $0 on a subscription). A3 costs as much training as A1 and scores lower.
 - **The two scoring settings reward opposite strategies** (panel b). General is about 95% "None", so abstaining is safe. Focused ignores invented relations, but one missed gold relation adds a zero-scoring "None" class, so guessing pays. Pokemon (2024) led focused by over-predicting while scoring near "predict nothing" on general. Our thresholds, tuned for general, cost 1–5 focused points.
@@ -122,7 +146,7 @@ One shared pipeline: the official scorer (ported, 688/688 agreement), a **traine
 
 ---
 
-## 7. What it means
+## 8. What it means
 
 **For argument mining.** Relation identification remains largely unsolved. Modern methods give real but modest gains: +4 dev points for a frontier LLM over a fine-tuned encoder, not a step change. The bottleneck has moved from *model capacity* to *what the labels mean*: implicit concessions, elaboration-as-restatement, and conventions that differ from everyday reading.
 
@@ -134,7 +158,7 @@ One shared pipeline: the official scorer (ported, 688/688 agreement), a **traine
 
 **For the output.** The maps are valid and the illocution layer is essentially usable. The relation layer is a useful draft (about half right, with direction mostly right) but not a finished analysis. Conflict in particular can't be trusted to be found.
 
-## 8. What went right, and what went wrong
+## 9. What went right, and what went wrong
 
 | Went right | Went wrong, or stayed open |
 |---|---|
@@ -144,7 +168,7 @@ One shared pipeline: the official scorer (ported, 688/688 agreement), a **traine
 | Pre-registration and single test runs; every number traceable to a file | One seed per approach; A3/A4 ablations cut, so several "why"s are untested |
 | Jev shown to be a strong no-data baseline for under $2 | Contamination not ruled out for A2/A4 (QT30 is public); routing never tried |
 
-## 9. What would be interesting next
+## 10. What would be interesting next
 
 1. **Ask annotators to look at our errors.** Have people re-judge a sample of "wrong" predictions. This would put a human ceiling on the F1 scale and show how much of the gap is convention rather than error. It is the most informative single experiment left.
 2. **Teach the conventions directly.** Concession examples for Conflict and elaboration examples for Rephrase, delivered as training data (A1) and as worked examples (A2). Jev may need the convention built into how the question is asked, since one worked example didn't help it.

@@ -252,6 +252,53 @@ def fig_cost_and_scoring(S):
     plt.close(fig)
 
 
+def fig_why_relations(derived):
+    err = derived["relation_errors_dev_matched_density"]
+    rec = derived["relation_recall_by_distance_dev"]
+    names = {"A1": "A1 encoder", "A2": "A2 Claude", "A4": "A4 Jev"}
+    ks = ["A1", "A2", "A4"]
+    fig, (axa, axb) = plt.subplots(1, 2, figsize=(7.2, 3.0), gridspec_kw={"width_ratios": [1.25, 1]})
+    parts = [("wrong_type", "related, wrong type", "#e08a1e", 1.0), ("reversed", "related, wrong direction", "#f1c488", 1.0),
+             ("missed", "missed (gold relation called unrelated)", "#6b7280", 1.0),
+             ("invented", "invented (unrelated pair given a relation)", "#c4c9d1", 1.0)]
+    y = np.arange(len(ks))[::-1]
+    left = np.zeros(len(ks))
+    for key, lab, col, _ in parts:
+        w = np.array([err[k][key] for k in ks])
+        axa.barh(y, w, left=left, color=col, height=0.6, label=lab, edgecolor="white", lw=0.4)
+        if key in ("missed", "invented"):
+            for yi, wi, l0 in zip(y, w, left):
+                axa.text(l0 + wi / 2, yi, str(wi), ha="center", va="center", fontsize=6.5,
+                         color="white" if key == "missed" else "#1f2937")
+        left += w
+    for yi, k, tot in zip(y, ks, left):
+        share = err[k]["share_of_errors_on_whether_related"]
+        axa.text(tot + 40, yi, f"{share:.0%}", va="center", fontsize=6.5)
+    axa.set_yticks(y, [f"{names[k]}\n({err[k]['right']} of {err[k]['gold']:,} right)" for k in ks])
+    axa.set_xlim(0, max(left) * 1.12)
+    axa.set_xlabel("Errors on dev at matched density (count)\n% at right = share that are missed or invented")
+    axa.set_title("Most errors: is this pair related at all?", loc="left")
+    axa.legend(frameon=False, fontsize=6, loc="upper center", bbox_to_anchor=(0.45, -0.3), ncol=2)
+
+    dists = ["1 turn", "2-3 turns", "4-10 turns"]
+    xl = [f"adjacent\n(n={rec['A1']['1 turn']['gold']:,})", f"2–3 turns\n(n={rec['A1']['2-3 turns']['gold']})",
+          f"4–10 turns\n(n={rec['A1']['4-10 turns']['gold']})"]
+    for k in ks:
+        v = [rec[k][d]["recall"] for d in dists]
+        axb.plot(range(3), v, "-o", color=COL[k], ms=4, lw=1.4)
+        axb.text(2.08, v[-1], names[k], color=COL[k], fontsize=6.5, va="center")
+    axb.set_xticks(range(3), xl)
+    axb.set_xlim(-0.2, 2.75)
+    axb.set_ylim(0, 0.55)
+    axb.set_ylabel("Recall (dev, matched density)")
+    axb.set_title("The pairwise encoder loses distant relations", loc="left")
+    letter(axa, "a")
+    letter(axb, "b")
+    fig.tight_layout(w_pad=2)
+    fig.savefig(OUT / "short-why-relations.png")
+    plt.close(fig)
+
+
 def main():
     derived_path = RES / "short_report" / "derived.json"
     if not derived_path.exists():
@@ -264,6 +311,7 @@ def main():
     fig_dev_vs_test(S, derived)
     fig_strengths()
     fig_cost_and_scoring(S)
+    fig_why_relations(derived)
     print("wrote", ", ".join(sorted(p.name for p in OUT.glob("short-*.png"))))
 
 
