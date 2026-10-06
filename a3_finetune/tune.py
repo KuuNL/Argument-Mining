@@ -9,7 +9,9 @@ rows by the same code (their pruned or unlisted pairs score None).
 2. Success test 1: a paired per-map bootstrap of honest ARI general, A3 against A2 and against A1 (95% interval).
 3. Success test 2: cross-fitted averages of the systems' pair scores; A1 + A2 + A3 must beat A1 + A2 by >= 1.0.
 4. Hypotheses H1-H4 at matched density: one threshold for every type, set so that the system predicts as many
-   relations as gold. The same measures at each system's own tuned thresholds are given for reference.
+   relations as gold. A3's vote shares come in steps of 1/8, so for this measure only its ties are broken by token
+   probability (votes + 0.001 x token-probability score); otherwise its density can't be matched. The same
+   measures at each system's own tuned thresholds are given for reference.
 5. A2.3's diagnostics at the tuned thresholds, and each single sample's score.
 
     python -m a3_finetune.tune --run=v1 --adapter=ep2.0     -> results/a3/<run>/dev_report.json, thresholds.json
@@ -193,6 +195,9 @@ def main():
     coverage["A2"] = base.coverage
     systems["A3"] = a3
     print("coverage", coverage, flush=True)
+    tok = tokenizer(json.loads((OUT / run / "config.json").read_text())["model"])
+    a3_tok = a3_scores(base, recs, weights_tok=tok)
+    a3_tie = Scores(base, {n: a3.probs[a3.idx[n]] + 1e-3 * a3_tok.probs[a3_tok.idx[n]] for n in base.names})
     fits = {"A3": (final, held, folds)}
     for k in ("A1", "A2"):
         fits[k] = honest(systems[k])
@@ -211,8 +216,9 @@ def main():
 
     hyp = {}
     for k, dev in systems.items():
-        th_m = matched(dev)
-        hyp[k] = {"matched_threshold": th_m["Inference"], "at_matched_density": hypotheses(base, dev, th_m),
+        th_m = matched(a3_tie if k == "A3" else dev)
+        hyp[k] = {"matched_threshold": th_m["Inference"],
+                  "at_matched_density": hypotheses(base, a3_tie if k == "A3" else dev, th_m),
                   "at_own_tuned_thresholds": hypotheses(base, dev, fits[k][0]["th"])}
     m3, m1, m2 = (hyp[k]["at_matched_density"] for k in ("A3", "A1", "A2"))
     verdicts = {
@@ -224,8 +230,6 @@ def main():
 
     one = [both(s.scores(s.probs, ALL)) for s in (a3_scores(base, recs, use=[i]) for i in range(8))]
     g_scores = a3_scores(base, greedy)
-    tok = tokenizer(json.loads((OUT / run / "config.json").read_text())["model"])
-    a3_tok = a3_scores(base, recs, weights_tok=tok)
     report = {
         "run": run, "adapter": adapter, "maps": len(base.names),
         "valid_answers": sum(o["valid"] for r in recs.values() for o in r["outs"]),

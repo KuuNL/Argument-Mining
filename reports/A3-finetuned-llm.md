@@ -1,8 +1,8 @@
 # A3 — A fine-tuned open language model for argument relations
 
 > **What this is:** the report on approach A3, for readers new to the project. Terms are explained where they first appear and collected in §3. Each phase reads as its plan until it runs, then as its result.
-> **Status (2026-10-06):** A3.1–A3.3 passed; **A3.4 (dev run) in progress**. The model is Qwen3-4B-Instruct-2507, since Qwen3-8B can't train on the 8 GB card. Its best checkpoint (epoch 2) scores a greedy dev ARI of 49.46 / 31.19, before votes and thresholds.
-> **Evidence:** [`../results/a3/`](../results/a3/). Decisions D065–D069 in [`../decisionlog.md`](../decisionlog.md).
+> **Status (2026-10-06):** A3.1–A3.4 done. **On dev, A3 trails both A1 and A2, and both pre-registered success tests fail** (honest ARI 47.65 / 27.23). Next: A3.5 (assembly and ablations), then the test run.
+> **Evidence:** [`../results/a3/`](../results/a3/). Decisions D065–D070 in [`../decisionlog.md`](../decisionlog.md).
 > **Background:** [A1](A1-cross-encoder.md) (a trained pairwise encoder), [A2](A2-whole-map-llm.md) (Claude reading the whole map) and [the A2 discussion](A2-discussion.md) (why each wins where it does).
 
 ## In one minute
@@ -13,7 +13,10 @@
   - Neither finds the Conflicts within one speaker's own talk (70% of all Conflicts).
 - **The idea.** Teach an open LLM the annotators' habits **through its weights**: train it on 1,231 annotated maps to write each map's whole relation list. It keeps the LLM's whole-map view and learns what the encoder learned.
 - **How.** **Qwen3-4B-Instruct-2507**, stored in 4-bit with small trainable add-ons (**QLoRA**), on the local 8 GB GPU: **$0**. The text format, decision layer, map assembly and scorer are A1's and A2's, so the three systems compare directly.
-- **So far.** Training takes 110 min. Of 1,500+ answers generated, all but one are valid; that one hit the length cap at the earliest checkpoint. The best single greedy answer per map scores 49.46 / 31.19 on dev, close to A1's honest 50.50 / 32.61 before any votes or thresholds.
+- **Result on dev.** Training takes 110 min, and the model learns the answer format: 3,300+ answers, all valid but one.
+  - **It doesn't beat A1 or A2.** With 8 sampled answers and tuned thresholds (the pre-registered score) it reaches **47.65 / 27.23**, against A1's 50.50 / 32.61 and A2's 54.63 / 34.12. Its single greedy answer does a little better (49.46 / 31.19), but is still below both.
+  - **What it learned:** the annotators' density, with A2-level precision; at the same number of relations it invents no more than A2.
+  - **What it didn't learn:** the encoder's habit of loose support between neighbouring turns. It finds far fewer true Inferences (recall 0.25 against A1 0.39 and A2 0.42), and Conflict stays mostly missed.
 
 ---
 
@@ -148,7 +151,7 @@ A per-map grammar blocks any token that would break the answer format, so every 
 | **A3.1 Setup + feasibility** | Environment, data, gate checks, memory and speed probes | **Passed**: lossless; 8B fails the memory rule → 4B | ~1 h |
 | **A3.2 Training loop** | Trainer, cached generator, overfit test | **Passed**: 32 / 32 maps reproduced exactly | ~0.5 h |
 | **A3.3 Training run** | 3 epochs; checkpoint choice; vote diversity | **Passed**: ep2.0, greedy dev ARI 49.46 / 31.19 | ~4 h |
-| **A3.4 Dev run** | 8 samples × 225 dev maps; thresholds; success tests | In progress | ~2.5 h |
+| **A3.4 Dev run** | 8 samples × 225 dev maps; thresholds; success tests | **Done**: honest 47.65 / 27.23; both success tests fail | ~2.5 h |
 | **A3.5 Assembly + ablations** | Complete maps, turn types, combination, ablations | Planned | ~3–6 h |
 | **A3.6 Test run** | The 11 test maps, once | Planned | < 0.5 h |
 
@@ -215,11 +218,38 @@ Evidence: [`v1/`](../results/a3/v1/) (`train_log.jsonl`, `greedy_dev.json`, `div
 - A map's samples are split under the same token budget as greedy batches.
 - Nothing was lost; every answer was cached.
 
-### A3.4 Dev run and decision layer — in progress
-1. **The run:** the 225 dev maps in test-input format, 8 seeded relation samples each, with ep2.0.
-2. **Pair scores and thresholds:** vote shares in A1's 5-label format. Per-type thresholds are fitted on all of dev (kept for test) and cross-fitted by episode (the honest number).
-3. **The success tests and hypotheses (§6).** A1 and A2 are re-scored on the same rows by the same code. That code reproduces their honest scores exactly (50.50 / 32.61 and 54.63 / 34.12).
-4. **Diagnostics:** per-type precision / recall, direction, invented-Conflict maps, relations per map, single-sample scores, and the token-probability score.
+### A3.4 Dev run and decision layer — done (2026-10-06)
+Evidence: [`v1/dev_report.json`](../results/a3/v1/dev_report.json), [`v1/thresholds.json`](../results/a3/v1/thresholds.json), the 1,800 samples. Decision D070.
+
+**What ran.** The 225 dev maps (test-input format, labeller links), 8 seeded relation samples each from ep2.0: 1,800 / 1,800 valid, ≈ 2.5 h.
+- Vote shares become A1's 5-label pair scores.
+- Thresholds are fitted on all of dev (Inference 0.15, Conflict 0.5, Rephrase 0.3) and cross-fitted by episode for the honest number.
+- A1 and A2 are re-scored on the same rows by the same code, which reproduces their honest scores exactly.
+
+| Dev ARI, general / focused | |
+|---|---|
+| A1, honest | 50.50 / 32.61 |
+| A2, honest | **54.63 / 34.12** |
+| **A3, 8 votes + thresholds, honest (pre-registered)** | **47.65 / 27.23** |
+| A3, one greedy answer, every relation kept (nothing tuned) | 49.46 / 31.19 |
+| A3, token-probability score, honest | 47.86 / 25.89 |
+| A3, one sample at temperature 1 (range over the 8) | 37.1–42.0 / 18.4–22.2 |
+
+| Per type (pooled), precision / recall / F1 | A1 | A2 | A3 |
+|---|---|---|---|
+| Inference | 0.27 / 0.39 / 0.32 | **0.39 / 0.35 / 0.37** | 0.26 / 0.27 / 0.26 |
+| Conflict | 0.31 / 0.09 / 0.14 | **0.43 / 0.12 / 0.19** | 0.29 / 0.06 / 0.10 |
+| Rephrase | 0.42 / 0.53 / 0.47 | **0.48 / 0.55 / 0.51** | 0.37 / 0.52 / 0.43 |
+
+**Success tests (§6): both fail.**
+1. **A3 − A2 = −6.99 general**, 95% interval [−8.9, −5.2]; A2 is better on 153 maps, A3 on 69. Against A1: −2.85 [−4.7, −1.0].
+2. **Adding A3 to an A1 + A2 average lowers it:** 55.12 → 54.24 general. *For the Combination phase:* the plain A1 + A2 average already beats A2 alone (55.12 / 36.18).
+
+**Findings**
+- **Learned:** the format (every answer valid) and the annotators' density. At matched density it invents no more relations than A2 (H2 holds).
+- **Not learned:** the encoder's neighbour habit (H1 fails badly) or concessive Conflict (H4). Every relation type is below both A1 and A2, Inference most of all.
+- **Sampling hurts.** A temperature-1 sample scores 37–42, far below the greedy answer's 49.5. Eight votes recover most of the gap, but the greedy answer stays A3's best configuration on dev.
+- *Reading:* on 1,231 maps, a 4B model trained on whole-map answers doesn't match a 150M encoder trained on pairs, or a much larger model applying definitions. Learning the convention through the weights didn't pay off at this size and data volume.
 
 ### A3.5 Assembly and ablations — planned
 - Complete maps (`build_map`, validator, official scorer) → dev ARI / ILO / Global next to A1 and A2.
@@ -243,16 +273,18 @@ Test 1 needs a margin because A3, unlike A2, chose its checkpoint on dev.
 
 **Hypotheses.** H1 to H4 are compared at matched density (§3). The table shows A1 and A2 both at matched density and, in brackets, at their own tuned thresholds.
 
-| | Hypothesis | Measure | A1 | A2 | Holds if |
-|---|---|---|---|---|---|
-| H1 | It learns the annotators' loose neighbour support | Recall, Inferences between neighbouring turns (707) | 0.39 (0.51) | 0.42 (0.40) | ≥ A2 + 0.05 |
-| H2 | …without the encoder's over-linking | Unrelated pairs given a relation | 905 (1,278) | 812 (697) | ≤ 90% of A1's |
-| H3 | It keeps the LLM's direction | Inference direction right | 86% (81%) | 84% (85%) | ≥ 85% |
-| H4 | It learns concessive Conflict within one speaker | Recall, within-speaker Conflicts (91) | 9% (5%) | 7% (3%) | ≥ 15% |
-| H5 | It learns the cautious turn-type prior | Honest dev ILO vs the labeller (90.16 / 80.67) | — | 90.43 | The strict rule (§4) passes |
-| H6 | Training matters, not just the model | ARI, fine-tuned vs the same model untrained | | | ≥ +5 general |
+| | Hypothesis | Measure | A1 | A2 | **A3** | Holds if | Result |
+|---|---|---|---|---|---|---|---|
+| H1 | It learns the annotators' loose neighbour support | Recall, Inferences between neighbouring turns (707) | 0.39 (0.51) | 0.42 (0.40) | **0.25** (0.32) | ≥ A2 + 0.05 | **Fails** |
+| H2 | …without the encoder's over-linking | Unrelated pairs given a relation | 905 (1,278) | 812 (697) | **805** (965) | ≤ 90% of A1's | **Holds** |
+| H3 | It keeps the LLM's direction | Inference direction right | 86% (81%) | 84% (85%) | **83%** (76%) | ≥ 85% | **Fails** (all close) |
+| H4 | It learns concessive Conflict within one speaker | Recall, within-speaker Conflicts (91) | 9% (5%) | 7% (3%) | **11%** (7%) | ≥ 15% | **Fails** |
+| H5 | It learns the cautious turn-type prior | Honest dev ILO vs the labeller (90.16 / 80.67) | — | 90.43 | A3.5 | The strict rule (§4) passes | — |
+| H6 | Training matters, not just the model | ARI, fine-tuned vs the same model untrained | | | A3.5 | ≥ +5 general | — |
 
-*Note:* at matched density, A1 and A2 are much closer than at their own thresholds. Much of the contrast in the A2 discussion came from where each system's thresholds sat.
+*Notes:*
+- At matched density (8.32 relations per map for all three), A1 and A2 are much closer than at their own thresholds. Much of the contrast in the A2 discussion came from where each system's thresholds sat.
+- A3's vote shares come in steps of ⅛, so its ties are broken by token probability for this measure only.
 
 ---
 
@@ -279,7 +311,8 @@ Test 1 needs a margin because A3, unlike A2, chose its checkpoint on dev.
 - **Measured so far:**
   - **training:** 110 min;
   - **checkpoint scoring:** ≈ 15 min per adapter (6 adapters);
-  - **dev sampling:** ≈ 40 s per map for 8 samples, ≈ 2.5 h in all.
+  - **dev sampling:** ≈ 40 s per map for 8 samples, ≈ 2.5 h in all;
+  - **A3.4 analysis:** 4 min on the CPU.
 - Every run logs wall-clock, tokens/s and peak memory to `results/timing.csv`.
 
 ## 9. Risks

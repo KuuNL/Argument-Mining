@@ -1,0 +1,10 @@
+{
+ "run": "v1",
+ "adapter": "ep2.0",
+ "thresholds": {
+  "Inference": 0.15,
+  "Conflict": 0.5,
+  "Rephrase": 0.3
+ },
+ "objective": 48.47
+}

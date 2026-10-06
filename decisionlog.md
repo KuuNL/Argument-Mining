@@ -30,7 +30,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A3.1 | Setup + feasibility | venv `~/.venvs/a3` (peft, bitsandbytes, xgrammar, Unsloth or trl + liger); `a3_finetune/data.py`, `schema.py` / `parse.py` without confidence, `check.py`; memory probe Qwen3-8B → Qwen3-4B-Instruct-2507; generation probe | Round trip 98.92 / 96.51; every gold answer passes its grammar; no leakage; model chosen by the D065 rule (≤ 7.5 GiB, ≥ 200 tok/s, batch ≥ 2) | A3 | **Passed (D066)**: round trip 98.92 / 96.51; 0 grammar rejections; 8B fails the memory rule → **Qwen3-4B-Instruct-2507** (4.25 GiB, 789 tok/s) |
 | A3.2 | Training loop | `train.py` (answer-only loss, adapter every half epoch, timing); `generate.py` (greedy types + seeded relation samples, grammar, cache; greedy batched across maps, D066) | Memorises 32 maps (≥ 95% relations exact); loss masking verified; epoch time and peak VRAM measured | A3 | **Passed (D067)**: 32/32 maps reproduced exactly (206/206 relations); masking verified; 3.83 GiB, ~720 tok/s; batched greedy ≈ 5.5 s per map |
 | A3.3 | Training run | 1,231 test-like train maps, 3 epochs | Greedy dev ARI at each half epoch; best adapter chosen; diversity rule applied | A3 | **Passed (D068–D069)**: ep2.0 chosen, greedy dev ARI 49.46 / 31.19; 110 min training; votes graded (99.8%), so votes are the main score |
-| A3.4 | Dev run + decision layer | Types + 8 relation samples × 225 dev maps (labeller links); scores → A1's pair format → cross-fitted thresholds | Honest dev ARI vs A1 (50.50 / 32.61) and A2 (54.63 / 34.12) with the bootstrap test; H1–H4 at matched density | A3 | **Next** |
+| A3.4 | Dev run + decision layer | Types + 8 relation samples × 225 dev maps (labeller links); scores → A1's pair format → cross-fitted thresholds | Honest dev ARI vs A1 (50.50 / 32.61) and A2 (54.63 / 34.12) with the bootstrap test; H1–H4 at matched density | A3 | **Done (D070)**: honest dev ARI 47.65 / 27.23, below A1 and A2; both success tests fail; H2 holds, H1/H3/H4 fail |
 | A3.5 | Assemble + ablations | Valid maps, dev Global; LLM turn types (strict rule); combination preview; ablations | 225/225 valid; combination test; ablation table | A3 | Approved (D065) |
 | A3.6 | Test run + report | Final A3 row; `reports/A3-finetuned-llm.md` | Run once, on the user's go | Final run | Approved (D065) |
 | A4 | Jev | Phased (A4.1, …) when it starts | — | A4 | Not started |
@@ -924,3 +924,41 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - **99.8% of the 1,099 distinct listed relations have a vote share strictly between 0 and 1.** By the rule, **vote shares are A3.4's main score.**
   - The votes are spread wide. 720 relations appear in 1 of 8 samples and only 2 in all 8; a sample lists 11.7 relations on average, against 9.6 for greedy.
   - Sampling at temperature 1 is therefore far from all-or-nothing, but individual samples disagree a lot. The thresholds will sit low, and token probabilities stay as a free ablation.
+
+### D070 — A3.4 result: honest dev ARI 47.65 / 27.23, below A1 and A2; both success tests fail
+- **2026-10-06 · A3.4 · by Claude (pre-set rules) · Finding** (`results/a3/v1/dev_report.json`, `thresholds.json`, `ep2.0_dev_samples8.jsonl.gz`; `python -m a3_finetune.runner --run=v1 --adapter=ep2.0 --split=dev --samples=8 --export`, `python -m a3_finetune.tune --run=v1`)
+- *Run:* 225 dev maps × 8 relation samples with ep2.0; 1,800 / 1,800 answers valid and finished; ≈ 2.5 h.
+- *Thresholds:* Inference 0.15 (≥ 2 of 8 samples), Conflict 0.5, Rephrase 0.3. Identical in 3 of 5 folds.
+
+  | Dev ARI, general / focused | |
+  |---|---|
+  | A1, honest | 50.50 / 32.61 |
+  | A2, honest | 54.63 / 34.12 |
+  | **A3, votes + thresholds, honest (the pre-registered main score)** | **47.65 / 27.23** |
+  | A3, one greedy answer with every relation kept (nothing tuned) | 49.46 / 31.19 |
+  | A3, token-probability score, honest | 47.86 / 25.89 |
+  | A3, one sample at temperature 1, every relation kept (8 samples) | 37.1–42.0 / 18.4–22.2 |
+
+- *Success test 1 fails:*
+  - A3 − A2 = −6.99 general, 95% interval [−8.9, −5.2]; A2 is better on 153 maps, A3 on 69.
+  - A3 − A1 = −2.85, interval [−4.7, −1.0].
+- *Success test 2 fails:* cross-fitted averages of pair scores.
+  - A1 + A2 = 55.12 / 36.18, and A1 + A2 + A3 = 54.24 / 35.45: adding A3 costs 0.88.
+  - *Aside for the Combination phase:* A1 + A2 alone already beats A2 alone (+0.5 / +2.1).
+- *Hypotheses at matched density* (8.32 relations per map for all three; A3's vote ties broken by token probability for this measure only):
+  - **H1 fails.** Neighbour-Inference recall is 0.25, against A1 0.39 and A2 0.42.
+  - **H2 holds.** 805 unrelated pairs are given a relation, against A1 905 (rule ≤ 815) and A2 812.
+  - **H3 fails.** Inference direction is right 83% of the time (A1 86%, A2 84%; all close).
+  - **H4 fails.** Within-speaker Conflict recall is 11% (10 of 91), against A1 9% and A2 7%; the bar was 15%.
+- *Per type* (pooled P / R / F1, tuned thresholds):
+  - Inference 0.26 / 0.27 / 0.26 (A1 0.32 F1, A2 0.37);
+  - Conflict 0.29 / 0.06 / 0.10 (A1 0.14, A2 0.19);
+  - Rephrase 0.37 / 0.52 / 0.43 (A1 0.47, A2 0.51).
+  - Direction is right for 76% of the Inferences found; 11 maps get an invented Conflict (A1 8, A2 8).
+- *Reading:*
+  - The fine-tuned 4B learns the format and the annotators' density, and it is as precise as A2 at matched density. But it **finds fewer true relations, Inference above all**. It does not acquire the encoder's neighbour habit, and every relation type is below both A1 and A2.
+  - **Sampling hurts it.** A single temperature-1 sample (37–42) is far below the greedy answer (49.5). Averaging 8 samples recovers most of the gap, but not all of it.
+  - A3's best configuration on dev is therefore the greedy answer, which is still below A1 and A2.
+- *Open for the user (A3.5 / A3.6):*
+  1. Which configuration to test. The pre-registered main is votes + thresholds; greedy is +1.8 / +4.0 on dev. Proposed: freeze both before the test run, then report both.
+  2. Which A3.5 ablations to run now that A3 trails. Zero-shot (H6), no grammar and turn types (H5) are cheap. The giant-map retrain (H4) costs ≈ 5 GPU hours.
