@@ -6,6 +6,8 @@
 > - [`dev_report.json`](../results/a3/v1/dev_report.json);
 > - [`../results/a3/test_global.json`](../results/a3/test_global.json) and [`test_posthoc.json`](../results/a3/test_posthoc.json).
 >
+> **Published page:** https://claude.ai/artifact/VJCZmPoyRdCkDuhfeMGAuh (the same content).
+>
 > The "why" questions use dev, which is 20× larger than test. All three systems are compared at **matched density** (8.3 relations per map each), so recall differences reflect the models, not their thresholds.
 
 **In one line:** fine-tuning taught a 4B model the annotators' *format and density*, but not their *judgement*. It is as cautious as A2 but finds fewer real arguments than A1, and it often turns an Inference into a Rephrase.
