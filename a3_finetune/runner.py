@@ -6,7 +6,8 @@
 
 Splits: dev (225 maps, the labeller's links), test (11 inputs), train (the run's own training maps).
 Greedy answers are batched across maps, left-padded, within a token budget. Samples continue the map's
-greedy answer from just before "relations", so the greedy answer is generated first if it isn't cached.
+greedy answer from just before "relations", so the greedy answer is generated first if it isn't cached;
+a map's n samples are split into as few equal calls as the same budget allows (call c uses seed + c).
 
 Each map's answer is one JSON file in cache/a3/<run>/answers/, named by a hash of everything that
 determines it: base model, adapter weights, prompt, mode, n, seed, length cap and grammar settings. A cached
@@ -17,6 +18,7 @@ results/a3/<run>/<adapter>_<split>_<mode>.jsonl.gz, which is committed.
 import gzip
 import hashlib
 import json
+import math
 import sys
 import time
 
@@ -140,12 +142,14 @@ class Runner:
         out = {}
         for j, ex in enumerate(exs):
             g = greedy[ex.name]["outs"][0]
-            k = self._key(ex, "sample", n=n, seed=seed, max_new=SAMPLE_MAX, greedy=g["tokens"])
+            calls = math.ceil(n * (self.plen(ex) + len(g["tokens"]) + SAMPLE_MAX) / BUDGET)   # rows per call within the budget
+            rows = math.ceil(n / calls)
+            k = self._key(ex, "sample", n=n, seed=seed, max_new=SAMPLE_MAX, greedy=g["tokens"], rows=rows)
             rec = self._load(k)
             if rec is None:
                 t0 = time.perf_counter()
-                prefix, outs = self.gen.samples(ex, Out(g["tokens"], g["logps"], g["finished"]), n, seed, SAMPLE_MAX)
-                rec = self._record(ex, "sample", outs, prefix, n=n, seed=seed)
+                prefix, outs = self.gen.samples(ex, Out(g["tokens"], g["logps"], g["finished"]), n, seed, SAMPLE_MAX, rows)
+                rec = self._record(ex, "sample", outs, prefix, n=n, seed=seed, rows=rows)
                 self._save(k, rec)
                 print(f"samples: {j + 1}/{len(exs)} {ex.name} ({time.perf_counter() - t0:.1f} s)", flush=True)
             out[ex.name] = rec

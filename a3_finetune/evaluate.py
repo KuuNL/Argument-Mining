@@ -7,7 +7,12 @@
         A3.3: one greedy answer per dev map for every saved adapter, scored like A2.1's round trip
         (every listed relation kept -> A1's decision code -> build_map -> official scorer); the checkpoint rule
         picks the best ARI general, ties to the earlier adapter (D065).
+    python -m a3_finetune.evaluate --diversity --run=v1 [--adapter=ep2.0] [--maps=20]
+        A3.3 diversity rule (D065): 8 samples on the first 20 dev maps with the chosen adapter. If fewer than
+        10% of the listed relations get a vote share strictly between 0 and 1, the votes are all-or-nothing
+        and token probability becomes the main score for A3.4.
 """
+from collections import Counter
 import json
 import statistics as st
 import sys
@@ -78,6 +83,27 @@ def greedy_ari(run: str, adapter: str, model_key: str, gold: dict) -> dict:
             "relations_per_map": round(n_rel / len(exs), 2), "invalid_maps": invalid, "unfinished": unfinished}
 
 
+def diversity(run: str, adapter: str, model_key: str, maps: int, n: int = 8) -> dict:
+    r = Runner(run, adapter, model_key)
+    exs = examples(run, "dev")[:maps]
+    recs = r.samples(exs, n, seed=0)
+    shares, valid, total = [], 0, 0
+    for ex in exs:
+        outs = recs[ex.name]["outs"]
+        valid += sum(o["valid"] for o in outs)
+        total += len(outs)
+        votes = Counter(rel for o in outs for rel in rel_set(o["answer"]))
+        shares += [c / len(outs) for c in votes.values()]
+    export(run, f"{adapter}_dev{maps}_samples{n}", recs)
+    r.close()
+    mid = sum(0 < s < 1 for s in shares) / len(shares) if shares else 0.0
+    hist = Counter(round(s * n) for s in shares)
+    return {"adapter": adapter, "maps": maps, "samples": n, "valid": f"{valid}/{total}",
+            "listed_relations": len(shares), "share_strictly_between_0_and_1": round(mid, 4),
+            "votes_histogram": {f"{k}/{n}": hist[k] for k in range(1, n + 1)},
+            "main_score": "votes" if mid >= 0.10 else "token_probability"}
+
+
 def main():
     run = arg("run")
     if "--overfit" in sys.argv:
@@ -102,6 +128,12 @@ def main():
         path.write_text(json.dumps({"adapters": rows, "chosen": best["adapter"]}, indent=1) + "\n",
                         encoding="utf-8", newline="\n")
         print("chosen:", best)
+    elif "--diversity" in sys.argv:
+        cfg = json.loads((OUT / run / "config.json").read_text())
+        adapter = arg("adapter") or json.loads((OUT / run / "greedy_dev.json").read_text())["chosen"]
+        res = diversity(run, adapter, cfg["model"], int(arg("maps", 20)))
+        (OUT / run / "diversity.json").write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8", newline="\n")
+        print(json.dumps(res, indent=1))
 
 
 if __name__ == "__main__":

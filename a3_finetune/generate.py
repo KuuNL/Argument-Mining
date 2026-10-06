@@ -68,12 +68,19 @@ class Generator:
             k += 1
         return k
 
-    def samples(self, ex, greedy: Out, n: int, seed: int, max_new: int = 768) -> tuple[list[int], list[Out]]:
+    def samples(self, ex, greedy: Out, n: int, seed: int, max_new: int = 768,
+                rows: int | None = None) -> tuple[list[int], list[Out]]:
+        """n samples, generated `rows` at a time (all at once by default); call c uses seed + c."""
         k = self.cut(greedy.tokens)
         prefix = greedy.tokens[:k]
         first = self.g.matcher(ex.s, prefix)
-        matchers = [first] + [first.fork() for _ in range(n - 1)]
-        return prefix, self._run([self.prompt_ids(ex) + prefix] * n, matchers, True, max_new, seed)
+        ids = self.prompt_ids(ex) + prefix
+        rows = rows or n
+        outs = []
+        for c, start in enumerate(range(0, n, rows)):
+            m = min(rows, n - start)
+            outs += self._run([ids] * m, [first.fork() for _ in range(m)], True, max_new, seed + c)
+        return prefix, outs
 
     def answer(self, tokens: list[int]) -> dict | None:
         try:

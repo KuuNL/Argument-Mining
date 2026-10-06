@@ -1,7 +1,7 @@
 # A3 — A fine-tuned open language model for argument relations
 
 > **What this is:** the report on approach A3, written for readers new to the project. Terms are explained where they first appear, and §3 collects them. It starts as the plan and the reasons behind it; results are added as each phase finishes.
-> **Status:** plan approved 2026-10-05 after an independent review (§12). **A3.1 and A3.2 passed** (§11): the model is Qwen3-4B-Instruct-2507, because Qwen3-8B doesn't fit the 8 GB card, and the training loop reproduces 32 memorised maps exactly. Next: A3.3 (the training run).
+> **Status:** plan approved 2026-10-05 after an independent review (§12). **A3.1–A3.3 passed** (§11). The model is Qwen3-4B-Instruct-2507, because Qwen3-8B doesn't fit the 8 GB card. Trained on 1,231 maps, its best checkpoint (epoch 2) scores a greedy dev ARI of 49.46 / 31.19 before votes and thresholds. Next: A3.4 (the dev run).
 > **Evidence (as phases finish):** `../results/a3/`. Decisions start at D065 in [`../decisionlog.md`](../decisionlog.md).
 > **Background:** [A1](A1-cross-encoder.md) (the trained pairwise encoder), [A2](A2-whole-map-llm.md) (Claude reading the whole map) and [the A2 discussion](A2-discussion.md) (why each wins where it does).
 
@@ -348,6 +348,41 @@ Evidence: [`../results/a3/overfit/`](../results/a3/overfit/) (`train_log.jsonl`,
 **Projection for A3.3:**
 - **Training:** an epoch is 1.48M tokens, ≈ 34 min. 3 epochs plus the dev-loss checks take ≈ 2 h.
 - **Checkpoint scoring:** greedy on the 225 dev maps takes ≈ 21 min per adapter, so ≈ 2 h for all 6.
+
+### A3.3 Training run — passed (2026-10-06)
+Evidence: [`../results/a3/v1/`](../results/a3/v1/) (`train_log.jsonl`, `greedy_dev.json`, `diversity.json`, the greedy answers of every adapter, the 20-map samples). Decisions D068–D069.
+
+**Training.** The 1,231 test-like training maps, 3 epochs, 231 updates of 16 maps each.
+- 110 min in total (36.6 min per epoch, including the dev-loss checks); 674 tokens/s; peak 4.92 GiB.
+- The loss mask was verified on every map.
+
+**Choosing the checkpoint.** Every half epoch, the saved adapter wrote one greedy answer per dev map (labeller links, test-input format), scored with all its relations kept:
+
+| Adapter (epoch) | 0.5 | 1.0 | 1.5 | **2.0** | 2.5 | 3.0 |
+|---|---|---|---|---|---|---|
+| Dev answer loss | 0.0888 | 0.0804 | 0.0765 | 0.0753 | 0.0757 | 0.0747 |
+| Greedy dev ARI, general / focused | 35.91 / 12.34 | 43.94 / 21.90 | 47.49 / 27.93 | **49.46 / 31.19** | 46.21 / 25.41 | 47.01 / 26.81 |
+| Relations per map (gold: 8.3) | 11.5 | 8.36 | 9.76 | 9.60 | 9.15 | 9.37 |
+
+- **ep2.0 is chosen** by the fixed rule. As with A1, the score peaks at 2 epochs while the loss keeps edging down: the loss rewards every answer token, while the metric only rewards the relations.
+- *Reference only:* one greedy answer with no thresholds is not comparable with A1's honest 50.50 / 32.61 or A2's 54.63 / 34.12. Votes and thresholds come in A3.4.
+
+**Are the votes graded or all-or-nothing?** ep2.0 sampled 8 answers for each of the first 20 dev maps (160 / 160 valid):
+
+| Samples listing a relation | 1 / 8 | 2 / 8 | 3 / 8 | 4 / 8 | 5 / 8 | 6 / 8 | 7 / 8 | 8 / 8 |
+|---|---|---|---|---|---|---|---|---|
+| Distinct relations | 720 | 192 | 90 | 30 | 39 | 17 | 9 | 2 |
+
+- **99.8% of the listed relations get a share strictly between 0 and 1**, far above the 10% bar, so **vote shares stay the main score** (D065's rule).
+- The samples disagree a lot. A sample lists 11.7 relations on average, against 9.6 for greedy, and only 2 relations appear in all 8. The thresholds will sit low; token probabilities remain a free ablation.
+
+**Memory, and what was changed (D068).** Twice, Claude Code stopped the scoring job because Windows ran out of memory.
+- *Cause:* WSL kept ~5 GB of file cache from reading the 8 GB original weights at every model load.
+- *Fixes:*
+  - WSL now returns its cache to Windows (`autoMemoryReclaim=dropcache` in `.wslconfig`, with your approval);
+  - the 4-bit model is saved once (2.47 GB) and loaded from there, with all 1,659 tensors verified bit-identical;
+  - a map's 8 samples are split under the same token budget as greedy batches, after one long map overflowed the GPU.
+- Nothing was lost: every answer was cached, and the restarts resumed.
 
 ---
 

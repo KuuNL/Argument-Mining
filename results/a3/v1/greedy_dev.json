@@ -1,0 +1,53 @@
+{
+ "adapters": [
+  {
+   "adapter": "ep0.5",
+   "ari_general": 35.91,
+   "ari_focused": 12.34,
+   "relations_per_map": 11.5,
+   "invalid_maps": 0,
+   "unfinished": 1
+  },
+  {
+   "adapter": "ep1.0",
+   "ari_general": 43.94,
+   "ari_focused": 21.9,
+   "relations_per_map": 8.36,
+   "invalid_maps": 0,
+   "unfinished": 0
+  },
+  {
+   "adapter": "ep1.5",
+   "ari_general": 47.49,
+   "ari_focused": 27.93,
+   "relations_per_map": 9.76,
+   "invalid_maps": 0,
+   "unfinished": 0
+  },
+  {
+   "adapter": "ep2.0",
+   "ari_general": 49.46,
+   "ari_focused": 31.19,
+   "relations_per_map": 9.6,
+   "invalid_maps": 0,
+   "unfinished": 0
+  },
+  {
+   "adapter": "ep2.5",
+   "ari_general": 46.21,
+   "ari_focused": 25.41,
+   "relations_per_map": 9.15,
+   "invalid_maps": 0,
+   "unfinished": 0
+  },
+  {
+   "adapter": "ep3.0",
+   "ari_general": 47.01,
+   "ari_focused": 26.81,
+   "relations_per_map": 9.37,
+   "invalid_maps": 0,
+   "unfinished": 0
+  }
+ ],
+ "chosen": "ep2.0"
+}

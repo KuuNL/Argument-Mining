@@ -29,8 +29,8 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A2.5 | Test run + report | Final A2 row; `reports/A2-whole-map-llm.md` | Run once, on the user's go | Final run | **Done (D064): test Global 73.67 / 58.27 (A1 72.01 / 57.53); ARI 55.77 / 33.34** |
 | A3.1 | Setup + feasibility | venv `~/.venvs/a3` (peft, bitsandbytes, xgrammar, Unsloth or trl + liger); `a3_finetune/data.py`, `schema.py` / `parse.py` without confidence, `check.py`; memory probe Qwen3-8B → Qwen3-4B-Instruct-2507; generation probe | Round trip 98.92 / 96.51; every gold answer passes its grammar; no leakage; model chosen by the D065 rule (≤ 7.5 GiB, ≥ 200 tok/s, batch ≥ 2) | A3 | **Passed (D066)**: round trip 98.92 / 96.51; 0 grammar rejections; 8B fails the memory rule → **Qwen3-4B-Instruct-2507** (4.25 GiB, 789 tok/s) |
 | A3.2 | Training loop | `train.py` (answer-only loss, adapter every half epoch, timing); `generate.py` (greedy types + seeded relation samples, grammar, cache; greedy batched across maps, D066) | Memorises 32 maps (≥ 95% relations exact); loss masking verified; epoch time and peak VRAM measured | A3 | **Passed (D067)**: 32/32 maps reproduced exactly (206/206 relations); masking verified; 3.83 GiB, ~720 tok/s; batched greedy ≈ 5.5 s per map |
-| A3.3 | Training run | 1,231 test-like train maps, 3 epochs | Greedy dev ARI at each half epoch; best adapter chosen; diversity rule applied | A3 | **Next** (≈ 2 h training + ≈ 2 h greedy scoring) |
-| A3.4 | Dev run + decision layer | Types + 8 relation samples × 225 dev maps (labeller links); scores → A1's pair format → cross-fitted thresholds | Honest dev ARI vs A1 (50.50 / 32.61) and A2 (54.63 / 34.12) with the bootstrap test; H1–H4 at matched density | A3 | Approved (D065) |
+| A3.3 | Training run | 1,231 test-like train maps, 3 epochs | Greedy dev ARI at each half epoch; best adapter chosen; diversity rule applied | A3 | **Passed (D068–D069)**: ep2.0 chosen, greedy dev ARI 49.46 / 31.19; 110 min training; votes graded (99.8%), so votes are the main score |
+| A3.4 | Dev run + decision layer | Types + 8 relation samples × 225 dev maps (labeller links); scores → A1's pair format → cross-fitted thresholds | Honest dev ARI vs A1 (50.50 / 32.61) and A2 (54.63 / 34.12) with the bootstrap test; H1–H4 at matched density | A3 | **Next** |
 | A3.5 | Assemble + ablations | Valid maps, dev Global; LLM turn types (strict rule); combination preview; ablations | 225/225 valid; combination test; ablation table | A3 | Approved (D065) |
 | A3.6 | Test run + report | Final A3 row; `reports/A3-finetuned-llm.md` | Run once, on the user's go | Final run | Approved (D065) |
 | A4 | Jev | Phased (A4.1, …) when it starts | — | A4 | Not started |
@@ -890,3 +890,37 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - An epoch is 1.48M tokens, 393k of them answer tokens: ≈ 34 min.
   - 3 epochs plus 6 dev-loss passes (270k tokens each) take ≈ 2 h.
   - Greedy scoring of the 6 adapters takes ≈ 2 h more, run after training.
+
+### D068 — Memory: WSL returns its file cache to Windows; the 4-bit model is loaded from a saved copy; samples split under a token budget
+- **2026-10-06 · A3.3 · by user (WSL setting, approved) / Claude · Done** (`results/a3/quantized_check.json`)
+- *What happened:* Claude Code stopped the checkpoint-scoring job twice because Windows ran critically low on memory (1.4 of 15.5 GB free).
+  - WSL held 5.0 GB, of which Linux itself used 0.5 GB. The rest was file cache, filled each time the 8 GB original weights were read to be quantized, and WSL doesn't return that to Windows by itself.
+  - Firefox held another ~3.5 GB.
+  - Separately, the diversity check ran out of GPU memory: 8 samples of a long map in one batch.
+- *Done:*
+  1. **`C:\Users\Kunal\.wslconfig`** now sets `[experimental] autoMemoryReclaim=dropcache` (user-approved), followed by `wsl --shutdown`.
+  2. **The 4-bit base model is saved once** to `~/.cache/a3/Qwen3-4B-Instruct-2507-nf4` (2.47 GB, on the Linux filesystem) and loaded from there.
+     - Check: all 1,659 tensors are bit-identical to the quantize-on-load model, so cached answers stay valid.
+  3. **Samples are split under the token budget,** as greedy batches already were: a map's 8 samples run in as few equal calls as the budget allows (e.g. 4 + 4), with call c using seed + c. Rows per call are in the cache key and the record.
+- *After the fix:* the remaining work (ep3.0 scoring and the diversity check) ran to completion without interruption.
+
+### D069 — A3.3 result: ep2.0 chosen (greedy dev ARI 49.46 / 31.19); the sampled votes are graded, so votes stay the main score
+- **2026-10-06 · A3.3 · by Claude (pre-set rules) · Finding + Done** (`results/a3/v1/`: `train_log.jsonl`, `greedy_dev.json`, `diversity.json`, the exported greedy answers per adapter and the 20-map samples)
+- *Training:* 1,231 test-like training maps, 3 epochs, 231 updates.
+  - 110 min in total (36.6 min per epoch, including dev-loss checks); 674 tokens/s overall; peak 4.92 GiB.
+  - The loss mask was verified on all 1,231 maps (392,713 answer tokens).
+
+  | Adapter | ep0.5 | ep1.0 | ep1.5 | **ep2.0** | ep2.5 | ep3.0 |
+  |---|---|---|---|---|---|---|
+  | Dev answer loss | 0.0888 | 0.0804 | 0.0765 | 0.0753 | 0.0757 | 0.0747 |
+  | Greedy dev ARI, general / focused | 35.91 / 12.34 | 43.94 / 21.90 | 47.49 / 27.93 | **49.46 / 31.19** | 46.21 / 25.41 | 47.01 / 26.81 |
+  | Relations per map (gold 8.3) | 11.5 | 8.36 | 9.76 | 9.60 | 9.15 | 9.37 |
+
+  - **Rule:** the best greedy ARI general → **ep2.0**. As in A1 (D043), the score peaks at 2 epochs while the loss still edges down.
+  - All 1,350 greedy answers are valid; 1 of them (at ep0.5) hit the length cap.
+  - Greedy scoring takes ≈ 15 min per adapter.
+  - *Reference only, not comparable:* this is one greedy answer, with no thresholds. A1's honest score is 50.50 / 32.61, and one untuned A2 answer scored 52.09 / 35.24 (D063).
+- *Diversity rule:* ep2.0, the first 20 dev maps, 8 samples each, 160 / 160 valid.
+  - **99.8% of the 1,099 distinct listed relations have a vote share strictly between 0 and 1.** By the rule, **vote shares are A3.4's main score.**
+  - The votes are spread wide. 720 relations appear in 1 of 8 samples and only 2 in all 8; a sample lists 11.7 relations on average, against 9.6 for greedy.
+  - Sampling at temperature 1 is therefore far from all-or-nothing, but individual samples disagree a lot. The thresholds will sit low, and token probabilities stay as a free ablation.

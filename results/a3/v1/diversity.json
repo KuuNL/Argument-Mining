@@ -1,0 +1,19 @@
+{
+ "adapter": "ep2.0",
+ "maps": 20,
+ "samples": 8,
+ "valid": "160/160",
+ "listed_relations": 1099,
+ "share_strictly_between_0_and_1": 0.9982,
+ "votes_histogram": {
+  "1/8": 720,
+  "2/8": 192,
+  "3/8": 90,
+  "4/8": 30,
+  "5/8": 39,
+  "6/8": 17,
+  "7/8": 9,
+  "8/8": 2
+ },
+ "main_score": "votes"
+}

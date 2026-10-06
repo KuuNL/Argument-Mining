@@ -1,0 +1,37 @@
+{"event": "start", "config": {"run": "v1", "model": "qwen3-4b", "epochs": 3, "lr": 0.0002, "accum": 16, "maps": 0, "giants": false, "dev": true, "saves_per_epoch": 2, "warmup": 0.03, "grad_clip": 1.0, "seed": 13}, "train": 1231, "dev": 225, "updates": 231, "updates_per_epoch": 77, "masking": {"examples": 1231, "answer_tokens": 392713, "prompt_tokens_masked": 1087329}}
+{"event": "train", "step": 10, "epoch": 0.13, "loss": 0.336, "lr": 0.00019644444444444445, "tokens_per_s": 728, "peak_vram_gib": 4.19}
+{"event": "train", "step": 20, "epoch": 0.26, "loss": 0.1109, "lr": 0.00018755555555555558, "tokens_per_s": 778, "peak_vram_gib": 4.35}
+{"event": "train", "step": 30, "epoch": 0.39, "loss": 0.0962, "lr": 0.00017866666666666668, "tokens_per_s": 781, "peak_vram_gib": 4.35}
+{"event": "train", "step": 38, "epoch": 0.494, "loss": 0.0903, "lr": 0.00017155555555555555, "tokens_per_s": 780, "peak_vram_gib": 4.35}
+{"event": "save", "step": 38, "epoch": 0.494, "adapter": "ep0.5", "dev_loss": 0.0888}
+{"event": "train", "step": 40, "epoch": 0.519, "loss": 0.0173, "lr": 0.00016977777777777778, "tokens_per_s": 776, "peak_vram_gib": 4.72}
+{"event": "train", "step": 50, "epoch": 0.649, "loss": 0.0839, "lr": 0.00016088888888888888, "tokens_per_s": 782, "peak_vram_gib": 4.72}
+{"event": "train", "step": 60, "epoch": 0.779, "loss": 0.0779, "lr": 0.000152, "tokens_per_s": 778, "peak_vram_gib": 4.72}
+{"event": "train", "step": 70, "epoch": 0.909, "loss": 0.0783, "lr": 0.0001431111111111111, "tokens_per_s": 750, "peak_vram_gib": 4.92}
+{"event": "train", "step": 77, "epoch": 1.0, "loss": 0.0789, "lr": 0.0001368888888888889, "tokens_per_s": 755, "peak_vram_gib": 4.92}
+{"event": "save", "step": 77, "epoch": 1.0, "adapter": "ep1.0", "dev_loss": 0.0804}
+{"event": "train", "step": 80, "epoch": 1.039, "loss": 0.0229, "lr": 0.00013422222222222224, "tokens_per_s": 759, "peak_vram_gib": 4.92}
+{"event": "train", "step": 90, "epoch": 1.169, "loss": 0.0717, "lr": 0.00012533333333333334, "tokens_per_s": 759, "peak_vram_gib": 4.92}
+{"event": "train", "step": 100, "epoch": 1.299, "loss": 0.0699, "lr": 0.00011644444444444445, "tokens_per_s": 760, "peak_vram_gib": 4.92}
+{"event": "train", "step": 110, "epoch": 1.429, "loss": 0.0694, "lr": 0.00010755555555555556, "tokens_per_s": 753, "peak_vram_gib": 4.92}
+{"event": "train", "step": 115, "epoch": 1.494, "loss": 0.0674, "lr": 0.00010311111111111111, "tokens_per_s": 730, "peak_vram_gib": 4.92}
+{"event": "save", "step": 115, "epoch": 1.494, "adapter": "ep1.5", "dev_loss": 0.0765}
+{"event": "train", "step": 120, "epoch": 1.558, "loss": 0.0361, "lr": 9.866666666666668e-05, "tokens_per_s": 741, "peak_vram_gib": 4.92}
+{"event": "train", "step": 130, "epoch": 1.688, "loss": 0.0691, "lr": 8.977777777777779e-05, "tokens_per_s": 748, "peak_vram_gib": 4.92}
+{"event": "train", "step": 140, "epoch": 1.818, "loss": 0.0714, "lr": 8.088888888888889e-05, "tokens_per_s": 755, "peak_vram_gib": 4.92}
+{"event": "train", "step": 150, "epoch": 1.948, "loss": 0.069, "lr": 7.2e-05, "tokens_per_s": 732, "peak_vram_gib": 4.92}
+{"event": "train", "step": 154, "epoch": 2.0, "loss": 0.0691, "lr": 6.844444444444445e-05, "tokens_per_s": 737, "peak_vram_gib": 4.92}
+{"event": "save", "step": 154, "epoch": 2.0, "adapter": "ep2.0", "dev_loss": 0.0753}
+{"event": "train", "step": 160, "epoch": 2.078, "loss": 0.0379, "lr": 6.311111111111112e-05, "tokens_per_s": 753, "peak_vram_gib": 4.92}
+{"event": "train", "step": 170, "epoch": 2.208, "loss": 0.0626, "lr": 5.422222222222223e-05, "tokens_per_s": 753, "peak_vram_gib": 4.92}
+{"event": "train", "step": 180, "epoch": 2.338, "loss": 0.0604, "lr": 4.5333333333333335e-05, "tokens_per_s": 737, "peak_vram_gib": 4.92}
+{"event": "train", "step": 190, "epoch": 2.468, "loss": 0.0601, "lr": 3.644444444444445e-05, "tokens_per_s": 746, "peak_vram_gib": 4.92}
+{"event": "train", "step": 192, "epoch": 2.494, "loss": 0.0637, "lr": 3.466666666666667e-05, "tokens_per_s": 747, "peak_vram_gib": 4.92}
+{"event": "save", "step": 192, "epoch": 2.494, "adapter": "ep2.5", "dev_loss": 0.0757}
+{"event": "train", "step": 200, "epoch": 2.597, "loss": 0.0462, "lr": 2.7555555555555555e-05, "tokens_per_s": 736, "peak_vram_gib": 4.92}
+{"event": "train", "step": 210, "epoch": 2.727, "loss": 0.0594, "lr": 1.866666666666667e-05, "tokens_per_s": 740, "peak_vram_gib": 4.92}
+{"event": "train", "step": 220, "epoch": 2.857, "loss": 0.0637, "lr": 9.777777777777779e-06, "tokens_per_s": 762, "peak_vram_gib": 4.92}
+{"event": "train", "step": 230, "epoch": 2.987, "loss": 0.0607, "lr": 8.88888888888889e-07, "tokens_per_s": 741, "peak_vram_gib": 4.92}
+{"event": "train", "step": 231, "epoch": 3.0, "loss": 0.0539, "lr": 0.0, "tokens_per_s": 741, "peak_vram_gib": 4.92}
+{"event": "save", "step": 231, "epoch": 3.0, "adapter": "ep3.0", "dev_loss": 0.0747}
+{"event": "end", "updates": 231, "seconds": 6586.3, "minutes_per_epoch": 36.6, "tokens_per_s": 674, "peak_vram_gib": 4.92}

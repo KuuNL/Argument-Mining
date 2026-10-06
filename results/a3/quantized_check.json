@@ -1,0 +1,10 @@
+{
+ "model": "Qwen/Qwen3-4B-Instruct-2507",
+ "saved_to": "/home/kunal/.cache/a3/Qwen3-4B-Instruct-2507-nf4",
+ "gib_on_disk": 2.47,
+ "tensors": 1659,
+ "missing_after_reload": [],
+ "extra_after_reload": [],
+ "tensors_differing": [],
+ "identical": true
+}
