@@ -186,28 +186,28 @@ The hypotheses H1–H6 each have a pass rule (report §7).
 A2's whole-map view and A1's per-pair probabilities, with no training.
 Full plan, concepts, the reason for each choice and the hypotheses: [`reports/A4-jev.md`](reports/A4-jev.md) (D073).
 
-**Model and route (D073).** `typesafe-ai/jev` (jev-1.13 today; the version is logged on every answer), called from Python with `httpx` at the Vercel AI Gateway's `POST /v1/evaluate`.
-- The gateway's free tier ($5 a month) keeps spend at $0. Credits are never bought: that would cost money and end the free tier.
+**Model and route (D073, D075).** `typesafe-ai/jev` (jev-1.13 today; the version is logged on every answer), called from Python with `httpx` at the Vercel AI Gateway's `POST /v1/evaluate`.
+- Jev isn't on the gateway's free tier (D074), so A4 runs on a small paid credit, with auto top-up off and a cap (D075).
 - Limits: 64k tokens per request (32k for the state plus the longest question) and ≤ 255 options per choice.
 
 **How Jev sees the problem.** Every question is answered against the **same state**, so context is shared. But answers come out **in parallel and don't see each other**, so consistency comes from our code, and from the source questions below.
 
 **End to end:**
-1. **State:** a guide (A2's `system_v1` definitions and measured habits, condensed, plus the concession rule for Conflict) and the serialised map (`common/serialise.py`, D029). No worked examples by default: Jev's accuracy drops as unrelated content grows in the state, so the pilot tests k = 1.
+1. **State:** a guide (A2's `system_v1` definitions and measured habits, condensed, plus the concession rule for Conflict) and the serialised map (`common/serialise.py`, D029). No worked examples: Jev's accuracy drops as unrelated content grows in the state.
 2. **Questions, in one request per map** (split if a map exceeds the request limit):
    - **pair:** one 5-label `choice` per candidate pair (A1's labels, pruned at 10 turns);
    - **source:** one `choice` per proposition over its candidate targets × relation types, plus "none". The targets compete. Conflict and Rephrase are offered only towards earlier propositions (D020);
-   - **turn type:** one `choice` per labeller link over the 7 scored types.
-   - Every question is asked in **two option orders** and the probabilities averaged, against Jev's documented first-option bias.
+   - Every question is asked in **two option orders** and the probabilities averaged, against Jev's documented first-option bias. A4.1 kept both: they agree on only 90.8% of choices.
+   - Turn-type questions were dropped (D076): the labeller keeps Task B.
 3. **Scores:** answers → A1's 5-label pair format (pair view, source view, or their mean, chosen in the pilot).
-4. **Decide:** A1's temperature + per-type thresholds, cross-fitted by dev episode; then A1's `build_map`. Jev's turn types replace the labeller's only under A3's strict rule (≥ +0.5 honest ILO and a win in ≥ 4 of 5 folds).
+4. **Decide:** A1's temperature + per-type thresholds, cross-fitted by dev episode; then A1's `build_map`, with the labeller's turn types.
 5. **Calibration check:** a reliability plot and class-wise ECE on dev, against A1 on the same pairs. Vendor claims are tested, not assumed.
 
 **Phases:**
-- **A4.1** setup and feasibility: lossless round trip; live probes on 5 training maps measure billing, the request limit, repeatability, option-order bias and the free-tier rate limit; budget projection;
-- **A4.2** question pilot on A2's 50 *training* maps: definitions in the guide vs in every option, k = 0 / 1 examples, ≤ 2 wording revisions, then frozen. Dev stays untouched;
+- **A4.1** setup and feasibility: lossless round trip; a live probe on 5 training maps measures billing, speed, repeatability and option-order bias; budget projection. **Passed (D076);**
+- **A4.2** one pilot pass on A2's 50 *training* maps: the view (pair / source / both) is chosen by a pre-set rule, with at most 1 wording fix, then frozen. Dev stays untouched;
 - **A4.3** dev run, thresholds, honest score next to A1–A3;
-- **A4.4** complete maps, turn types, combination preview, ablations;
+- **A4.4** complete maps and the combination test, from saved answers;
 - **A4.5** one test run.
 
 **Success (honest dev), fixed in advance.** A4 succeeds if either holds:
@@ -220,14 +220,10 @@ The hypotheses H1–H5 each have a pass rule (report §6): calibration, competit
 
 **Why it might beat 2024.** Each decision uses whole-map context, which 2024's pairwise encoders lacked, *and* comes with probabilities, which 2024's LLMs lacked, so the rare-label trap can be controlled.
 
-**Ablations:**
-- *Free, re-scored from saved answers:* pair vs source vs both · 1 vs 2 option orders · thresholds vs argmax · temperature · probabilities vs Jev's confidence.
-- *From the pilot:* definitions placement · k = 0 / 1 examples.
-- *New calls (cheap):* no pruning · no guide · option names without descriptions.
+**Ablations:** none beyond the core (user, D076). Only pair vs source vs both, from saved answers, which H2 and the view choice need.
 
-**Timing/cost:** seconds per request and per map (tests the speed claim), tokens, and the gateway's API-equivalent $ per request. Expected: ≈ $2 for all of A4 at list price if the state is billed once per request, up to ≈ $20 if once per question; spend $0 on the free credit, with a fixed trimming order if the projection doesn't fit (report §8).
+**Timing/cost:** seconds per request and per map (tests the speed claim), tokens, and the gateway's API-equivalent $ per request. Measured in A4.1: the state is billed once per request, so the pilot, dev and test together cost ≈ $0.80 at list price, paid from the gateway credit (D075).
 **Risks:**
-- Jev not on the free tier, or a low rate limit (stop and ask);
 - early-access API changes (the version is logged and raw answers committed);
 - first-option bias and distractor state (two orders, no examples by default);
 - over-linking from independent questions (source questions, thresholds);

@@ -1,0 +1,50 @@
+{
+ "run": "probe-repeat",
+ "settings": {
+  "split": "train",
+  "maps": [
+   "nodeset18274"
+  ],
+  "defs": "short",
+  "k": 0,
+  "repeats": 2
+ },
+ "refused": [],
+ "requests": 4,
+ "answered": 4,
+ "maps_complete": 2,
+ "maps_with_problems": {},
+ "usd": 0.005823,
+ "input_tokens": 138648,
+ "models": [
+  "typesafe-ai/jev"
+ ],
+ "per_request": {
+  "seconds_p50": 0.658,
+  "seconds_max": 0.868,
+  "tokens_p50": 34662.0,
+  "tokens_max": 54355,
+  "retries": 0,
+  "chars_per_token": 3.065
+ },
+ "per_map": [
+  {
+   "map": "nodeset18274",
+   "repeat": 0,
+   "requests": 2,
+   "questions": 212,
+   "tokens": 69324,
+   "usd": 0.002912,
+   "seconds": 1.404
+  },
+  {
+   "map": "nodeset18274",
+   "repeat": 1,
+   "requests": 2,
+   "questions": 212,
+   "tokens": 69324,
+   "usd": 0.002912,
+   "seconds": 1.274
+  }
+ ]
+}

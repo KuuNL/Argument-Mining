@@ -1,0 +1,81 @@
+{
+ "run": "probe",
+ "settings": {
+  "split": "train",
+  "maps": [
+   "nodeset18266",
+   "nodeset18274",
+   "nodeset23907",
+   "nodeset18817",
+   "nodeset19157"
+  ],
+  "defs": "short",
+  "k": 0,
+  "repeats": 1
+ },
+ "refused": [],
+ "requests": 15,
+ "answered": 15,
+ "maps_complete": 5,
+ "maps_with_problems": {},
+ "usd": 0.029026,
+ "input_tokens": 691088,
+ "models": [
+  "typesafe-ai/jev"
+ ],
+ "per_request": {
+  "seconds_p50": 0.904,
+  "seconds_max": 1.349,
+  "tokens_p50": 54355,
+  "tokens_max": 62330,
+  "retries": 0,
+  "chars_per_token": 2.956
+ },
+ "per_map": [
+  {
+   "map": "nodeset18266",
+   "repeat": 0,
+   "requests": 1,
+   "questions": 72,
+   "tokens": 23074,
+   "usd": 0.000969,
+   "seconds": 1.349
+  },
+  {
+   "map": "nodeset18274",
+   "repeat": 0,
+   "requests": 2,
+   "questions": 212,
+   "tokens": 69324,
+   "usd": 0.002912,
+   "seconds": 1.404
+  },
+  {
+   "map": "nodeset23907",
+   "repeat": 0,
+   "requests": 3,
+   "questions": 506,
+   "tokens": 155482,
+   "usd": 0.00653,
+   "seconds": 2.691
+  },
+  {
+   "map": "nodeset18817",
+   "repeat": 0,
+   "requests": 5,
+   "questions": 704,
+   "tokens": 235062,
+   "usd": 0.009873,
+   "seconds": 4.511
+  },
+  {
+   "map": "nodeset19157",
+   "repeat": 0,
+   "requests": 4,
+   "questions": 588,
+   "tokens": 208146,
+   "usd": 0.008742,
+   "seconds": 3.621
+  }
+ ]
+}

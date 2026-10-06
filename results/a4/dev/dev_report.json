@@ -1,0 +1,905 @@
+{
+ "run": "dev",
+ "view": "both",
+ "maps": 225,
+ "row_coverage": {
+  "rows_given": 24169,
+  "rows_matched": 24169
+ },
+ "thresholds": {
+  "Inference": 0.55,
+  "Conflict": 0.75,
+  "Rephrase": 0.3
+ },
+ "dev_ari_f1": {
+  "tuned on all dev (optimistic)": {
+   "general": 52.62,
+   "focused": 32.83
+  },
+  "cross-fitted (honest)": {
+   "general": 52.17,
+   "focused": 32.45
+  },
+  "pair view, cross-fitted": {
+   "general": 50.5,
+   "focused": 32.57
+  },
+  "source view, cross-fitted": {
+   "general": 46.32,
+   "focused": 26.73
+  }
+ },
+ "folds": {
+  "0": {
+   "maps": 33,
+   "Inference": 0.55,
+   "Conflict": 0.75,
+   "Rephrase": 0.35
+  },
+  "3": {
+   "maps": 49,
+   "Inference": 0.55,
+   "Conflict": 0.75,
+   "Rephrase": 0.3
+  },
+  "10": {
+   "maps": 42,
+   "Inference": 0.55,
+   "Conflict": 0.8,
+   "Rephrase": 0.3
+  },
+  "18": {
+   "maps": 55,
+   "Inference": 0.55,
+   "Conflict": 0.8,
+   "Rephrase": 0.25
+  },
+  "19": {
+   "maps": 46,
+   "Inference": 0.55,
+   "Conflict": 0.75,
+   "Rephrase": 0.3
+  }
+ },
+ "references_recomputed_here (honest)": {
+  "A1": {
+   "general": 50.5,
+   "focused": 32.61
+  },
+  "A2": {
+   "general": 54.63,
+   "focused": 34.12
+  }
+ },
+ "success_test_1": {
+  "vs_A1": {
+   "general": {
+    "maps": 225,
+    "mean_difference": 1.68,
+    "ci95": [
+     -0.2,
+     3.65
+    ],
+    "a_better_maps": 123,
+    "b_better_maps": 100
+   },
+   "focused": {
+    "maps": 224,
+    "mean_difference": -0.16,
+    "ci95": [
+     -2.79,
+     2.6
+    ],
+    "a_better_maps": 91,
+    "b_better_maps": 105
+   }
+  },
+  "vs_A2": {
+   "general": {
+    "maps": 225,
+    "mean_difference": -2.46,
+    "ci95": [
+     -4.19,
+     -0.73
+    ],
+    "a_better_maps": 88,
+    "b_better_maps": 133
+   },
+   "focused": {
+    "maps": 224,
+    "mean_difference": -1.67,
+    "ci95": [
+     -4.0,
+     0.73
+    ],
+    "a_better_maps": 87,
+    "b_better_maps": 104
+   }
+  },
+  "passed": false,
+  "rule": "A4 honest ARI general > 50.50 and the 95% interval of A4 - A1 above 0"
+ },
+ "success_test_2": {
+  "honest_ari": {
+   "A1+A2": {
+    "general": 55.12,
+    "focused": 36.18
+   },
+   "A1+A2+A4": {
+    "general": 55.51,
+    "focused": 37.01
+   },
+   "A2+A4": {
+    "general": 54.16,
+    "focused": 33.65
+   },
+   "A1+A4": {
+    "general": 53.48,
+    "focused": 34.85
+   }
+  },
+  "gain_from_adding_A4": 0.39,
+  "passed": false,
+  "rule": "A1+A2+A4 beats A1+A2 by >= 1.0 general (cross-fitted averages of pair scores)"
+ },
+ "hypotheses": {
+  "verdicts": {
+   "H1 class-wise ECE <= A1's": false,
+   "H2 source >= pair + 1.0 general, invented <= 90%": false,
+   "H3 within-speaker Conflict recall >= 0.15": false,
+   "H4 Inference direction >= 0.85": true,
+   "H5 median <= 1 s per map (requests in parallel)": true
+  },
+  "calibration": {
+   "A4": {
+    "Inference": {
+     "ece": 0.1395,
+     "reliability [bin start, n, mean p, observed]": [
+      [
+       0.0,
+       8801,
+       0.0182,
+       0.0034
+      ],
+      [
+       0.067,
+       2457,
+       0.0965,
+       0.0122
+      ],
+      [
+       0.133,
+       1594,
+       0.1646,
+       0.0251
+      ],
+      [
+       0.2,
+       1249,
+       0.2316,
+       0.028
+      ],
+      [
+       0.267,
+       1081,
+       0.2996,
+       0.0333
+      ],
+      [
+       0.333,
+       996,
+       0.3666,
+       0.0713
+      ],
+      [
+       0.4,
+       873,
+       0.4328,
+       0.0905
+      ],
+      [
+       0.467,
+       734,
+       0.4968,
+       0.1267
+      ],
+      [
+       0.533,
+       405,
+       0.5645,
+       0.2074
+      ],
+      [
+       0.6,
+       311,
+       0.6319,
+       0.2219
+      ],
+      [
+       0.667,
+       275,
+       0.6993,
+       0.3164
+      ],
+      [
+       0.733,
+       201,
+       0.766,
+       0.3483
+      ],
+      [
+       0.8,
+       156,
+       0.8335,
+       0.3462
+      ],
+      [
+       0.867,
+       171,
+       0.8987,
+       0.386
+      ],
+      [
+       0.933,
+       340,
+       1.0487,
+       0.6118
+      ]
+     ]
+    },
+    "Conflict": {
+     "ece": 0.0129,
+     "reliability [bin start, n, mean p, observed]": [
+      [
+       0.0,
+       18290,
+       0.0045,
+       0.0025
+      ],
+      [
+       0.067,
+       592,
+       0.0953,
+       0.0169
+      ],
+      [
+       0.133,
+       218,
+       0.1644,
+       0.0321
+      ],
+      [
+       0.2,
+       169,
+       0.2294,
+       0.0651
+      ],
+      [
+       0.267,
+       106,
+       0.2972,
+       0.0849
+      ],
+      [
+       0.333,
+       81,
+       0.3641,
+       0.0988
+      ],
+      [
+       0.4,
+       57,
+       0.4279,
+       0.0877
+      ],
+      [
+       0.467,
+       36,
+       0.4982,
+       0.1111
+      ],
+      [
+       0.533,
+       29,
+       0.5652,
+       0.3103
+      ],
+      [
+       0.6,
+       18,
+       0.6339,
+       0.1667
+      ],
+      [
+       0.667,
+       14,
+       0.6927,
+       0.1429
+      ],
+      [
+       0.733,
+       15,
+       0.7605,
+       0.3333
+      ],
+      [
+       0.8,
+       7,
+       0.8368,
+       0.5714
+      ],
+      [
+       0.867,
+       3,
+       0.8917,
+       1.0
+      ],
+      [
+       0.933,
+       9,
+       0.9711,
+       0.5556
+      ]
+     ]
+    },
+    "Rephrase": {
+     "ece": 0.0066,
+     "reliability [bin start, n, mean p, observed]": [
+      [
+       0.0,
+       17340,
+       0.0054,
+       0.0063
+      ],
+      [
+       0.067,
+       759,
+       0.0963,
+       0.0883
+      ],
+      [
+       0.133,
+       376,
+       0.1634,
+       0.1489
+      ],
+      [
+       0.2,
+       278,
+       0.2311,
+       0.2518
+      ],
+      [
+       0.267,
+       191,
+       0.2981,
+       0.2565
+      ],
+      [
+       0.333,
+       137,
+       0.3649,
+       0.2847
+      ],
+      [
+       0.4,
+       116,
+       0.4315,
+       0.3362
+      ],
+      [
+       0.467,
+       99,
+       0.5001,
+       0.3535
+      ],
+      [
+       0.533,
+       57,
+       0.5663,
+       0.4912
+      ],
+      [
+       0.6,
+       56,
+       0.633,
+       0.4464
+      ],
+      [
+       0.667,
+       64,
+       0.6962,
+       0.5781
+      ],
+      [
+       0.733,
+       38,
+       0.7581,
+       0.6842
+      ],
+      [
+       0.8,
+       45,
+       0.8302,
+       0.6222
+      ],
+      [
+       0.867,
+       40,
+       0.8986,
+       0.75
+      ],
+      [
+       0.933,
+       48,
+       0.9708,
+       0.7083
+      ]
+     ]
+    },
+    "mean": 0.053
+   },
+   "A1 (before temperature)": {
+    "Inference": {
+     "ece": 0.0359,
+     "reliability [bin start, n, mean p, observed]": [
+      [
+       0.0,
+       14465,
+       0.0126,
+       0.0097
+      ],
+      [
+       0.067,
+       1591,
+       0.0942,
+       0.0591
+      ],
+      [
+       0.133,
+       789,
+       0.1633,
+       0.1229
+      ],
+      [
+       0.2,
+       537,
+       0.2325,
+       0.1155
+      ],
+      [
+       0.267,
+       406,
+       0.299,
+       0.1527
+      ],
+      [
+       0.333,
+       344,
+       0.3649,
+       0.2297
+      ],
+      [
+       0.4,
+       292,
+       0.434,
+       0.2568
+      ],
+      [
+       0.467,
+       263,
+       0.4977,
+       0.3004
+      ],
+      [
+       0.533,
+       216,
+       0.5668,
+       0.2593
+      ],
+      [
+       0.6,
+       224,
+       0.6324,
+       0.3527
+      ],
+      [
+       0.667,
+       164,
+       0.7016,
+       0.4085
+      ],
+      [
+       0.733,
+       161,
+       0.7648,
+       0.4224
+      ],
+      [
+       0.8,
+       123,
+       0.8325,
+       0.4472
+      ],
+      [
+       0.867,
+       63,
+       0.8946,
+       0.5397
+      ],
+      [
+       0.933,
+       6,
+       0.9437,
+       0.8333
+      ]
+     ]
+    },
+    "Conflict": {
+     "ece": 0.0077,
+     "reliability [bin start, n, mean p, observed]": [
+      [
+       0.0,
+       18776,
+       0.0059,
+       0.0027
+      ],
+      [
+       0.067,
+       436,
+       0.0925,
+       0.055
+      ],
+      [
+       0.133,
+       171,
+       0.1627,
+       0.0877
+      ],
+      [
+       0.2,
+       76,
+       0.231,
+       0.0789
+      ],
+      [
+       0.267,
+       62,
+       0.2964,
+       0.1613
+      ],
+      [
+       0.333,
+       33,
+       0.3612,
+       0.0909
+      ],
+      [
+       0.4,
+       20,
+       0.4392,
+       0.15
+      ],
+      [
+       0.467,
+       13,
+       0.4958,
+       0.0769
+      ],
+      [
+       0.533,
+       16,
+       0.5616,
+       0.25
+      ],
+      [
+       0.6,
+       14,
+       0.6304,
+       0.3571
+      ],
+      [
+       0.667,
+       13,
+       0.7087,
+       0.2308
+      ],
+      [
+       0.733,
+       8,
+       0.7687,
+       0.375
+      ],
+      [
+       0.8,
+       3,
+       0.8421,
+       0.0
+      ],
+      [
+       0.867,
+       2,
+       0.8994,
+       0.5
+      ],
+      [
+       0.933,
+       1,
+       0.9693,
+       1.0
+      ]
+     ]
+    },
+    "Rephrase": {
+     "ece": 0.0284,
+     "reliability [bin start, n, mean p, observed]": [
+      [
+       0.0,
+       16101,
+       0.0101,
+       0.0042
+      ],
+      [
+       0.067,
+       1249,
+       0.0954,
+       0.0488
+      ],
+      [
+       0.133,
+       587,
+       0.1631,
+       0.0733
+      ],
+      [
+       0.2,
+       348,
+       0.2304,
+       0.1149
+      ],
+      [
+       0.267,
+       235,
+       0.2992,
+       0.1532
+      ],
+      [
+       0.333,
+       173,
+       0.365,
+       0.1676
+      ],
+      [
+       0.4,
+       137,
+       0.4306,
+       0.2482
+      ],
+      [
+       0.467,
+       130,
+       0.4985,
+       0.3154
+      ],
+      [
+       0.533,
+       106,
+       0.5682,
+       0.3491
+      ],
+      [
+       0.6,
+       103,
+       0.6337,
+       0.3398
+      ],
+      [
+       0.667,
+       93,
+       0.7036,
+       0.3226
+      ],
+      [
+       0.733,
+       111,
+       0.7652,
+       0.3694
+      ],
+      [
+       0.8,
+       116,
+       0.8335,
+       0.569
+      ],
+      [
+       0.867,
+       95,
+       0.9018,
+       0.6211
+      ],
+      [
+       0.933,
+       60,
+       0.9548,
+       0.8667
+      ]
+     ]
+    },
+    "mean": 0.024
+   },
+   "candidate_pairs": 19644
+  },
+  "matched_density": {
+   "A4 pair": {
+    "threshold": 0.83,
+    "ari": {
+     "general": 47.22,
+     "focused": 25.85
+    },
+    "relations_per_map": 8.34,
+    "H1_neighbour_inference_recall": 0.4,
+    "H2_unrelated_pairs_given_a_relation": 1155,
+    "H3_inference_direction_right": 0.91,
+    "H4_within_speaker_conflict_recall": 0.077,
+    "counts": {
+     "relations": 1876,
+     "unrelated_pairs_given_a_relation": 1155,
+     "neighbour_inference_gold": 707,
+     "neighbour_inference_found": 283,
+     "inference_pairs_found": 458,
+     "inference_direction_right": 417,
+     "within_speaker_conflict_gold": 91,
+     "within_speaker_conflict_found": 7
+    }
+   },
+   "A4 source": {
+    "threshold": 0.41,
+    "ari": {
+     "general": 46.07,
+     "focused": 26.01
+    },
+    "relations_per_map": 8.32,
+    "H1_neighbour_inference_recall": 0.451,
+    "H2_unrelated_pairs_given_a_relation": 778,
+    "H3_inference_direction_right": 0.761,
+    "H4_within_speaker_conflict_recall": 0.121,
+    "counts": {
+     "relations": 1872,
+     "unrelated_pairs_given_a_relation": 778,
+     "neighbour_inference_gold": 707,
+     "neighbour_inference_found": 319,
+     "inference_pairs_found": 518,
+     "inference_direction_right": 394,
+     "within_speaker_conflict_gold": 91,
+     "within_speaker_conflict_found": 11
+    }
+   },
+   "A4 both": {
+    "threshold": 0.53,
+    "ari": {
+     "general": 51.13,
+     "focused": 31.45
+    },
+    "relations_per_map": 8.36,
+    "H1_neighbour_inference_recall": 0.506,
+    "H2_unrelated_pairs_given_a_relation": 859,
+    "H3_inference_direction_right": 0.866,
+    "H4_within_speaker_conflict_recall": 0.121,
+    "counts": {
+     "relations": 1880,
+     "unrelated_pairs_given_a_relation": 859,
+     "neighbour_inference_gold": 707,
+     "neighbour_inference_found": 358,
+     "inference_pairs_found": 544,
+     "inference_direction_right": 471,
+     "within_speaker_conflict_gold": 91,
+     "within_speaker_conflict_found": 11
+    }
+   },
+   "A1": {
+    "threshold": 0.4659,
+    "ari": {
+     "general": 50.02,
+     "focused": 30.05
+    },
+    "relations_per_map": 8.32,
+    "H1_neighbour_inference_recall": 0.388,
+    "H2_unrelated_pairs_given_a_relation": 905,
+    "H3_inference_direction_right": 0.858,
+    "H4_within_speaker_conflict_recall": 0.088,
+    "counts": {
+     "relations": 1873,
+     "unrelated_pairs_given_a_relation": 905,
+     "neighbour_inference_gold": 707,
+     "neighbour_inference_found": 274,
+     "inference_pairs_found": 351,
+     "inference_direction_right": 301,
+     "within_speaker_conflict_gold": 91,
+     "within_speaker_conflict_found": 8
+    }
+   },
+   "A2": {
+    "threshold": 0.3333,
+    "ari": {
+     "general": 54.32,
+     "focused": 35.32
+    },
+    "relations_per_map": 8.68,
+    "H1_neighbour_inference_recall": 0.424,
+    "H2_unrelated_pairs_given_a_relation": 812,
+    "H3_inference_direction_right": 0.843,
+    "H4_within_speaker_conflict_recall": 0.066,
+    "counts": {
+     "relations": 1954,
+     "unrelated_pairs_given_a_relation": 812,
+     "neighbour_inference_gold": 707,
+     "neighbour_inference_found": 300,
+     "inference_pairs_found": 470,
+     "inference_direction_right": 396,
+     "within_speaker_conflict_gold": 91,
+     "within_speaker_conflict_found": 6
+    }
+   }
+  },
+  "speed_cost": {
+   "maps": 225,
+   "seconds_per_map_sequential_p50": 1.28,
+   "seconds_per_map_parallel_p50": 0.83,
+   "seconds_per_map_sequential_max": 4.04,
+   "dev_pass_usd": 0.6188,
+   "dev_pass_input_tokens": 14732231
+  }
+ },
+ "diagnostics_tuned": {
+  "per_type": {
+   "Inference": {
+    "gold": 1060,
+    "predicted": 1311,
+    "precision": 0.342,
+    "recall": 0.423,
+    "f1": 0.378
+   },
+   "Conflict": {
+    "gold": 130,
+    "predicted": 29,
+    "precision": 0.517,
+    "recall": 0.115,
+    "f1": 0.189
+   },
+   "Rephrase": {
+    "gold": 683,
+    "predicted": 594,
+    "precision": 0.441,
+    "recall": 0.384,
+    "f1": 0.41
+   }
+  },
+  "inference_direction_correct": 0.8682,
+  "inference_pairs_found": 516,
+  "maps_with_spurious_type": {
+   "Conflict": 8,
+   "Rephrase": 12,
+   "Inference": 6
+  }
+ },
+ "structure_tuned": {
+  "gold": {
+   "relations_per_map": 8.32,
+   "props_starting_2plus": 0.057
+  },
+  "predicted": {
+   "relations_per_map": 8.6,
+   "props_starting_2plus": 0.081
+  }
+ },
+ "overlap_tuned (who is right, per pair with a gold or predicted relation)": {
+  "none": 958,
+  "A2+A4": 894,
+  "A1+A2": 447,
+  "A1+A2+A4": 403,
+  "A1": 347,
+  "A2": 279,
+  "A1+A4": 275,
+  "A4": 228
+ }
+}

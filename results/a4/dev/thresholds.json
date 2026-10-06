@@ -1,0 +1,10 @@
+{
+ "run": "dev",
+ "view": "both",
+ "thresholds": {
+  "Inference": 0.55,
+  "Conflict": 0.75,
+  "Rephrase": 0.3
+ },
+ "objective": 52.62
+}

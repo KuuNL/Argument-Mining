@@ -174,7 +174,7 @@ It runs through Claude Code's scripted mode (`claude -p`) on the user's Claude P
 
 **A4 — Jev (TypeSafe AI's System One model), no training.** Jev doesn't write text. It takes a *state* (up to 32k tokens) and a set of typed
 questions (`choice` among up to 255 options, `score` on a rubric, `boolean`), and answers all of them in parallel with probabilities.
-We put the whole map in the state and ask, in one request per map:
+We put the whole map in the state and ask, in as few requests per map as the size limit allows:
 - one `choice` per candidate pair: {A→B inference, B→A inference, conflict, rephrase, none};
 - one `choice` per proposition over its candidate targets × relation types, plus "none". The targets compete, which tests whether deciding jointly (A2's advantage) works without generating text.
 
@@ -192,9 +192,14 @@ Each question is asked in two option orders, and the probabilities are averaged.
 - **Setup (D073):**
   - Python (`a4_jev/`, in the `dialam` venv, using `httpx`) posts `{model: "typesafe-ai/jev", state, questions}` to the Vercel AI Gateway's `POST https://ai-gateway.vercel.sh/v1/evaluate`. There is no Node runner; the AI SDK's `experimental_evaluate` is now a deprecated alias of `experimental_decide`.
   - The key is `AI_GATEWAY_API_KEY` in WSL `~/.profile`, never in the repo.
-  - It runs on the gateway's **free tier** ($5 of credit a month), so spend is $0. **Never buy credits:** that costs money and also ends the free tier permanently.
+  - Jev isn't on the gateway's free tier (D074). It runs on a small paid credit the user added, with auto top-up off and a cap (D075). Report each run's cost, and stop and ask before anything beyond the measured projection (≈ $0.80 after A4.1).
   - Limits: 64k tokens per request (32k for the state plus the longest question) and up to 255 options per choice.
-  - A4.1 measures what the docs don't give: the maximum number of questions per request, the free-tier rate limit, and whether the state is billed once per request or once per question.
+  - Measured in A4.1 (D076):
+    - the state is billed once per request;
+    - Jev counts about 3 characters per token (2.69–3.27), so requests are capped at 50k estimated tokens;
+    - about 0.9 s per request;
+    - answers aren't deterministic, so they are cached and committed.
+  - Scope is the core only (D076): pair and source questions, no turn-type questions and no extra ablations.
 - **Plan and status:** `reports/A4-jev.md` and the phase map (A4.1–A4.5).
 
 **Combination.** The methods have complementary strengths. A1 or A4 is fast and calibrated, and A2 is slow but reasons.

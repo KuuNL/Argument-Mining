@@ -1,0 +1,79 @@
+{
+ "maps": 225,
+ "invalid": [],
+ "table": "| | General P / R / F1 | Focused P / R / F1 |\n|---|---|---|\n| ARI | 53.72 / 55.05 / 52.17 | 45.65 / 27.69 / 32.45 |\n| ILO | 90.39 / 90.26 / 90.16 | 81.01 / 80.79 / 80.67 |\n| GLOBAL | 72.05 / 72.66 / 71.16 | 63.33 / 54.24 / 56.56 |",
+ "ari": {
+  "general": [
+   53.72303110945135,
+   55.053370569971236,
+   52.172348581704426
+  ],
+  "focused": [
+   45.64541702097505,
+   27.685970558459395,
+   32.44975060386175
+  ]
+ },
+ "ilo": {
+  "general": [
+   90.38631776625255,
+   90.26186928338983,
+   90.15538295408392
+  ],
+  "focused": [
+   81.01345302720145,
+   80.7883633327786,
+   80.67453158739211
+  ]
+ },
+ "global": {
+  "general": [
+   72.05467443785194,
+   72.65761992668052,
+   71.16386576789418
+  ],
+  "focused": [
+   63.329435024088255,
+   54.237166945618995,
+   56.56214109562693
+  ]
+ },
+ "skipped_maps": {
+  "ari_general": 0,
+  "ari_focused": 1,
+  "ilo_general": 0,
+  "ilo_focused": 0
+ },
+ "diagnostics": {
+  "per_type": {
+   "Inference": {
+    "gold": 1060,
+    "predicted": 1311,
+    "precision": 0.342,
+    "recall": 0.423,
+    "f1": 0.378
+   },
+   "Conflict": {
+    "gold": 130,
+    "predicted": 26,
+    "precision": 0.5,
+    "recall": 0.1,
+    "f1": 0.167
+   },
+   "Rephrase": {
+    "gold": 683,
+    "predicted": 592,
+    "precision": 0.441,
+    "recall": 0.382,
+    "f1": 0.409
+   }
+  },
+  "inference_direction_correct": 0.868,
+  "inference_pairs_found": 516,
+  "maps_with_invented_type": {
+   "Conflict": 8,
+   "Rephrase": 12,
+   "Inference": 6
+  }
+ }
+}

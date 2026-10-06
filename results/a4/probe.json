@@ -1,0 +1,158 @@
+{
+ "billing": {
+  "requests": 15,
+  "input_tokens": 691088,
+  "chars_per_token": 2.956,
+  "tokens_if_state_billed_per_question": 5404124,
+  "verdict": "state billed once per request",
+  "usd": 0.029026,
+  "models": [
+   "typesafe-ai/jev"
+  ]
+ },
+ "speed": {
+  "request_seconds": {
+   "p50": 0.904,
+   "max": 1.349
+  },
+  "map_seconds_sequential": {
+   "nodeset18266": 1.35,
+   "nodeset18274": 1.4,
+   "nodeset23907": 2.69,
+   "nodeset18817": 4.51,
+   "nodeset19157": 3.62
+  },
+  "map_seconds_p50": 2.69
+ },
+ "order_bias": {
+  "questions": 1041,
+  "choice_agreement": 0.9078,
+  "mean_tvd": 0.0833,
+  "first_listed_gain": -0.0267,
+  "pair_agreement": 0.9175,
+  "source_agreement": 0.8333,
+  "rule": "one order if agreement >= 0.95 and mean TVD <= 0.05",
+  "decision": "both orders"
+ },
+ "repeatability": {
+  "map": "nodeset18274",
+  "questions": 212,
+  "max_abs_difference": 0.17000000000000004,
+  "identical_choices": 0.9811320754716981
+ },
+ "sanity_matched_density_5_maps": {
+  "pair_f": {
+   "threshold": 0.89,
+   "relations": 61,
+   "gold": 61,
+   "ari": [
+    45.4,
+    26.59
+   ]
+  },
+  "pair_r": {
+   "threshold": 0.91,
+   "relations": 56,
+   "gold": 61,
+   "ari": [
+    48.53,
+    28.1
+   ]
+  },
+  "pair_fr": {
+   "threshold": 0.89,
+   "relations": 60,
+   "gold": 61,
+   "ari": [
+    47.88,
+    27.76
+   ]
+  },
+  "source_f": {
+   "threshold": 0.49,
+   "relations": 61,
+   "gold": 61,
+   "ari": [
+    51.81,
+    31.04
+   ]
+  },
+  "source_r": {
+   "threshold": 0.46,
+   "relations": 61,
+   "gold": 61,
+   "ari": [
+    53.12,
+    31.97
+   ]
+  },
+  "source_fr": {
+   "threshold": 0.45,
+   "relations": 60,
+   "gold": 61,
+   "ari": [
+    53.8,
+    32.61
+   ]
+  },
+  "both_f": {
+   "threshold": 0.57,
+   "relations": 62,
+   "gold": 61,
+   "ari": [
+    55.84,
+    37.05
+   ]
+  },
+  "both_r": {
+   "threshold": 0.57,
+   "relations": 61,
+   "gold": 61,
+   "ari": [
+    55.53,
+    36.16
+   ]
+  },
+  "both_fr": {
+   "threshold": 0.57,
+   "relations": 61,
+   "gold": 61,
+   "ari": [
+    56.22,
+    37.05
+   ]
+  }
+ },
+ "projection": {
+  "both_orders": {
+   "pilot": {
+    "tokens": 3138470,
+    "usd": 0.132
+   },
+   "dev": {
+    "tokens": 15076221,
+    "usd": 0.633
+   },
+   "test": {
+    "tokens": 893863,
+    "usd": 0.038
+   },
+   "total_usd": 0.803
+  },
+  "one_order": {
+   "pilot": {
+    "tokens": 1591924,
+    "usd": 0.067
+   },
+   "dev": {
+    "tokens": 7643471,
+    "usd": 0.321
+   },
+   "test": {
+    "tokens": 449430,
+    "usd": 0.019
+   },
+   "total_usd": 0.407
+  }
+ }
+}

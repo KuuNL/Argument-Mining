@@ -1,0 +1,281 @@
+{
+ "maps": 50,
+ "table_matched_density": {
+  "pilot-k0": {
+   "pair": {
+    "threshold": 0.84,
+    "relations": 401,
+    "gold": 396,
+    "ari": [
+     47.22,
+     25.28
+    ]
+   },
+   "source": {
+    "threshold": 0.42,
+    "relations": 395,
+    "gold": 396,
+    "ari": [
+     48.68,
+     27.57
+    ]
+   },
+   "both": {
+    "threshold": 0.55,
+    "relations": 393,
+    "gold": 396,
+    "ari": [
+     51.83,
+     31.13
+    ]
+   }
+  },
+  "pilot-k1": {
+   "pair": {
+    "threshold": 0.85,
+    "relations": 401,
+    "gold": 396,
+    "ari": [
+     46.83,
+     24.52
+    ]
+   },
+   "source": {
+    "threshold": 0.43,
+    "relations": 396,
+    "gold": 396,
+    "ari": [
+     50.06,
+     28.01
+    ]
+   },
+   "both": {
+    "threshold": 0.55,
+    "relations": 389,
+    "gold": 396,
+    "ari": [
+     51.95,
+     31.32
+    ]
+   }
+  },
+  "pilot-k0-w2": {
+   "pair": {
+    "threshold": 0.84,
+    "relations": 398,
+    "gold": 396,
+    "ari": [
+     47.56,
+     25.08
+    ]
+   },
+   "source": {
+    "threshold": 0.42,
+    "relations": 395,
+    "gold": 396,
+    "ari": [
+     48.36,
+     26.5
+    ]
+   },
+   "both": {
+    "threshold": 0.54,
+    "relations": 404,
+    "gold": 396,
+    "ari": [
+     51.21,
+     30.68
+    ]
+   }
+  }
+ },
+ "best_view_per_arm": {
+  "pilot-k0": "both",
+  "pilot-k1": "both",
+  "pilot-k0-w2": "both"
+ },
+ "k1_gain_general": 0.12,
+ "w2_gain_general_both": -0.62,
+ "choice": {
+  "arm": "pilot-k0",
+  "k": 0,
+  "wording": "v1",
+  "view": "both",
+  "rules": [
+   "k = 1 only if its best view gains >= 1.0 general over k = 0's best view",
+   "best view; a single view within 1.0 of both is taken instead"
+  ]
+ },
+ "confusion_at_matched_density": {
+  "pilot-k0": {
+   "pair": {
+    "None -> Inference": 236,
+    "Inference -> None": 122,
+    "Rephrase -> None": 106,
+    "Inference -> Inference": 81,
+    "Rephrase -> Rephrase": 33,
+    "Conflict -> None": 20,
+    "Rephrase -> Inference": 15,
+    "None -> Rephrase": 10,
+    "Inference -> Inference reversed": 8,
+    "None -> Conflict": 7,
+    "Conflict -> Conflict": 5,
+    "Inference -> Rephrase": 4,
+    "Rephrase -> Conflict": 2
+   },
+   "source": {
+    "None -> Inference": 112,
+    "Inference -> None": 90,
+    "Inference -> Inference": 87,
+    "Rephrase -> Inference": 69,
+    "Rephrase -> Rephrase": 42,
+    "Rephrase -> None": 39,
+    "Inference -> Inference reversed": 28,
+    "None -> Rephrase": 18,
+    "Conflict -> None": 17,
+    "None -> Conflict": 15,
+    "Inference -> Rephrase": 9,
+    "Conflict -> Conflict": 7,
+    "Rephrase -> Conflict": 6,
+    "Conflict -> Inference": 1,
+    "Inference -> Conflict": 1
+   },
+   "both": {
+    "None -> Inference": 134,
+    "Inference -> Inference": 101,
+    "Inference -> None": 87,
+    "Rephrase -> None": 63,
+    "Rephrase -> Rephrase": 49,
+    "Rephrase -> Inference": 40,
+    "None -> Rephrase": 20,
+    "Conflict -> None": 18,
+    "Inference -> Inference reversed": 14,
+    "Inference -> Rephrase": 12,
+    "None -> Conflict": 10,
+    "Conflict -> Conflict": 7,
+    "Rephrase -> Conflict": 4,
+    "Inference -> Conflict": 1
+   }
+  },
+  "pilot-k1": {
+   "pair": {
+    "None -> Inference": 234,
+    "Inference -> None": 120,
+    "Rephrase -> None": 109,
+    "Inference -> Inference": 81,
+    "Rephrase -> Rephrase": 31,
+    "Conflict -> None": 19,
+    "Rephrase -> Inference": 14,
+    "None -> Rephrase": 12,
+    "Inference -> Inference reversed": 11,
+    "None -> Conflict": 7,
+    "Conflict -> Conflict": 6,
+    "Inference -> Rephrase": 3,
+    "Rephrase -> Conflict": 2
+   },
+   "source": {
+    "None -> Inference": 115,
+    "Inference -> None": 92,
+    "Inference -> Inference": 88,
+    "Rephrase -> Inference": 69,
+    "Rephrase -> None": 42,
+    "Rephrase -> Rephrase": 40,
+    "Inference -> Inference reversed": 24,
+    "None -> Rephrase": 18,
+    "None -> Conflict": 15,
+    "Conflict -> None": 14,
+    "Inference -> Rephrase": 10,
+    "Conflict -> Conflict": 9,
+    "Rephrase -> Conflict": 5,
+    "Conflict -> Inference": 1,
+    "Inference -> Conflict": 1,
+    "Conflict -> Rephrase": 1
+   },
+   "both": {
+    "None -> Inference": 135,
+    "Inference -> Inference": 100,
+    "Inference -> None": 92,
+    "Rephrase -> None": 61,
+    "Rephrase -> Rephrase": 51,
+    "Rephrase -> Inference": 39,
+    "Conflict -> None": 17,
+    "None -> Rephrase": 17,
+    "Inference -> Inference reversed": 13,
+    "None -> Conflict": 11,
+    "Inference -> Rephrase": 9,
+    "Conflict -> Conflict": 7,
+    "Rephrase -> Conflict": 5,
+    "Conflict -> Inference": 1,
+    "Inference -> Conflict": 1
+   }
+  },
+  "pilot-k0-w2": {
+   "pair": {
+    "None -> Inference": 233,
+    "Inference -> None": 124,
+    "Rephrase -> None": 106,
+    "Inference -> Inference": 80,
+    "Rephrase -> Rephrase": 33,
+    "Conflict -> None": 19,
+    "Rephrase -> Inference": 15,
+    "None -> Rephrase": 9,
+    "None -> Conflict": 9,
+    "Inference -> Inference reversed": 7,
+    "Conflict -> Conflict": 5,
+    "Inference -> Rephrase": 4,
+    "Rephrase -> Conflict": 2,
+    "Conflict -> Inference": 1
+   },
+   "source": {
+    "None -> Inference": 121,
+    "Inference -> None": 90,
+    "Inference -> Inference": 88,
+    "Rephrase -> Inference": 68,
+    "Rephrase -> None": 44,
+    "Rephrase -> Rephrase": 38,
+    "Inference -> Inference reversed": 27,
+    "Conflict -> None": 17,
+    "None -> Rephrase": 17,
+    "None -> Conflict": 12,
+    "Inference -> Rephrase": 9,
+    "Conflict -> Conflict": 7,
+    "Rephrase -> Conflict": 6,
+    "Conflict -> Inference": 1,
+    "Inference -> Conflict": 1
+   },
+   "both": {
+    "None -> Inference": 155,
+    "Inference -> Inference": 99,
+    "Inference -> None": 92,
+    "Rephrase -> None": 61,
+    "Rephrase -> Rephrase": 49,
+    "Rephrase -> Inference": 41,
+    "Conflict -> None": 18,
+    "None -> Rephrase": 15,
+    "Inference -> Inference reversed": 13,
+    "Inference -> Rephrase": 11,
+    "None -> Conflict": 9,
+    "Conflict -> Conflict": 6,
+    "Rephrase -> Conflict": 5,
+    "Conflict -> Inference": 1
+   }
+  }
+ },
+ "inference_direction_right": {
+  "pilot-k0": {
+   "pair": 0.91,
+   "source": 0.757,
+   "both": 0.878
+  },
+  "pilot-k1": {
+   "pair": 0.88,
+   "source": 0.786,
+   "both": 0.885
+  },
+  "pilot-k0-w2": {
+   "pair": 0.92,
+   "source": 0.765,
+   "both": 0.884
+  }
+ }
+}

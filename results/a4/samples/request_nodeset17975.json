@@ -1,0 +1,95 @@
+{
+ "map": "nodeset17975",
+ "requests": 2,
+ "questions": 222,
+ "state": {
+  "guide": "This is a televised political debate (BBC Question Time), annotated the way the expert annotators of the QT30 corpus annotate it (Inference Anchoring Theory).\n\nThe dialogue lists turns T1, T2, ... in the order they were spoken, as \"Speaker: words\". Under each turn are the propositions it expresses, P1, P2, ...: each restates what was said so that it stands on its own (pronouns resolved; a question may use \"xxx\" for its unknown part). Propositions that couldn't be matched to a turn are listed at the end.\n\nRelations between two propositions:\n- Inference: one proposition is a reason, evidence or explanation for the other, and it is a different point from the one it supports. The reason may come before or after the point it supports (\"X because Y\" and \"Y, so X\" both mean Y supports X).\n- Rephrase: the later proposition makes the same point as the earlier one again: it restates, reformulates or narrows it, or gives a sharper or more concrete version. An answer rephrases the question it answers. If the later proposition mainly repeats or elaborates the earlier point rather than giving a separate reason for it, it is Rephrase, not Inference.\n- Conflict: the later proposition attacks the earlier one: it contradicts, rebuts or undermines it, or the two cannot both be held. This includes a speaker attacking their own earlier point, as in a concession or contrast (\"it is right to plan for the future, but we must not lose sight of the present\"). Most annotated Conflicts are within one speaker's talk, and most have no \"but\" or \"however\".\n- None: no direct relation. Two propositions on the same topic are often not directly related.\n\nHow the annotators work (measured on 1,250 annotated maps):\n- Relations mostly join neighbouring turns: 69% are one turn apart and 84% at most two.\n- 94% of Inferences join propositions by the same speaker. Rephrases are mostly same-speaker too, apart from answers to questions.\n- Conflict is rare: most maps have none.\n- Annotators link sparingly. About half of all propositions start no relation, almost all the rest start exactly one, and only 1 in 20 starts two or more. Each proposition is linked to the one proposition it most directly bears on, usually nearby.\n\nHow a turn puts its proposition forward:\n- Asserting: states it as true (about 90% of turns).\n- Pure Questioning: a genuine question, with no commitment to an answer.\n- Assertive Questioning: question form, but the speaker also conveys their own position, or steers the discussion.\n- Rhetorical Questioning: a question asked to make a point, not to get an answer.\n- Agreeing: agrees with an earlier claim (\"yes\", \"exactly\"); the proposition is the claim agreed with.\n- Challenging: challenges an earlier claim and demands a justification.\n- Default Illocuting: rare; only when the turn plainly fits none of the others.",
+  "dialogue": "T1  Helle Thorning-Schmidt: Fog fog you are not keen on wearing masks\n    [P1] Unknown Speaker is not keen on wearing masks\nT2  Helle Thorning-Schmidt: Fog fog would you rather be served by someone wearing a face mask\n    [P2] Unkown Speaker would or would not prefer to be served by someone wearing a face mask\nT3  James Graham: I just can't wait to be served by someone\n    [P3] James Graham just can't wait to be served by someone\nT4  James Graham: A pint would go down baling\n    [P4] a pint would go down well for James Graham\nT5  James Graham: I this it would become the new normal\n    [P5] James Graham thinks that being served with a mask would become the new normal\nT6  James Graham: I think it is individual choice\n    [P6] James Graham thinks wearing a mask is an individual choice\nT7  James Graham: I don't know how you would legislate for it\n    [P7] James Graham doesn't know how you would legislate for the wearing of a mask\nT8  Fiona Bruce: Andy, where do you stand on the discussion about face coverings or face masks\n    [P8] Andy Burnham believes xxx on the discussion about face coverings or face masks\nT9  Andy Burnham: I think we are going to have to work quite hard to build confidence in the public to go back into the industries and support the cultural venues and restaurant and bars\n    [P9] Andy Burnham thinks the UK governement are going to have to work quite hard to build confidence in the public to go back into the industries and support the cultural venues and restaurant and bars\nT10  Andy Burnham: If they can help build that confidence, then why not\n    [P10] if masks can help build confidence in the public to go back into industries then there is no harm in wearing them\nT11  Andy Burnham: sometimes people can see a face mask and think it is someone being distruct if you will around them\n    [P11] sometimes people can see a face mask and think it is someone being distrustful of those around them\nT12  Andy Burnham: As James said, it is the opposite\nT13  James Graham: it is the opposite\nT14  Andy Burnham: It is quite a public spirited thing to do\n    [P12] wearing a mask is quite a public spirited thing to do\nT15  Andy Burnham: It is reducing the risk of you giving the infection to other people\n    [P13] wearing a mask is reducing the risk of you giving the Coronavirus to other people\nPropositions not placed at any turn:\n    [P14] people are not being distrustful of those around them when they wear a mask"
+ },
+ "questions_sample": {
+  "pair_P1_P2_f": {
+   "type": "choice",
+   "instructions": "How is P1 (\"Unknown Speaker is not keen on wearing masks\") related to P2 (\"Unkown Speaker would or would not prefer to be served by someone wearing a face mask\")?",
+   "criteria": {
+    "P1_supports_P2": "P1 is a reason or evidence for P2",
+    "P2_supports_P1": "P2 is a reason or evidence for P1",
+    "conflict": "P2 attacks P1",
+    "rephrase": "P2 makes the same point as P1 again, or answers it",
+    "none": "no direct relation"
+   }
+  },
+  "pair_P1_P2_r": {
+   "type": "choice",
+   "instructions": "How is P1 (\"Unknown Speaker is not keen on wearing masks\") related to P2 (\"Unkown Speaker would or would not prefer to be served by someone wearing a face mask\")?",
+   "criteria": {
+    "none": "no direct relation",
+    "rephrase": "P2 makes the same point as P1 again, or answers it",
+    "conflict": "P2 attacks P1",
+    "P2_supports_P1": "P2 is a reason or evidence for P1",
+    "P1_supports_P2": "P1 is a reason or evidence for P2"
+   }
+  },
+  "from_P1_f": {
+   "type": "choice",
+   "instructions": "Which one proposition does P1 (\"Unknown Speaker is not keen on wearing masks\") most directly bear on, and how? Choose none if it starts no relation.",
+   "criteria": {
+    "supports_P2": "P1 is a reason or evidence for P2: \"Unkown Speaker would or would not prefer to be served by someone wearing a face mask\"",
+    "supports_P3": "P1 is a reason or evidence for P3: \"James Graham just can't wait to be served by someone\"",
+    "supports_P4": "P1 is a reason or evidence for P4: \"a pint would go down well for James Graham\"",
+    "supports_P5": "P1 is a reason or evidence for P5: \"James Graham thinks that being served with a mask would become the new normal\"",
+    "supports_P6": "P1 is a reason or evidence for P6: \"James Graham thinks wearing a mask is an individual choice\"",
+    "supports_P7": "P1 is a reason or evidence for P7: \"James Graham doesn't know how you would legislate for the wearing of a mask\"",
+    "supports_P8": "P1 is a reason or evidence for P8: \"Andy Burnham believes xxx on the discussion about face coverings or face masks\"",
+    "supports_P9": "P1 is a reason or evidence for P9: \"Andy Burnham thinks the UK governement are going to have to work quite hard to build confidence in the public to go back into the industries and support the cultural venues and restaurant and bars\"",
+    "supports_P10": "P1 is a reason or evidence for P10: \"if masks can help build confidence in the public to go back into industries then there is no harm in wearing them\"",
+    "supports_P11": "P1 is a reason or evidence for P11: \"sometimes people can see a face mask and think it is someone being distrustful of those around them\"",
+    "supports_P14": "P1 is a reason or evidence for P14: \"people are not being distrustful of those around them when they wear a mask\"",
+    "none": "P1 starts no relation"
+   }
+  },
+  "from_P1_r": {
+   "type": "choice",
+   "instructions": "Which one proposition does P1 (\"Unknown Speaker is not keen on wearing masks\") most directly bear on, and how? Choose none if it starts no relation.",
+   "criteria": {
+    "none": "P1 starts no relation",
+    "supports_P14": "P1 is a reason or evidence for P14: \"people are not being distrustful of those around them when they wear a mask\"",
+    "supports_P11": "P1 is a reason or evidence for P11: \"sometimes people can see a face mask and think it is someone being distrustful of those around them\"",
+    "supports_P10": "P1 is a reason or evidence for P10: \"if masks can help build confidence in the public to go back into industries then there is no harm in wearing them\"",
+    "supports_P9": "P1 is a reason or evidence for P9: \"Andy Burnham thinks the UK governement are going to have to work quite hard to build confidence in the public to go back into the industries and support the cultural venues and restaurant and bars\"",
+    "supports_P8": "P1 is a reason or evidence for P8: \"Andy Burnham believes xxx on the discussion about face coverings or face masks\"",
+    "supports_P7": "P1 is a reason or evidence for P7: \"James Graham doesn't know how you would legislate for the wearing of a mask\"",
+    "supports_P6": "P1 is a reason or evidence for P6: \"James Graham thinks wearing a mask is an individual choice\"",
+    "supports_P5": "P1 is a reason or evidence for P5: \"James Graham thinks that being served with a mask would become the new normal\"",
+    "supports_P4": "P1 is a reason or evidence for P4: \"a pint would go down well for James Graham\"",
+    "supports_P3": "P1 is a reason or evidence for P3: \"James Graham just can't wait to be served by someone\"",
+    "supports_P2": "P1 is a reason or evidence for P2: \"Unkown Speaker would or would not prefer to be served by someone wearing a face mask\""
+   }
+  },
+  "type_T1_P1_f": {
+   "type": "choice",
+   "instructions": "How does turn T1 (\"Helle Thorning-Schmidt: Fog fog you are not keen on wearing masks\") put forward P1 (\"Unknown Speaker is not keen on wearing masks\")?",
+   "criteria": {
+    "Asserting": "states it as true",
+    "Pure Questioning": "a genuine question, with no commitment to an answer",
+    "Assertive Questioning": "question form, but the speaker also conveys their own position, or steers the discussion",
+    "Rhetorical Questioning": "a question asked to make a point, not to get an answer",
+    "Default Illocuting": "fits none of the other types",
+    "Agreeing": "agrees with an earlier claim; the proposition is the claim agreed with",
+    "Challenging": "challenges an earlier claim and demands a justification"
+   }
+  },
+  "type_T1_P1_r": {
+   "type": "choice",
+   "instructions": "How does turn T1 (\"Helle Thorning-Schmidt: Fog fog you are not keen on wearing masks\") put forward P1 (\"Unknown Speaker is not keen on wearing masks\")?",
+   "criteria": {
+    "Challenging": "challenges an earlier claim and demands a justification",
+    "Agreeing": "agrees with an earlier claim; the proposition is the claim agreed with",
+    "Default Illocuting": "fits none of the other types",
+    "Rhetorical Questioning": "a question asked to make a point, not to get an answer",
+    "Assertive Questioning": "question form, but the speaker also conveys their own position, or steers the discussion",
+    "Pure Questioning": "a genuine question, with no commitment to an answer",
+    "Asserting": "states it as true"
+   }
+  }
+ }
+}

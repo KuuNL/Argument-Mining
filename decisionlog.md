@@ -33,10 +33,10 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A3.4 | Dev run + decision layer | Types + 8 relation samples × 225 dev maps (labeller links); scores → A1's pair format → cross-fitted thresholds | Honest dev ARI vs A1 (50.50 / 32.61) and A2 (54.63 / 34.12) with the bootstrap test; H1–H4 at matched density | A3 | **Done (D070)**: honest dev ARI 47.65 / 27.23, below A1 and A2; both success tests fail; H2 holds, H1/H3/H4 fail |
 | A3.5 | Assemble + ablations | Valid maps, dev Global; LLM turn types (strict rule); combination preview; ablations | 225/225 valid; combination test; ablation table | A3 | **Done, reduced (D071–D072)**: 225 / 225 valid, dev Global 68.90 / 53.95; no ablations (user) |
 | A3.6 | Test run + report | Final A3 row; `reports/A3-finetuned-llm.md` | Run once, on the user's go | Final run | **Done (D072)**: test Global 73.17 / 58.17, ARI 53.70 / 32.05 (between A1 and A2; dev ranks A3 below both) |
-| A4.1 | Setup + feasibility | Vercel AI Gateway key (free tier); `a4_jev/`: HTTP client (`/v1/evaluate`), state + pair / source / turn-type questions, cached runner, parser → A1's pair format, `check.py` | Round trip 98.64 / 94.44 with no call; live answers on 5 training maps valid; billing per request, seconds, request limit, repeatability, first-option bias, free-tier eligibility measured; budget projection fits the free credit | A4 | Approved (D073); not started |
-| A4.2 | Question pilot | 50 training-split maps (A2's `maps_50`, gold links): definitions in guide vs per option; examples k = 0 / 1; ≤ 2 wording revisions | Configuration frozen by the pre-set rule (≥ +1.0 matched-density general, else the cheaper arm) | A4 | Approved (D073); not started |
-| A4.3 | Dev run + decision layer | 225 dev maps, frozen settings, labeller links; A1's temperature + thresholds, cross-fitted; calibration | Honest dev ARI next to A1–A3; success tests and H1–H5 decided | A4 | Approved (D073); not started |
-| A4.4 | Assembly + ablations | Valid maps, dev Global; turn types (A3's strict rule); combination preview; ablations | 225 / 225 valid; ablation table | A4 | Approved (D073); not started |
+| A4.1 | Setup + feasibility | `a4_jev/`: HTTP client (`/v1/evaluate`), state + pair / source questions, cached runner, parser → A1's pair format, `check.py`, `probe.py` | Round trip 98.64 / 94.44 with no call; live answers on 5 training maps valid; billing, speed, repeatability, option-order bias measured; budget projection within the cap | A4 | **Passed (D076)**: round trip 98.64 / 94.44; 15 / 15 requests valid; state billed once per request; both option orders kept; remaining passes ≈ $0.80 |
+| A4.2 | Pilot (one pass) | 50 training-split maps (A2's `maps_50`, gold links), both views and orders; ≤ 1 wording fix, only for a clear failure | View chosen by the pre-set rule (D076); settings frozen | A4 | **Done (D078)**: k = 0, view `both`, wording v1 frozen; pilot both-view 51.83 / 31.13 at matched density; $0.40 |
+| A4.3 | Dev run + decision layer | 225 dev maps, frozen settings, labeller links; A1's temperature + thresholds, cross-fitted; calibration | Honest dev ARI next to A1–A3; success tests and H1–H5 decided | A4 | **Done (D079)**: honest dev ARI 52.17 / 32.45 (A1 50.50, A2 54.63); both success tests narrowly fail; H4, H5 pass; $0.62 |
+| A4.4 | Assembly + combination test | Valid maps, dev Global (labeller's turn types); A1 + A2 + A4 vs A1 + A2, from saved answers; no ablations (D076) | 225 / 225 valid; success test 2 | A4 | **Done (D079)**: 225 / 225 valid; honest dev Global 71.16 / 56.56; A1 + A2 + A4 = +0.39 over A1 + A2 |
 | A4.5 | Test run + report | Final A4 row; `reports/A4-jev.md` | Run once, on the user's go | Final run | Approved (D073); not started |
 | — | Combination · Final run | — | — | Combination / Final run | Not started |
 
@@ -1042,3 +1042,126 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   2. **Iterative commitment (4b):** deferred. It runs only if H2 fails.
   3. **D017's Jev corpus profiling:** dropped, because A4.3's per-type breakdown covers it.
   4. **Success test 1's bar:** beat A1.
+
+### D074 — A4.1 blocker: Jev is not available on the AI Gateway free tier
+- **2026-10-06 · A4.1 · by Claude · Finding** (two free read-only calls, plus one 1-question request that was refused)
+- *Key:* valid. `GET /v1/credits` shows a balance of $4.99994645 of the free $5 ($0.00005355 used before this session). `GET /v1/models` lists `typesafe-ai/jev`:
+  - type `evaluation`, providers DigitalOcean (primary) and TypeSafe;
+  - $0.000000042 per input token, output $0;
+  - "64,000 tokens total per request; 32,000 tokens for the state plus the longest question";
+  - `no_training: all`.
+- *Refused:* the first `POST /v1/evaluate` (one choice question, ~60 tokens of state) returned **403 `RestrictedModelsError`**: "Free tier users do not have access to this model. Upgrade to paid credits…". Nothing was charged; the balance is unchanged.
+- *Other routes checked (web, 2026-10-06):*
+  - **TypeSafe direct:** no free tier; signups opened 2026-09-20 with $5 credit, then paused on 2026-09-22.
+  - **DigitalOcean Serverless Inference:** $0.042 / 1M input; prepaid only, payable from "promotional credits or a positive prepaid balance". Whether a new account's trial credit applies is unverified.
+  - **Third-party playgrounds** (no pipeline access) and n8n Cloud's free Jev offer (until 2026-10-10, workflow-only) don't fit a 1,200-request research run.
+- *Consequence:* the plan's rule applies ("Jev not on the free tier: stop and ask; nothing is bought"). A4.1 is paused before any code depends on the route.
+
+### D075 — A4 runs on a small paid AI Gateway credit, with safeguards
+- **2026-10-06 · A4 · by user · Approved** (chosen from: buy a small gateway credit / try DigitalOcean credit / skip A4 / a free local substitute)
+- **Route:** the user tops up the minimum AI Gateway credit. Auto top-up stays off, and a gateway budget cap (e.g. $10) is set if the dashboard allows. This supersedes D073's "free tier, $0" route; everything else in D073 stands.
+- **Spending rule:**
+  - A4.1's probes (well under $0.05) measure how Jev bills the state.
+  - Claude then reports the projected cost of A4.2–A4.5 before anything larger runs. Work stops and asks if the projection exceeds the cap.
+  - Every request's gateway cost is logged.
+- *Consequence the user accepted:* buying credit permanently ends the account's free $5-a-month gateway credit.
+- *Expected:* ≈ $2 at list price if the state is billed once per request; up to ≈ $20 if once per question.
+
+### D076 — A4 trimmed to its core (user); A4.1 result: gate passed, ≈ $0.80 for everything left
+- **2026-10-06 · A4 · scope by user ("as efficient as possible … only the core requirements of the A4 approach, no ablations that are unnecessary and bloating") / result by Claude · Approved + Finding** (`results/a4/check.json`, `probe.json`, `probe/`, `probe-repeat/`; `python -m a4_jev.check`, `python -m a4_jev.runner --run=probe --export`, `python -m a4_jev.probe`)
+- **Scope (supersedes D073 where they differ):**
+  - **Dropped:**
+    - every new-call ablation (no pruning, no guide, names-only options);
+    - the A4.2 sweeps (definitions placement, worked examples): definitions stay in the guide, with k = 0;
+    - turn-type questions: the ILO labeller keeps Task B, as in A3's final configuration;
+    - the separate billing and request-limit probes: billing is read from the probe's own requests;
+    - the free ablations beyond those H1–H5 and the view choice need.
+  - **A4.2 becomes one pilot pass** on the 50 training maps (both views, both orders).
+    - *Rule, fixed now:* take the view with the best matched-density ARI general. If `pair` or `source` alone is within 1.0 of `both`, take that single view, which halves later requests.
+    - At most 1 wording fix, and only for a clear failure seen in the errors.
+  - **A4.3–A4.5 as planned:** one dev pass, the success tests and H1–H5 from saved answers, assembly and the combination test, then one test run.
+  - **Rule fixed before the probe:** later runs ask only one option order if forward and reversed choices agree on ≥ 95% of questions with a mean total-variation distance ≤ 0.05.
+- **A4.1 gate, offline:**
+  - lossless round trip: pair view **98.64 / 94.44**, equal to A1's ceiling. The source view gives 98.60 / 94.26 (it loses propositions starting 3+ relations), and `both` gives 98.64 / 94.44;
+  - 225 / 225 maps valid; no node IDs in any request (D029);
+  - a median dev map is 162 pair + 28 source questions (both orders) in 2 requests, with at most 88 options per source question.
+- **A4.1 live probe** (5 training maps: A2's 3 smoke maps + the 2 largest outside the pilot episodes; 15 requests + 2 repeats; **$0.035 in total**):
+  - **Validity:** every answer has a known choice and probabilities summing to 1; the model is `typesafe-ai/jev`.
+  - **Billing: the state is billed once per request.** 691k input tokens were billed, against 5.4M if it were billed per question.
+  - **Tokens:** 2.96 characters per token on average, but 2.69–3.27 per request. The first attempt (estimating 4.0) sent one request over Jev's 64k limit, which was refused with `max_tokens_exceeded` and not charged. The estimator is now 3.0, with a 50k request budget (≤ ~58k real tokens at the densest ratio seen). The probe runs keep the 56k budget they used.
+  - **Speed:** 0.90 s per request at the median (max 1.35 s), even with 356 questions in one request. Run one after another, a map's requests take 1.4–4.5 s (median 2.7 s); they can run in parallel.
+  - **Option order:** forward and reversed choices agree on 90.8% of 1,041 questions (pair 91.8%, source 83.3%), with a mean distance of 0.083. By the rule, **both orders stay.** On average the first-listed option *loses* 0.027 probability.
+  - **Repeatability:** the same request sent twice gives the same choice on 98.1% of questions, with probabilities differing by up to 0.17. Jev isn't deterministic, so the cache and the committed answers carry reproducibility.
+  - **Sanity score** (the 5 maps, gold links, ARI at matched density; nothing is chosen from 5 maps): pair 47.9 / 27.8, source 53.8 / 32.6, **both 56.2 / 37.1**. The answers carry signal.
+- **Projection at the measured ratio:** pilot $0.13 + dev $0.63 + test $0.04 = **≈ $0.80** with both orders. The balance is $14.96, and D075's cap holds.
+
+### D077 — A4 budget $10, run to the end without stopping; one performance lever back in the pilot
+- **2026-10-06 · A4 · by user · Approved** ("you can use 10 dollars … do not sacrifice core parts … the best it can be within the budget, but nothing bloating … how Jev could be useful and how it performs … Go ahead and run, do not stop").
+- **Budget:** up to $10 of gateway credit for all of A4. The balance before A4.2 was $14.96. Every run's cost is logged, and the projection is re-checked before the dev and test passes.
+- **Authorisation:** A4.2 → A4.5 run in sequence without pausing for approval, **including the one-time test run** (A4.5), under the usual protocol: the test configuration is frozen from dev before `data/evaluation/` is read, and the maps are assembled, validated and saved before scoring.
+- **Pilot (A4.2), revised from D076:** two arms on the 50 training maps instead of one pass:
+  1. the base design (k = 0);
+  2. **one TF-IDF-retrieved worked example in the state (k = 1)**, from the pool without the pilot episodes, as A2.
+  - *Why:* worked examples were A2's largest lever (+4.5 general from k = 0 to 4, D058). Jev's documented weak spot (unrelated state lowers accuracy) makes the sign unknown. This is a performance lever, not an ablation.
+  - *Rule (fixed now):* keep k = 1 only if it gains ≥ 1.0 ARI general at matched density on the pilot (best view of each arm), else k = 0. Then the view rule of D076 picks pair / source / both on the chosen arm.
+- **Still out (D076):** every other ablation, the definitions sweep and turn-type questions.
+- **Where it runs:** A4's analysis reuses A3's comparison code (`a3_finetune/tune.py`: A1 / A2 alignment, cross-fitting, bootstrap, matched density), which imports A3's libraries. So A4 runs in `~/.venvs/a3` from here on; it also has `httpx`.
+
+### D078 — A4.2 result: no worked example, both views, original wording; frozen for dev and test
+- **2026-10-06 · A4.2 · by Claude (pre-set rules) · Done** (`results/a4/pilot_table.json`, `pilot-k0/`, `pilot-k1/`, `pilot-k0-w2/`; `python -m a4_jev.pilot`)
+- *Runs:* A2's 50 pilot maps (training split, gold links). 3 arms × ~88 requests, 50 / 50 maps valid in each, **$0.40** in total.
+- *ARI at matched density (one threshold, predicting as many relations as gold: 396), general / focused:*
+
+  | Arm | Pair | Source | Both |
+  |---|---|---|---|
+  | k = 0 (base) | 47.22 / 25.28 | 48.68 / 27.57 | **51.83 / 31.13** |
+  | k = 1 worked example | 46.83 / 24.52 | 50.06 / 28.01 | 51.95 / 31.32 |
+  | k = 0, source wording v2 | 47.56 / 25.08 | 48.36 / 26.50 | 51.21 / 30.68 |
+
+- *Rules (D076, D077, and the wording rule set before its run):*
+  - **k = 1 gains +0.12** (< 1.0), so **k = 0**: the worked example doesn't help Jev, unlike A2 (+4.5).
+  - **View `both`:** pair and source alone are 4.6 and 3.2 below it, so neither single view qualifies. The two views carry different information.
+  - **Wording v2 not adopted (−0.62):** A4.2's one wording fix.
+    - *Why it was tried:* source questions reverse Inference direction far more often than pair questions (76% right against 91%) and turn 69 Rephrases into Inferences. The suspected cause was the word "bear on", since a conclusion bears on its premise too. v2 asked what P "supports, restates or attacks".
+    - *Result:* direction stayed at 76.5%. The reversal comes from the question form, not the wording. When both directions are explicit options (pair questions), Jev reads direction well; asked only to pick a target, it often picks its own premise.
+- *Errors, base arm, both views:* 134 invented Inferences and 101 found; 87 missed. 40 Rephrases read as Inference; Conflict 7 found, 18 missed, 10 invented.
+- *Reference only (different measure):* one A2 answer on the same 50 maps scored 45.0–50.7 general with every listed relation kept (D058).
+- **Frozen for A4.3–A4.5:** guide v1, short options, k = 0, source wording v1, pair + source questions, both option orders, scores = mean of the two views, A1's decision layer.
+
+### D079 — A4.3–A4.4 result: honest dev ARI 52.17 / 32.45, between A2 and A1, with no training; both success tests narrowly fail
+- **2026-10-06 · A4.3–A4.4 · by Claude (pre-set rules) · Finding** (`results/a4/dev/`: `dev_report.json`, `thresholds.json`, `dev_global.json`, `responses.jsonl.gz`; `python -m a4_jev.runner --run=dev --export`, `python -m a4_jev.tune`)
+- *Run:* the frozen configuration (D078) on 225 dev maps with the labeller's links. 402 requests, all valid; **$0.62**, 14.7M input tokens; 0.75 s per request at the median. All 24,169 rows align with A1's and A2's.
+- *Thresholds (kept for test):* Inference 0.55, Conflict 0.75, Rephrase 0.30. Inference is the same in all 5 folds; Conflict 0.75–0.80.
+
+  | Dev ARI, general / focused | |
+  |---|---|
+  | A1, honest | 50.50 / 32.61 |
+  | A2, honest | **54.63 / 34.12** |
+  | A3, honest | 47.65 / 27.23 |
+  | **A4, both views, cross-fitted (honest)** | **52.17 / 32.45** |
+  | A4, pair view alone (honest) | 50.50 / 32.57 |
+  | A4, source view alone (honest) | 46.32 / 26.73 |
+
+- *Success test 1 fails, narrowly:* A4 − A1 = **+1.68 general, 95% interval [−0.20, +3.65]**; A4 is better on 123 maps, A1 on 100. Against A2: −2.46 [−4.19, −0.73].
+- *Success test 2 fails:* cross-fitted averages. A1 + A2 = 55.12 / 36.18, and **A1 + A2 + A4 = 55.51 / 37.01, a gain of +0.39** general (+0.83 focused), short of 1.0. A2 + A4 = 54.16 / 33.65 (no trained model); A1 + A4 = 53.48 / 34.85.
+- *Hypotheses:*
+  - **H1 fails.** Class-wise ECE is 0.053 for A4 against 0.024 for A1 (before temperature). Jev's Conflict (0.013) and Rephrase (0.007) probabilities are well calibrated, but **Inference is over-confident (0.140)**.
+  - **H2 fails.** At matched density the source view scores 46.07 against the pair view's 47.22. Competition does what it was meant to, cutting invented relations to 67% (778 against 1,155), but source questions lose direction (76% against 91%). The two views complement each other: `both` scores 51.13.
+  - **H3 fails.** Within-speaker Conflict recall is 12.1%, under the 15% bar, but the best of any system (A1 8.8%, A2 6.6%, A3 11%).
+  - **H4 passes.** Inference direction is 86.6% right (A1 85.8%, A2 84.3%), with no reasoning step.
+  - **H5 passes.** 0.83 s per map with a map's requests in parallel (1.28 s one after another); $0.62 per dev pass.
+- *At matched density* (8.3 relations per map; A1 / A2 / A4):
+  - neighbour-Inference recall 0.39 / 0.42 / **0.51**;
+  - unrelated pairs given a relation 905 / **812** / 859;
+  - ARI 50.02 / **54.32** / 51.13.
+- *Per type* (tuned, pooled), P / R / F1:
+  - Inference 0.34 / 0.42 / **0.38** (A1 0.32, A2 0.37 F1);
+  - Conflict 0.52 / 0.12 / 0.19 (A2 0.19);
+  - Rephrase 0.44 / 0.38 / 0.41 (A1 0.47, A2 0.51).
+  - 8.6 relations per map (gold 8.3); 8 maps with an invented Conflict (A1 8, A2 8).
+- *Complete dev maps (A4.4):* 225 / 225 valid, the labeller's turn types. **Honest dev Global 71.16 / 56.56** (A1 70.29 / 56.63, A2 72.53 / 57.63, A3 68.90 / 53.95).
+- *Reading:*
+  - With no training and no reasoning, Jev lands between the trained encoder and Claude. It has the best Inference F1 and the highest neighbour-Inference recall of the four systems: it finds the annotators' loose support between neighbouring turns better than even A1.
+  - Its weaknesses are Rephrase (it calls Rephrases Inference) and over-confident Inference probabilities.
+  - Asking the same relation two ways, independently per pair and competitively per proposition, is what makes it work: each view alone is at A1's level or below.
+- **Test configuration, frozen now (before the test run):** run `test` (as `dev`), view `both`, the thresholds above, the labeller's links and types.
