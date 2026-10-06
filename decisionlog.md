@@ -31,8 +31,8 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A3.2 | Training loop | `train.py` (answer-only loss, adapter every half epoch, timing); `generate.py` (greedy types + seeded relation samples, grammar, cache; greedy batched across maps, D066) | Memorises 32 maps (≥ 95% relations exact); loss masking verified; epoch time and peak VRAM measured | A3 | **Passed (D067)**: 32/32 maps reproduced exactly (206/206 relations); masking verified; 3.83 GiB, ~720 tok/s; batched greedy ≈ 5.5 s per map |
 | A3.3 | Training run | 1,231 test-like train maps, 3 epochs | Greedy dev ARI at each half epoch; best adapter chosen; diversity rule applied | A3 | **Passed (D068–D069)**: ep2.0 chosen, greedy dev ARI 49.46 / 31.19; 110 min training; votes graded (99.8%), so votes are the main score |
 | A3.4 | Dev run + decision layer | Types + 8 relation samples × 225 dev maps (labeller links); scores → A1's pair format → cross-fitted thresholds | Honest dev ARI vs A1 (50.50 / 32.61) and A2 (54.63 / 34.12) with the bootstrap test; H1–H4 at matched density | A3 | **Done (D070)**: honest dev ARI 47.65 / 27.23, below A1 and A2; both success tests fail; H2 holds, H1/H3/H4 fail |
-| A3.5 | Assemble + ablations | Valid maps, dev Global; LLM turn types (strict rule); combination preview; ablations | 225/225 valid; combination test; ablation table | A3 | Approved (D065) |
-| A3.6 | Test run + report | Final A3 row; `reports/A3-finetuned-llm.md` | Run once, on the user's go | Final run | Approved (D065) |
+| A3.5 | Assemble + ablations | Valid maps, dev Global; LLM turn types (strict rule); combination preview; ablations | 225/225 valid; combination test; ablation table | A3 | **Done, reduced (D071–D072)**: 225 / 225 valid, dev Global 68.90 / 53.95; no ablations (user) |
+| A3.6 | Test run + report | Final A3 row; `reports/A3-finetuned-llm.md` | Run once, on the user's go | Final run | **Done (D072)**: test Global 73.17 / 58.17, ARI 53.70 / 32.05 (between A1 and A2; dev ranks A3 below both) |
 | A4 | Jev | Phased (A4.1, …) when it starts | — | A4 | Not started |
 | — | Combination · Final run | — | — | Combination / Final run | Not started |
 
@@ -962,3 +962,43 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - *Open for the user (A3.5 / A3.6):*
   1. Which configuration to test. The pre-registered main is votes + thresholds; greedy is +1.8 / +4.0 on dev. Proposed: freeze both before the test run, then report both.
   2. Which A3.5 ablations to run now that A3 trails. Zero-shot (H6), no grammar and turn types (H5) are cheap. The giant-map retrain (H4) costs ≈ 5 GPU hours.
+
+### D071 — A3 finishes without ablations; test configuration frozen before the test run
+- **2026-10-06 · A3.5–A3.6 · by user (scope) / Claude (configuration, as proposed in D070) · Approved**
+- **Scope (user).** None of the A3.5 ablations run. The not-run list:
+  - zero-shot (H6), no grammar, LLM turn types (H5);
+  - sample counts, majority vote, the direction rule;
+  - the giant-map retrain (H4), and a lower sampling temperature.
+  - H5 and H6 stay untested. A3 ends with the test run, the report and a discussion of why the results came out this way.
+- **Test configuration, frozen now (before the test run):**
+  1. **Votes (main, pre-registered):** 8 relation samples per map → vote shares → the thresholds fitted on all of dev (Inference 0.15, Conflict 0.5, Rephrase 0.3).
+  2. **Greedy (reported beside it):** the greedy answer, every relation it lists kept. It is better on dev (+1.8 / +4.0), but was not pre-registered.
+  3. **Turn types:** the ILO labeller's links and types for both. The LLM's types are not used: the strict rule was never evaluated, and A2's LLM types cost 1.1 ILO on test (D064).
+- **Protocol (as A2.5):** both configurations' 11 maps are assembled, validated and saved before `data/evaluation/` is read, then scored once; nothing is changed afterwards. Dev Global comes from the same assembly with cross-fitted thresholds.
+
+### D072 — A3.6 result: test Global 73.17 / 58.17 (ARI 53.70 / 32.05), between A1 and A2; dev ranks A3 below both
+- **2026-10-06 · A3.6 · run on the user's go · Finding** (`results/a3/test_global.json`, `test_predictions/`, `test_predictions_greedy/`, `v1/ep2.0_test_*.jsonl.gz`, `v1/dev_global.json`, `test_posthoc.json`)
+- *Protocol (D071):* 11 test inputs, with greedy + 8 samples each (88 / 88 samples valid). Both configurations' 22 maps were assembled, validated and saved before the gold was read, then scored once.
+
+  | Test, general / focused | ARI | ILO | Global |
+  |---|---|---|---|
+  | A1 + labeller (D050) | 51.38 / 30.77 | 92.64 / 84.28 | 72.01 / 57.53 |
+  | A2 + labeller + LLM types (D064) | **55.77 / 33.34** | 91.56 / 83.20 | **73.67 / 58.27** |
+  | **A3 votes + labeller (pre-registered)** | **53.70 / 32.05** | 92.64 / 84.28 | **73.17 / 58.17** |
+  | A3 greedy + labeller | 52.25 / 31.74 | 92.64 / 84.28 | 72.44 / 58.01 |
+
+- *Against the 2024 field:* Global 1st / 1st (DFKI 67.05 / 48.25). ARI general 2nd (DFKI 55.33); ARI focused 2nd (POKEMON 35.89).
+- *Per type (votes):*
+  - Inference P / R / F1 0.37 / 0.39 / 0.38, with direction right for 89%;
+  - Rephrase 0.50 / 0.57 / 0.53;
+  - **Conflict 0 of 13 found** (none predicted);
+  - no map gets an invented relation type.
+- *Dev, same assembly with cross-fitted thresholds (225 / 225 valid):*
+  - votes: ARI 47.65 / 27.23, ILO 90.16 / 80.67, **Global 68.90 / 53.95**;
+  - greedy: Global 69.81 / 55.93;
+  - for comparison, A1 70.29 / 56.63 and A2 72.53 / 57.63.
+- *The dev → test change is +6.05 ARI*, against A1's +0.9 and A2's +1.1. Checked post-hoc, read-only:
+  - **11 maps reproduce it often enough.** A3's test mean lies within the 95% range of random 11-map dev subsets (39.9–55.6; a test-or-higher mean in 6.6% of subsets). A3 − A1 ≥ +2.3 occurs in 10% of subsets.
+  - **Per map it's a split:** A3 beats A1 on 5 of 11 maps and A2 on 5.
+  - **A3's own outputs are unstable:** votes and greedy differ by up to 21 points on one map.
+  - *Reading:* the test ranking (A1 < A3 < A2) differs from dev's (A3 < A1 < A2). The dev set is 20× larger, so its ranking stands. A jump this size is uncommon but within 11-map variation; contamination isn't supported, but no memorisation probe was run.

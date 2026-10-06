@@ -1,8 +1,9 @@
 # A3 — A fine-tuned open language model for argument relations
 
 > **What this is:** the report on approach A3, for readers new to the project. Terms are explained where they first appear and collected in §3. Each phase reads as its plan until it runs, then as its result.
-> **Status (2026-10-06):** A3.1–A3.4 done. **On dev, A3 trails both A1 and A2, and both pre-registered success tests fail** (honest ARI 47.65 / 27.23). Next: A3.5 (assembly and ablations), then the test run.
-> **Evidence:** [`../results/a3/`](../results/a3/). Decisions D065–D070 in [`../decisionlog.md`](../decisionlog.md).
+> **Status:** final (2026-10-06). The test set was scored once, with nothing changed afterwards: **Global 73.17 / 58.17**, between A1 (72.01 / 57.53) and A2 (73.67 / 58.27). On dev (225 maps) A3 trails both, and both pre-registered success tests fail. No ablations were run (user decision, D071).
+> **Evidence:** [`../results/a3/`](../results/a3/). Decisions D065–D072 in [`../decisionlog.md`](../decisionlog.md).
+> **Discussion:** [`A3-discussion.md`](A3-discussion.md) asks why A3 lands where it does against A1, A2 and the 2024 systems.
 > **Background:** [A1](A1-cross-encoder.md) (a trained pairwise encoder), [A2](A2-whole-map-llm.md) (Claude reading the whole map) and [the A2 discussion](A2-discussion.md) (why each wins where it does).
 
 ## In one minute
@@ -13,10 +14,14 @@
   - Neither finds the Conflicts within one speaker's own talk (70% of all Conflicts).
 - **The idea.** Teach an open LLM the annotators' habits **through its weights**: train it on 1,231 annotated maps to write each map's whole relation list. It keeps the LLM's whole-map view and learns what the encoder learned.
 - **How.** **Qwen3-4B-Instruct-2507**, stored in 4-bit with small trainable add-ons (**QLoRA**), on the local 8 GB GPU: **$0**. The text format, decision layer, map assembly and scorer are A1's and A2's, so the three systems compare directly.
-- **Result on dev.** Training takes 110 min, and the model learns the answer format: 3,300+ answers, all valid but one.
-  - **It doesn't beat A1 or A2.** With 8 sampled answers and tuned thresholds (the pre-registered score) it reaches **47.65 / 27.23**, against A1's 50.50 / 32.61 and A2's 54.63 / 34.12. Its single greedy answer does a little better (49.46 / 31.19), but is still below both.
-  - **What it learned:** the annotators' density, with A2-level precision; at the same number of relations it invents no more than A2.
-  - **What it didn't learn:** the encoder's habit of loose support between neighbouring turns. It finds far fewer true Inferences (recall 0.25 against A1 0.39 and A2 0.42), and Conflict stays mostly missed.
+- **Test result (11 maps, scored once): Global 73.17 / 58.17**, between A1 (72.01 / 57.53) and A2 (73.67 / 58.27), and 1st on Global against the 2024 field (67.05 / 48.25). ARI is 53.70 / 32.05, 2nd against 2024 in both settings.
+- **On dev (225 maps, the reliable comparison) A3 trails both:** honest ARI 47.65 / 27.23, against A1's 50.50 / 32.61 and A2's 54.63 / 34.12. Both pre-registered success tests fail. The +6 dev → test jump is within 11-map variation (§5, A3.6).
+- **What it learned:** the answer format (every answer valid), the annotators' density, and A2-level caution.
+- **What it didn't learn:** the Inference judgement.
+  - It calls twice as many gold Inferences "Rephrase" as A1 or A2 do.
+  - It finds far fewer of them (neighbour recall 0.25, against 0.39 and 0.42).
+  - It finds no test Conflict.
+- **Cost:** $0, 110 min of training on an 8 GB GPU, ~40 s per map to predict.
 
 ---
 
@@ -152,8 +157,8 @@ A per-map grammar blocks any token that would break the answer format, so every 
 | **A3.2 Training loop** | Trainer, cached generator, overfit test | **Passed**: 32 / 32 maps reproduced exactly | ~0.5 h |
 | **A3.3 Training run** | 3 epochs; checkpoint choice; vote diversity | **Passed**: ep2.0, greedy dev ARI 49.46 / 31.19 | ~4 h |
 | **A3.4 Dev run** | 8 samples × 225 dev maps; thresholds; success tests | **Done**: honest 47.65 / 27.23; both success tests fail | ~2.5 h |
-| **A3.5 Assembly + ablations** | Complete maps, turn types, combination, ablations | Planned | ~3–6 h |
-| **A3.6 Test run** | The 11 test maps, once | Planned | < 0.5 h |
+| **A3.5 Assembly** | Complete dev maps and dev Global; ablations dropped (D071) | **Done**: 225 / 225 valid; dev Global 68.90 / 53.95 | — |
+| **A3.6 Test run** | The 11 test maps, once | **Done**: Global 73.17 / 58.17 | ~0.3 h |
 
 ### A3.1 Setup and feasibility — passed (2026-10-05)
 Evidence: [`check.json`](../results/a3/check.json), [`probe_qwen3-4b.json`](../results/a3/probe_qwen3-4b.json), [`probe_qwen3-8b.json`](../results/a3/probe_qwen3-8b.json), [`samples/`](../results/a3/samples/). Decision D066.
@@ -251,15 +256,45 @@ Evidence: [`v1/dev_report.json`](../results/a3/v1/dev_report.json), [`v1/thresho
 - **Sampling hurts.** A temperature-1 sample scores 37–42, far below the greedy answer's 49.5. Eight votes recover most of the gap, but the greedy answer stays A3's best configuration on dev.
 - *Reading:* on 1,231 maps, a 4B model trained on whole-map answers doesn't match a 150M encoder trained on pairs, or a much larger model applying definitions. Learning the convention through the weights didn't pay off at this size and data volume.
 
-### A3.5 Assembly and ablations — planned
-- Complete maps (`build_map`, validator, official scorer) → dev ARI / ILO / Global next to A1 and A2.
-- The LLM's turn types under the strict rule.
-- The ablations in §7.
+### A3.5 Assembly — done, without ablations (2026-10-06)
+Evidence: [`v1/dev_global.json`](../results/a3/v1/dev_global.json). Decision D071.
 
-### A3.6 Test run — planned
-- On your go: the 11 test inputs, with dev-fitted thresholds.
-- Maps are saved before the gold is read, then scored once.
-- **Contamination check:** A3's dev → test change against A1's (+0.9) and A2's (+1.1).
+- **No ablations (user decision).** H5 (LLM turn types) and H6 (zero-shot) stay untested. Turn types are the ILO labeller's.
+- **Complete dev maps** with each episode's cross-fitted thresholds: 225 / 225 valid. The official scorer confirms A3.4's ARI.
+
+| Dev, honest, general / focused | ARI | ILO | Global |
+|---|---|---|---|
+| A1 + labeller | 50.50 / 32.61 | 90.08 / 80.64 | 70.29 / 56.63 |
+| A2 + labeller + LLM types | **54.63 / 34.12** | **90.43 / 81.13** | **72.53 / 57.63** |
+| **A3 votes + labeller** | 47.65 / 27.23 | 90.16 / 80.67 | 68.90 / 53.95 |
+| A3 greedy + labeller | 49.46 / 31.19 | 90.16 / 80.67 | 69.81 / 55.93 |
+
+### A3.6 Test run — done (2026-10-06)
+Evidence: [`test_global.json`](../results/a3/test_global.json), [`test_predictions/`](../results/a3/test_predictions/) and [`test_predictions_greedy/`](../results/a3/test_predictions_greedy/) (the 22 submitted maps), the raw test answers, and [`test_posthoc.json`](../results/a3/test_posthoc.json). Decisions D071–D072.
+
+**Protocol.**
+- Both configurations were frozen before the run (D071): votes, the pre-registered one, and greedy, reported beside it.
+- 11 test inputs, with the labeller's links and types; 88 / 88 samples valid.
+- All 22 maps were assembled, validated and saved before the gold was read, then scored once.
+
+| Test F1, general / focused | ARI | ILO | Global |
+|---|---|---|---|
+| Best 2024 entry per column | 55.33 / 35.89 | 81.17 / 72.09 | 67.05 / 48.25 |
+| A1 + labeller | 51.38 / 30.77 | 92.64 / 84.28 | 72.01 / 57.53 |
+| A2 + labeller + LLM types | **55.77 / 33.34** | 91.56 / 83.20 | **73.67 / 58.27** |
+| **A3 votes + labeller** | **53.70 / 32.05** | 92.64 / 84.28 | **73.17 / 58.17** |
+| A3 greedy + labeller | 52.25 / 31.74 | 92.64 / 84.28 | 72.44 / 58.01 |
+
+- **Against the 2024 field:** Global 1st / 1st; ARI 2nd in general (DFKI 55.33) and in focused (POKEMON 35.89).
+- **Per type (votes):**
+  - Inference P / R / F1 0.37 / 0.39 / 0.38, with direction right for 89%;
+  - Rephrase 0.50 / 0.57 / 0.53;
+  - **Conflict 0 of 13** (none predicted, so none invented).
+- **The dev → test jump is +6.05 ARI,** against A1's +0.9 and A2's +1.1. Checked post-hoc, read-only:
+  - A3's test mean lies within the 95% range of random 11-map dev subsets (39.9–55.6). A mean this high occurs in 7% of them.
+  - A3 beats A1 on 5 of 11 test maps and A2 on 5. Votes and greedy differ by up to 21 points on one map.
+  - **The dev ranking (A3 < A1 < A2) stands;** the test ranking (A1 < A3 < A2) is within 11-map noise.
+  - Contamination is not supported by this check, but not excluded: no memorisation probe was run.
 
 ---
 
@@ -279,8 +314,8 @@ Test 1 needs a margin because A3, unlike A2, chose its checkpoint on dev.
 | H2 | …without the encoder's over-linking | Unrelated pairs given a relation | 905 (1,278) | 812 (697) | **805** (965) | ≤ 90% of A1's | **Holds** |
 | H3 | It keeps the LLM's direction | Inference direction right | 86% (81%) | 84% (85%) | **83%** (76%) | ≥ 85% | **Fails** (all close) |
 | H4 | It learns concessive Conflict within one speaker | Recall, within-speaker Conflicts (91) | 9% (5%) | 7% (3%) | **11%** (7%) | ≥ 15% | **Fails** |
-| H5 | It learns the cautious turn-type prior | Honest dev ILO vs the labeller (90.16 / 80.67) | — | 90.43 | A3.5 | The strict rule (§4) passes | — |
-| H6 | Training matters, not just the model | ARI, fine-tuned vs the same model untrained | | | A3.5 | ≥ +5 general | — |
+| H5 | It learns the cautious turn-type prior | Honest dev ILO vs the labeller (90.16 / 80.67) | — | 90.43 | not run | The strict rule (§4) passes | Untested (D071) |
+| H6 | Training matters, not just the model | ARI, fine-tuned vs the same model untrained | | | not run | ≥ +5 general | Untested (D071) |
 
 *Notes:*
 - At matched density (8.32 relations per map for all three), A1 and A2 are much closer than at their own thresholds. Much of the contrast in the A2 discussion came from where each system's thresholds sat.
@@ -289,6 +324,8 @@ Test 1 needs a margin because A3, unlike A2, chose its checkpoint on dev.
 ---
 
 ## 7. Ablations
+
+*None of these were run (user decision, D071); the list records what was planned.*
 
 | Ablation | Question | Cost |
 |---|---|---|
@@ -312,7 +349,9 @@ Test 1 needs a margin because A3, unlike A2, chose its checkpoint on dev.
   - **training:** 110 min;
   - **checkpoint scoring:** ≈ 15 min per adapter (6 adapters);
   - **dev sampling:** ≈ 40 s per map for 8 samples, ≈ 2.5 h in all;
-  - **A3.4 analysis:** 4 min on the CPU.
+  - **A3.4 analysis:** 4 min on the CPU;
+  - **test run:** ≈ 15 min for 11 maps (greedy + 8 samples).
+- **In all:** ≈ 9 GPU hours, including the probes, the overfit test and two interrupted scoring runs.
 - Every run logs wall-clock, tokens/s and peak memory to `results/timing.csv`.
 
 ## 9. Risks
@@ -330,7 +369,33 @@ Test 1 needs a margin because A3, unlike A2, chose its checkpoint on dev.
 
 ---
 
-## 10. Plan review (2026-10-05)
+## 10. Assessment
+**What worked**
+- **A trained whole-map LLM on one consumer GPU, at $0.**
+  - It learns the format perfectly: every dev and test answer is valid.
+  - It learns the annotators' density, with A2-level caution.
+  - It ranks 1st on Global against the 2024 field.
+  - It does far better than 2024's generative attempts (Turiya's prompted LLM: 30.75 general ARI).
+- **Measurement we can trust:**
+  - the pipeline was checked lossless;
+  - A1's and A2's scores reproduce exactly on the same rows;
+  - success tests and hypotheses were fixed before any run;
+  - systems are compared at matched density;
+  - test maps were saved before the gold was read, and the test result was checked against 11-map dev variation.
+
+**Shortcomings**
+- **It doesn't beat A1 or A2 on dev,** and adds nothing to their combination.
+  - It confuses Inference with Rephrase twice as often as they do.
+  - Its temperature-1 samples are too diffuse for votes to work well.
+- **Several causes can't be told apart.** Model size, 4-bit storage and the amount of supervision are confounded: 8B couldn't train on 8 GB, and the ablations weren't run.
+- **Engineering cost:** two runs were interrupted by Windows memory pressure, before WSL was set to return its file cache.
+
+**Takeaways** (more in the [discussion](A3-discussion.md))
+- For whole-map relation writing, **model competence matters more than learning the convention:** a frontier model with a definition beat a 4B model trained on the annotations.
+- **Fine-tuning teaches format and base rate cheaply; judgement needs scale or explicit pairwise supervision.**
+- **Compare at matched density.** At their own thresholds, systems look more different than they are.
+
+## 11. Plan review (2026-10-05)
 An independent reviewer agent, not involved in writing the plan, checked it against the A1 / A2 reports, the decision log, the code and the tools' documentation. Verdict: "approve with changes". All changes were adopted:
 
 | Finding | Change |
@@ -343,3 +408,10 @@ An independent reviewer agent, not involved in writing the plan, checked it agai
 | A2's schema and parser require confidence; free whitespace could run away | A3 versions; a strict grammar; every gold answer must pass it |
 | The votes might be all-or-nothing | Token probabilities kept, with a fixed switching rule |
 | Giant maps confound the comparison | Left out of the main run; a retrain ablation |
+
+---
+**Reproduce** (WSL, repo root, `~/.venvs/a3` from `requirements-a3.txt`):
+1. `python -m a3_finetune.check`, then `python -m a3_finetune.probe --model=qwen3-4b`, then `python -m a3_finetune.model --save-quantized`.
+2. `python -m a3_finetune.train --run=v1` (~110 min), then `python -m a3_finetune.evaluate --greedy-dev --run=v1`, then `python -m a3_finetune.evaluate --diversity --run=v1`.
+3. `python -m a3_finetune.runner --run=v1 --adapter=ep2.0 --split=dev --samples=8 --export`, then `python -m a3_finetune.tune --run=v1`.
+4. `python -m a3_finetune.predict --dev --test`, then `python -m a3_finetune.posthoc_test` and `python -m a3_finetune.discuss`.

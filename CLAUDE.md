@@ -119,6 +119,7 @@ Key numbers (training):
 | Best 2024 | 55.3 / 35.9 | 81.2 / 72.1 | **67.05 / 48.25** (DFKI-MLST) |
 | Ours: A1 + ILO labeller, test (2026-10-03) | 51.4 / 30.8 | **92.6 / 84.3** | 72.01 / 57.53: see `reports/A1-cross-encoder.md` |
 | **Ours: A2 (Sonnet 5.5, whole map) + ILO labeller, test (2026-10-05)** | **55.8** / 33.3 | 91.6 / 83.2 | **73.67 / 58.27**: see `reports/A2-whole-map-llm.md` |
+| Ours: A3 (fine-tuned Qwen3-4B) + ILO labeller, test (2026-10-06) | 53.7 / 32.1 | 92.6 / 84.3 | 73.17 / 58.17: see `reports/A3-finetuned-llm.md` (on dev it trails A1 and A2) |
 
 Every winning system was a **pairwise encoder classifier** (DeBERTa/RoBERTa). It read two sentences at a time with no
 surrounding dialogue. This caused five failures:
@@ -169,7 +170,7 @@ It runs through Claude Code's scripted mode (`claude -p`) on the user's Claude P
 
 **A3 — Fine-tuned open LLM.** QLoRA (4-bit weights plus small trainable adapters) fine-tunes Qwen3-4B-Instruct-2507 to generate the relation list for a map (Qwen3-8B can't train on the 8 GB card, D066).
 - **Why:** it tests whether *learning the IAT annotation style* beats a general model's size.
-- **Plan and status:** `reports/A3-finetuned-llm.md` and the phase map (A3.1–A3.6). It runs locally in a separate venv (`~/.venvs/a3`, `requirements-a3.txt`).
+- **Outcome (final, 2026-10-06):** test Global 73.17 / 58.17, between A1 and A2. On dev it trails both (ARI 47.65 / 27.23): it learns the format and density but not the Inference judgement. See `reports/A3-finetuned-llm.md` and `reports/A3-discussion.md`. It runs locally in a separate venv (`~/.venvs/a3`, `requirements-a3.txt`).
 
 **A4 — Jev (TypeSafe AI's System One model), no training.** Jev doesn't write text. It takes a *state* (up to 32k tokens) and a set of typed
 questions (`choice` among up to 255 options, `score` on a rubric, `boolean`), and answers all of them in parallel with probabilities.

@@ -136,6 +136,7 @@ Full plan, concepts, the reason for each choice and the independent review: [`re
 - **Otherwise:** Qwen3-4B-Instruct-2507.
 - **Why it's close:** Qwen3-8B's untied 16-bit embeddings alone take ~2.5 GB.
 - **Outcome (A3.1, D066):** 8B fills the card by 1,200 tokens and crashes before the longest example, so the model is **Qwen3-4B-Instruct-2507** (4.25 GiB peak, 789 tokens/s).
+- **Final (D070–D072):** honest dev ARI 47.65 / 27.23, below A1 and A2, with both success tests failing; test Global 73.17 / 58.17. Ablations not run (user decision, D071). Report: `reports/A3-finetuned-llm.md`; discussion: `reports/A3-discussion.md`.
 
 **End to end:**
 1. **Data:** the 1,231 test-like training maps → (instruction + A2's serialised map, compact gold answer without confidence). Gold links on training maps; the ILO labeller's on dev and test. The giant maps are left out (a retrain ablation).
