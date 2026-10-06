@@ -68,7 +68,18 @@ Global is the mean of ARI and ILO. Every row's ILO comes from the shared illocut
 
 ## Why relations are hard, even for 2026 models
 
-- **The task is detection.** A map has about 200 ordered proposition pairs and 8 relations, and most connections are implicit: a concession counts as an attack with no "but", an elaboration as a rephrase. 82–86% of every system's errors are missed or invented relations, not a wrong type or direction.
+For every pair of propositions a system must answer two questions: **are they related at all**, and if so, **how** (support, attack or rephrase, and in which direction)? The systems handle the second reasonably well; they fail on the first. For the encoder on dev:
+
+| Error | Count |
+|---|---|
+| Gold relation missed (called "no relation") | 905 |
+| Relation invented for an unrelated pair | 905 |
+| Right pair, wrong type | 229 |
+| Right pair, wrong direction | 61 |
+
+So 82–86% of every system's errors happen before a relation type is even chosen, and a better type classifier would barely help. The causes:
+
+- **A needle in a haystack, with no surface cue.** A map has about 200 ordered proposition pairs and only about 8 relations. Most connections are implicit: a concession counts as an attack with no "but", an elaboration as a rephrase, and an answer as a rephrase of its question. The model has to infer what the speaker meant.
 - **The labels are conventions.** QT30's annotators agree at 0.56 (CASS), so some "errors" are readings a person could defend. Models that apply plain meaning (Jev, Claude) are marked wrong where the convention differs.
 - **The data is thin where it matters.** The 1,478 training maps hold only 1,232 attacks, 56% of them within one speaker's own talk. Those within-speaker attacks stay at 7–12% recall for every method.
 - **The models are not the main limit.** A 150M encoder, a frontier LLM, a fine-tuned 4B LLM and an untrained decision model land within 7 points of each other. Whole-dialogue context added the encoder 1.5 points and reasoning added Claude 0.8. Claude's real edge is long-range relations: 30–37% recall two or more turns apart, against 12–16% for the encoder.
@@ -77,6 +88,8 @@ Global is the mean of ARI and ILO. Every row's ILO comes from the shared illocut
 ![Why relation mining is hard](reports/figures/short-why-relations.png)
 
 *Left: the errors each system makes on the 1,873 dev gold relations, mostly missed or invented relations. Right: recall by turn distance.*
+
+**Why this matters.** Even with the best system, the 11 test maps are missing more than half of their true links (71 of 124) and about half of the predicted links are wrong (59 of 112), so a map can't be used to analyse a debate without a person correcting it. The finding also shows where the field's effort should go: not into better relation-type classifiers, but into deciding which pairs are connected. That means reading the whole dialogue (most of Claude's gain is on long-range links), teaching the annotation conventions explicitly, and building each map as a whole rather than pair by pair.
 
 ## Repository
 
