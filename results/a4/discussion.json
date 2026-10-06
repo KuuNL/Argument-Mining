@@ -1,0 +1,670 @@
+{
+ "matched_density_ari": {
+  "A1": {
+   "general": 50.02,
+   "focused": 30.05
+  },
+  "A2": {
+   "general": 54.32,
+   "focused": 35.32
+  },
+  "A4 pair": {
+   "general": 47.22,
+   "focused": 25.85
+  },
+  "A4 source": {
+   "general": 46.07,
+   "focused": 26.01
+  },
+  "A4 both": {
+   "general": 51.13,
+   "focused": 31.45
+  }
+ },
+ "what_gold_becomes": {
+  "A1": {
+   "Inference": {
+    "None": 577,
+    "Rephrase": 129,
+    "right": 301,
+    "Inference, reversed": 50,
+    "Conflict": 3
+   },
+   "Rephrase": {
+    "Conflict": 12,
+    "right": 358,
+    "None": 248,
+    "Inference": 54,
+    "Rephrase": 11
+   },
+   "Conflict": {
+    "right": 19,
+    "None": 80,
+    "Inference": 23,
+    "Rephrase": 8
+   }
+  },
+  "A2": {
+   "Inference": {
+    "right": 396,
+    "Rephrase": 121,
+    "None": 462,
+    "Inference, reversed": 74,
+    "Conflict": 7
+   },
+   "Rephrase": {
+    "None": 184,
+    "right": 377,
+    "Inference": 108,
+    "Rephrase": 9,
+    "Conflict": 5
+   },
+   "Conflict": {
+    "right": 23,
+    "None": 85,
+    "Inference": 13,
+    "Rephrase": 9
+   }
+  },
+  "A4 pair": {
+   "Inference": {
+    "right": 417,
+    "Inference, reversed": 41,
+    "None": 580,
+    "Rephrase": 20,
+    "Conflict": 2
+   },
+   "Rephrase": {
+    "None": 468,
+    "right": 135,
+    "Inference": 75,
+    "Conflict": 1,
+    "Rephrase": 4
+   },
+   "Conflict": {
+    "None": 104,
+    "right": 18,
+    "Conflict": 1,
+    "Inference": 7
+   }
+  },
+  "A4 source": {
+   "Inference": {
+    "right": 394,
+    "Inference, reversed": 124,
+    "None": 485,
+    "Rephrase": 46,
+    "Conflict": 11
+   },
+   "Rephrase": {
+    "Conflict": 9,
+    "Inference": 302,
+    "None": 223,
+    "right": 144,
+    "Rephrase": 5
+   },
+   "Conflict": {
+    "Inference": 29,
+    "None": 71,
+    "right": 28,
+    "Conflict": 1,
+    "Rephrase": 1
+   }
+  },
+  "A4 both": {
+   "Inference": {
+    "right": 471,
+    "Inference, reversed": 73,
+    "None": 467,
+    "Rephrase": 42,
+    "Conflict": 7
+   },
+   "Rephrase": {
+    "None": 305,
+    "right": 201,
+    "Inference": 169,
+    "Conflict": 3,
+    "Rephrase": 5
+   },
+   "Conflict": {
+    "Inference": 20,
+    "None": 80,
+    "right": 29,
+    "Conflict": 1
+   }
+  }
+ },
+ "recall": {
+  "A1": {
+   "Conflict, 1 turn": {
+    "gold": 88,
+    "recall": 0.182
+   },
+   "Conflict, 2-3 turns": {
+    "gold": 30,
+    "recall": 0.067
+   },
+   "Conflict, 4-10 turns": {
+    "gold": 11,
+    "recall": 0.0
+   },
+   "Conflict, different speakers": {
+    "gold": 38,
+    "recall": 0.263
+   },
+   "Conflict, same speaker": {
+    "gold": 91,
+    "recall": 0.088
+   },
+   "Conflict, unplaced": {
+    "gold": 1,
+    "recall": 1.0
+   },
+   "Inference, 1 turn": {
+    "gold": 707,
+    "recall": 0.388
+   },
+   "Inference, 11+ turns": {
+    "gold": 8,
+    "recall": 0.0
+   },
+   "Inference, 2-3 turns": {
+    "gold": 252,
+    "recall": 0.107
+   },
+   "Inference, 4-10 turns": {
+    "gold": 79,
+    "recall": 0.0
+   },
+   "Inference, unplaced": {
+    "gold": 14,
+    "recall": 0.0
+   },
+   "Rephrase, 1 turn": {
+    "gold": 486,
+    "recall": 0.613
+   },
+   "Rephrase, 11+ turns": {
+    "gold": 11,
+    "recall": 0.0
+   },
+   "Rephrase, 2-3 turns": {
+    "gold": 108,
+    "recall": 0.324
+   },
+   "Rephrase, 4-10 turns": {
+    "gold": 65,
+    "recall": 0.292
+   },
+   "Rephrase, no shared content words": {
+    "gold": 102,
+    "recall": 0.225
+   },
+   "Rephrase, overlap >= 0.5": {
+    "gold": 112,
+    "recall": 0.812
+   },
+   "Rephrase, some overlap": {
+    "gold": 469,
+    "recall": 0.52
+   },
+   "Rephrase, unplaced": {
+    "gold": 13,
+    "recall": 0.462
+   }
+  },
+  "A2": {
+   "Conflict, 1 turn": {
+    "gold": 88,
+    "recall": 0.17
+   },
+   "Conflict, 2-3 turns": {
+    "gold": 30,
+    "recall": 0.167
+   },
+   "Conflict, 4-10 turns": {
+    "gold": 11,
+    "recall": 0.182
+   },
+   "Conflict, different speakers": {
+    "gold": 38,
+    "recall": 0.421
+   },
+   "Conflict, same speaker": {
+    "gold": 91,
+    "recall": 0.066
+   },
+   "Conflict, unplaced": {
+    "gold": 1,
+    "recall": 1.0
+   },
+   "Inference, 1 turn": {
+    "gold": 707,
+    "recall": 0.424
+   },
+   "Inference, 11+ turns": {
+    "gold": 8,
+    "recall": 0.0
+   },
+   "Inference, 2-3 turns": {
+    "gold": 252,
+    "recall": 0.317
+   },
+   "Inference, 4-10 turns": {
+    "gold": 79,
+    "recall": 0.139
+   },
+   "Inference, unplaced": {
+    "gold": 14,
+    "recall": 0.357
+   },
+   "Rephrase, 1 turn": {
+    "gold": 486,
+    "recall": 0.572
+   },
+   "Rephrase, 11+ turns": {
+    "gold": 11,
+    "recall": 0.364
+   },
+   "Rephrase, 2-3 turns": {
+    "gold": 108,
+    "recall": 0.537
+   },
+   "Rephrase, 4-10 turns": {
+    "gold": 65,
+    "recall": 0.523
+   },
+   "Rephrase, no shared content words": {
+    "gold": 102,
+    "recall": 0.431
+   },
+   "Rephrase, overlap >= 0.5": {
+    "gold": 112,
+    "recall": 0.741
+   },
+   "Rephrase, some overlap": {
+    "gold": 469,
+    "recall": 0.533
+   },
+   "Rephrase, unplaced": {
+    "gold": 13,
+    "recall": 0.231
+   }
+  },
+  "A4 pair": {
+   "Conflict, 1 turn": {
+    "gold": 88,
+    "recall": 0.125
+   },
+   "Conflict, 2-3 turns": {
+    "gold": 30,
+    "recall": 0.167
+   },
+   "Conflict, 4-10 turns": {
+    "gold": 11,
+    "recall": 0.182
+   },
+   "Conflict, different speakers": {
+    "gold": 38,
+    "recall": 0.289
+   },
+   "Conflict, same speaker": {
+    "gold": 91,
+    "recall": 0.077
+   },
+   "Conflict, unplaced": {
+    "gold": 1,
+    "recall": 0.0
+   },
+   "Inference, 1 turn": {
+    "gold": 707,
+    "recall": 0.4
+   },
+   "Inference, 11+ turns": {
+    "gold": 8,
+    "recall": 0.0
+   },
+   "Inference, 2-3 turns": {
+    "gold": 252,
+    "recall": 0.401
+   },
+   "Inference, 4-10 turns": {
+    "gold": 79,
+    "recall": 0.316
+   },
+   "Inference, unplaced": {
+    "gold": 14,
+    "recall": 0.571
+   },
+   "Rephrase, 1 turn": {
+    "gold": 486,
+    "recall": 0.195
+   },
+   "Rephrase, 11+ turns": {
+    "gold": 11,
+    "recall": 0.0
+   },
+   "Rephrase, 2-3 turns": {
+    "gold": 108,
+    "recall": 0.194
+   },
+   "Rephrase, 4-10 turns": {
+    "gold": 65,
+    "recall": 0.246
+   },
+   "Rephrase, no shared content words": {
+    "gold": 102,
+    "recall": 0.127
+   },
+   "Rephrase, overlap >= 0.5": {
+    "gold": 112,
+    "recall": 0.402
+   },
+   "Rephrase, some overlap": {
+    "gold": 469,
+    "recall": 0.164
+   },
+   "Rephrase, unplaced": {
+    "gold": 13,
+    "recall": 0.231
+   }
+  },
+  "A4 source": {
+   "Conflict, 1 turn": {
+    "gold": 88,
+    "recall": 0.205
+   },
+   "Conflict, 2-3 turns": {
+    "gold": 30,
+    "recall": 0.2
+   },
+   "Conflict, 4-10 turns": {
+    "gold": 11,
+    "recall": 0.273
+   },
+   "Conflict, different speakers": {
+    "gold": 38,
+    "recall": 0.421
+   },
+   "Conflict, same speaker": {
+    "gold": 91,
+    "recall": 0.121
+   },
+   "Conflict, unplaced": {
+    "gold": 1,
+    "recall": 1.0
+   },
+   "Inference, 1 turn": {
+    "gold": 707,
+    "recall": 0.451
+   },
+   "Inference, 11+ turns": {
+    "gold": 8,
+    "recall": 0.0
+   },
+   "Inference, 2-3 turns": {
+    "gold": 252,
+    "recall": 0.25
+   },
+   "Inference, 4-10 turns": {
+    "gold": 79,
+    "recall": 0.114
+   },
+   "Inference, unplaced": {
+    "gold": 14,
+    "recall": 0.214
+   },
+   "Rephrase, 1 turn": {
+    "gold": 486,
+    "recall": 0.202
+   },
+   "Rephrase, 11+ turns": {
+    "gold": 11,
+    "recall": 0.0
+   },
+   "Rephrase, 2-3 turns": {
+    "gold": 108,
+    "recall": 0.259
+   },
+   "Rephrase, 4-10 turns": {
+    "gold": 65,
+    "recall": 0.246
+   },
+   "Rephrase, no shared content words": {
+    "gold": 102,
+    "recall": 0.098
+   },
+   "Rephrase, overlap >= 0.5": {
+    "gold": 112,
+    "recall": 0.455
+   },
+   "Rephrase, some overlap": {
+    "gold": 469,
+    "recall": 0.177
+   },
+   "Rephrase, unplaced": {
+    "gold": 13,
+    "recall": 0.154
+   }
+  },
+  "A4 both": {
+   "Conflict, 1 turn": {
+    "gold": 88,
+    "recall": 0.205
+   },
+   "Conflict, 2-3 turns": {
+    "gold": 30,
+    "recall": 0.233
+   },
+   "Conflict, 4-10 turns": {
+    "gold": 11,
+    "recall": 0.273
+   },
+   "Conflict, different speakers": {
+    "gold": 38,
+    "recall": 0.447
+   },
+   "Conflict, same speaker": {
+    "gold": 91,
+    "recall": 0.121
+   },
+   "Conflict, unplaced": {
+    "gold": 1,
+    "recall": 1.0
+   },
+   "Inference, 1 turn": {
+    "gold": 707,
+    "recall": 0.506
+   },
+   "Inference, 11+ turns": {
+    "gold": 8,
+    "recall": 0.0
+   },
+   "Inference, 2-3 turns": {
+    "gold": 252,
+    "recall": 0.349
+   },
+   "Inference, 4-10 turns": {
+    "gold": 79,
+    "recall": 0.241
+   },
+   "Inference, unplaced": {
+    "gold": 14,
+    "recall": 0.429
+   },
+   "Rephrase, 1 turn": {
+    "gold": 486,
+    "recall": 0.298
+   },
+   "Rephrase, 11+ turns": {
+    "gold": 11,
+    "recall": 0.0
+   },
+   "Rephrase, 2-3 turns": {
+    "gold": 108,
+    "recall": 0.315
+   },
+   "Rephrase, 4-10 turns": {
+    "gold": 65,
+    "recall": 0.277
+   },
+   "Rephrase, no shared content words": {
+    "gold": 102,
+    "recall": 0.157
+   },
+   "Rephrase, overlap >= 0.5": {
+    "gold": 112,
+    "recall": 0.598
+   },
+   "Rephrase, some overlap": {
+    "gold": 469,
+    "recall": 0.252
+   },
+   "Rephrase, unplaced": {
+    "gold": 13,
+    "recall": 0.308
+   }
+  }
+ },
+ "invented_by_type": {
+  "A1": {
+   "Rephrase": 343,
+   "Inference": 519,
+   "Conflict": 43
+  },
+  "A2": {
+   "Inference": 501,
+   "Rephrase": 276,
+   "Conflict": 35
+  },
+  "A4 pair": {
+   "Inference": 1049,
+   "Conflict": 38,
+   "Rephrase": 68
+  },
+  "A4 source": {
+   "Inference": 627,
+   "Rephrase": 94,
+   "Conflict": 57
+  },
+  "A4 both": {
+   "Inference": 707,
+   "Rephrase": 96,
+   "Conflict": 56
+  }
+ },
+ "a4_views_finding_each_gold_relation": {
+  "Inference": {
+   "pair+source": 276,
+   "neither": 525,
+   "source": 118,
+   "pair": 141
+  },
+  "Rephrase": {
+   "neither": 489,
+   "pair": 50,
+   "pair+source": 85,
+   "source": 59
+  },
+  "Conflict": {
+   "neither": 98,
+   "pair": 4,
+   "pair+source": 14,
+   "source": 14
+  }
+ },
+ "honest_per_map_by_size": {
+  "<= 10 propositions": {
+   "maps": 59,
+   "A4 - A1": 4.14,
+   "A4 - A2": -1.51
+  },
+  "11-16": {
+   "maps": 98,
+   "A4 - A1": 1.45,
+   "A4 - A2": -1.98
+  },
+  "17-25": {
+   "maps": 62,
+   "A4 - A1": 0.38,
+   "A4 - A2": -3.29
+  },
+  "26+": {
+   "maps": 6,
+   "A4 - A1": -5.44,
+   "A4 - A2": -11.16
+  }
+ },
+ "test_per_map_ari_general": {
+  "maps": [
+   "map1",
+   "map2",
+   "map3",
+   "map4",
+   "map5",
+   "map6",
+   "map7",
+   "map8",
+   "map9",
+   "map10",
+   "map11"
+  ],
+  "A1": [
+   39.55,
+   52.21,
+   23.48,
+   77.0,
+   56.75,
+   46.6,
+   61.1,
+   47.47,
+   52.54,
+   47.69,
+   60.75
+  ],
+  "A2": [
+   46.77,
+   47.23,
+   38.68,
+   70.06,
+   56.21,
+   44.51,
+   76.1,
+   59.44,
+   52.56,
+   54.68,
+   67.28
+  ],
+  "A3": [
+   41.37,
+   48.14,
+   44.21,
+   76.47,
+   44.19,
+   42.37,
+   52.6,
+   60.96,
+   48.29,
+   69.92,
+   62.16
+  ],
+  "A4": [
+   57.28,
+   49.36,
+   36.21,
+   65.3,
+   54.9,
+   40.02,
+   60.21,
+   53.17,
+   32.79,
+   67.74,
+   79.32
+  ],
+  "A4_better_than": {
+   "A1": 5,
+   "A2": 4,
+   "A3": 5
+  }
+ }
+}

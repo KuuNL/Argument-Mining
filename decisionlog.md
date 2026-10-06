@@ -37,7 +37,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A4.2 | Pilot (one pass) | 50 training-split maps (A2's `maps_50`, gold links), both views and orders; ≤ 1 wording fix, only for a clear failure | View chosen by the pre-set rule (D076); settings frozen | A4 | **Done (D078)**: k = 0, view `both`, wording v1 frozen; pilot both-view 51.83 / 31.13 at matched density; $0.40 |
 | A4.3 | Dev run + decision layer | 225 dev maps, frozen settings, labeller links; A1's temperature + thresholds, cross-fitted; calibration | Honest dev ARI next to A1–A3; success tests and H1–H5 decided | A4 | **Done (D079)**: honest dev ARI 52.17 / 32.45 (A1 50.50, A2 54.63); both success tests narrowly fail; H4, H5 pass; $0.62 |
 | A4.4 | Assembly + combination test | Valid maps, dev Global (labeller's turn types); A1 + A2 + A4 vs A1 + A2, from saved answers; no ablations (D076) | 225 / 225 valid; success test 2 | A4 | **Done (D079)**: 225 / 225 valid; honest dev Global 71.16 / 56.56; A1 + A2 + A4 = +0.39 over A1 + A2 |
-| A4.5 | Test run + report | Final A4 row; `reports/A4-jev.md` | Run once, on the user's go | Final run | Approved (D073); not started |
+| A4.5 | Test run + report | Final A4 row; `reports/A4-jev.md` | Run once, on the user's go | Final run | **Done (D080)**: test Global 73.42 / 57.63 (ARI 54.21 / 30.98), between A3 and A2; A4 total $1.08 |
 | — | Combination · Final run | — | — | Combination / Final run | Not started |
 
 ---
@@ -1145,7 +1145,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - *Success test 1 fails, narrowly:* A4 − A1 = **+1.68 general, 95% interval [−0.20, +3.65]**; A4 is better on 123 maps, A1 on 100. Against A2: −2.46 [−4.19, −0.73].
 - *Success test 2 fails:* cross-fitted averages. A1 + A2 = 55.12 / 36.18, and **A1 + A2 + A4 = 55.51 / 37.01, a gain of +0.39** general (+0.83 focused), short of 1.0. A2 + A4 = 54.16 / 33.65 (no trained model); A1 + A4 = 53.48 / 34.85.
 - *Hypotheses:*
-  - **H1 fails.** Class-wise ECE is 0.053 for A4 against 0.024 for A1 (before temperature). Jev's Conflict (0.013) and Rephrase (0.007) probabilities are well calibrated, but **Inference is over-confident (0.140)**.
+  - **H1 fails.** Class-wise ECE is **0.030 for A4 against 0.018 for A1** (before temperature; measured per Inference direction, corrected by D081). Jev's Conflict (0.013) and Rephrase (0.007; A1 0.028) probabilities are well calibrated, but **Inference is over-confident (0.070**; at a stated ~0.9, 35% are right).
   - **H2 fails.** At matched density the source view scores 46.07 against the pair view's 47.22. Competition does what it was meant to, cutting invented relations to 67% (778 against 1,155), but source questions lose direction (76% against 91%). The two views complement each other: `both` scores 51.13.
   - **H3 fails.** Within-speaker Conflict recall is 12.1%, under the 15% bar, but the best of any system (A1 8.8%, A2 6.6%, A3 11%).
   - **H4 passes.** Inference direction is 86.6% right (A1 85.8%, A2 84.3%), with no reasoning step.
@@ -1165,3 +1165,37 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - Its weaknesses are Rephrase (it calls Rephrases Inference) and over-confident Inference probabilities.
   - Asking the same relation two ways, independently per pair and competitively per proposition, is what makes it work: each view alone is at A1's level or below.
 - **Test configuration, frozen now (before the test run):** run `test` (as `dev`), view `both`, the thresholds above, the labeller's links and types.
+
+### D080 — A4.5 result: test Global 73.42 / 57.63 (ARI 54.21 / 30.98), 2nd of the four systems; all of A4 cost $1.08
+- **2026-10-06 · A4.5 · run under D077's authorisation · Finding** (`results/a4/test_global.json`, `test_predictions/`, `test/responses.jsonl.gz`; `python -m a4_jev.runner --run=test --export`, `python -m a4_jev.predict`)
+- *Protocol (D079):* 11 test inputs, the frozen configuration (view `both`; thresholds Inference 0.55, Conflict 0.75, Rephrase 0.30; the labeller's links and types). 22 requests, all valid, $0.038. The 11 maps were assembled, validated and saved before the gold was read, then scored once, with nothing changed afterwards.
+
+  | Test, general / focused | ARI | ILO | Global |
+  |---|---|---|---|
+  | Best 2024 entries | 55.33 / 35.89 | 81.17 / 72.09 | 67.05 / 48.25 |
+  | A1 + labeller (D050) | 51.38 / 30.77 | 92.64 / 84.28 | 72.01 / 57.53 |
+  | A2 + labeller + LLM types (D064) | **55.77 / 33.34** | 91.56 / 83.20 | **73.67 / 58.27** |
+  | A3 votes + labeller (D072) | 53.70 / 32.05 | 92.64 / 84.28 | 73.17 / 58.17 |
+  | **A4 (Jev) + labeller** | **54.21 / 30.98** | 92.64 / 84.28 | **73.42 / 57.63** |
+
+- *Against the 2024 field:* Global 1st / 1st; ARI general 2nd (DFKI 55.33); ARI focused 3rd (POKEMON 35.89, DFKI 30.40 below).
+- *Per type (pooled), P / R / F1:*
+  - Inference 0.38 / 0.46 / **0.42** (A2 0.44, A1 0.29), with direction right for 86% of the 35 found;
+  - Rephrase 0.56 / 0.43 / 0.49 (A2 0.50, A1 0.53);
+  - **Conflict 1 of 13** (3 predicted; A1 and A2 2 of 13, A3 0).
+  - No map gets an invented relation type.
+- *Dev → test:* +2.04 ARI general (52.17 → 54.21), against A1 +0.9, A2 +1.1, A3 +6.05. The order A1 < A4 < A2 is the same as on dev.
+- *A4 totals:* 702 answered Jev requests (plus 1 refused for size, not charged) over 392 map passes (probe 5, pilot 3 × 50, dev 225, test 11, repeat 1). **$1.08** of the $10 budget (the gateway's `total_used`; balance $13.92); no training.
+
+### D081 — A4 closes: iterative commitment not run; H1's measure corrected; report and discussion written
+- **2026-10-06 · A4 · by Claude (under D076–D077's scope) · Done** (`reports/A4-jev.md`, `reports/A4-discussion.md`, `results/a4/discussion.json`; `python -m a4_jev.discuss`)
+- **Iterative commitment (PLAN's 4b) is not run.**
+  - D073 said it would run "only if H2 fails". H2 failed on its first half (source view −1.2 against the pair view), because source questions lose direction (76% against 91%).
+  - Its second half, the over-linking that 4b was meant to fix, held: invented relations fell to 67%.
+  - 4b doesn't address direction, and the user's scope (D076–D077: the core only, nothing bloating) leaves extensions out. *The user can overrule this;* a 4b pilot would cost about $0.15.
+- **H1's calibration measure is corrected; the verdict is unchanged.**
+  - The first version summed the two Inference directions. In A4's source view they come from two different questions, so the sum can exceed 1 (the top reliability bin averaged 1.05).
+  - Calibration is now measured per Inference direction (each a probability from one question), then averaged, for A1 and A4 alike: **A4 0.030 against A1 0.018**. H1 still fails; Inference is over-confident (0.070).
+  - Re-running `a4_jev.tune` (no calls, deterministic) left the thresholds and every score identical. The test predictions, made before, are untouched.
+- **Discussion** (dev, matched density): A4 is the best of A1 / A2 / A4 at Inference (471 found with direction, against 396 and 301; neighbour recall 0.51) and at Conflict (29 found, against 23 and 19). It is the worst at Rephrase (201 found, against 377 and 358; 169 called Inference). It falls behind on maps of 26+ propositions. The two question forms are complementary.
+- **A4 totals:** $1.08 of the $10 budget, no training, ~2 h of work from plan approval to test.

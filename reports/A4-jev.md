@@ -1,8 +1,9 @@
 # A4 — Jev: typed decisions with probabilities, no training
 
 > **What this is:** the plan for approach A4. Like the A2 and A3 reports, it reads as a plan until each phase runs, then becomes the record of that phase.
-> **Status:** A4.1 passed (2026-10-06, D076); A4.2 is next. At the user's request the scope is trimmed to A4's core: no ablations beyond what the success tests and H1–H5 need (D076).
-> **Evidence (when it exists):** `../results/a4/`. Decisions start at D073 in [`../decisionlog.md`](../decisionlog.md).
+> **Status:** final (2026-10-06). The test set was scored once, with nothing changed afterwards: **Global 73.42 / 57.63** (ARI 54.21 / 30.98), between A3 (73.17 / 58.17) and A2 (73.67 / 58.27). On dev (225 maps) A4 is 2nd of the four systems (honest ARI 52.17 / 32.45), and both pre-registered success tests narrowly fail. All of A4 cost **$1.08**, with no training. At the user's request the scope was kept to A4's core (D076–D077).
+> **Discussion:** [`A4-discussion.md`](A4-discussion.md) asks how Jev performs on argument mining, and where a decision model is useful.
+> **Evidence:** [`../results/a4/`](../results/a4/). Decisions D073–D081 in [`../decisionlog.md`](../decisionlog.md).
 > **Background:** [A1](A1-cross-encoder.md) (trained pairwise encoder), [A2](A2-whole-map-llm.md) and [its discussion](A2-discussion.md) (Claude reading the whole map), [A3](A3-finetuned-llm.md) and [its discussion](A3-discussion.md) (fine-tuned Qwen3-4B).
 > **Jev facts** are from TypeSafe's docs (docs.typesafe.ai: models, API, confidence, "jev-1.13 jaggedness") and Vercel's AI Gateway docs, read on 2026-10-06. A4.1 measured the ones the plan depends on (§5).
 
@@ -12,7 +13,19 @@
 - **The idea:** put the whole map in the state, ask about every candidate relation as a typed question, and get a **probability for every pair**. That gives whole-map context, as in A2, and a continuous score per pair, as in A1, with no training. Those scores go through the decision layer the other approaches already share.
 - **What's new in A4:** besides one question per pair (A1's 5 labels), it asks **one question per proposition**: "which of your candidate propositions do you relate to, and how?" All of a proposition's candidate targets then compete inside one probability distribution. A2 found that deciding jointly was the LLM's real advantage over the encoder, and this is a way to get it without generating text.
 - **Cost (measured in A4.1):** the state is billed once per request, so **a dev pass costs ≈ $0.63** at list price, and everything left (pilot, dev, test) ≈ $0.80. Jev turned out not to be on the gateway's free tier (D074), so A4 runs on a small paid credit with a cap (D075).
-- **Success (fixed in advance):** with no training, A4 beats A1 on honest dev ARI, *or* adding A4 to the A1 + A2 average gains ≥ 1.0.
+- **Success (fixed in advance):** with no training, A4 beats A1 on honest dev ARI, *or* adding A4 to the A1 + A2 average gains ≥ 1.0. **Both narrowly fail:** +1.68 over A1 with a 95% interval of [−0.20, +3.65], and +0.39 in the combination.
+- **Test result (11 maps, scored once): Global 73.42 / 57.63**, ARI 54.21 / 30.98. That is 1st on Global and 2nd on ARI general against the 2024 field (best 67.05 / 48.25), and 2nd of our four systems.
+- **On dev (225 maps, the reliable comparison): honest ARI 52.17 / 32.45**, between A1 (50.50 / 32.61) and A2 (54.63 / 34.12), and above A3 (47.65 / 27.23).
+- **What Jev does well:**
+  - the best Inference F1 (0.38) and neighbouring-turn Inference recall (0.51) of any system;
+  - direction 87% right with no reasoning step;
+  - the most Conflicts found, though still only 22%;
+  - 0.8 s and about $0.003 per map.
+- **What it doesn't do well:**
+  - Rephrase: it calls restatements support (0.41 F1, against A2's 0.51);
+  - its Inference probabilities are over-confident;
+  - it falls behind on large maps.
+- **What made it work:** ask about each relation twice, once per pair and once per proposition (where the targets compete), and average the two. Either question alone is at A1's level or below.
 
 ---
 
@@ -135,10 +148,10 @@ The map text is `common/serialise.py`'s, as in A2 and A3: turns T1… in dialogu
 | Phase | What | Gate | Status |
 |---|---|---|---|
 | **A4.1 Setup + feasibility** | Key, client, cache, parser; probe on 5 training maps | Lossless round trip; live answers valid; billing, speed, bias and repeatability measured; budget projection within the cap | **Passed** (D076), $0.035 |
-| **A4.2 Pilot** | One pass on 50 training-split maps | View chosen by the pre-set rule; settings frozen | Next, ≈ $0.13 |
-| **A4.3 Dev run** | 225 dev maps, frozen settings; decision layer; calibration; success tests | Honest dev ARI next to A1–A3; H1–H5 decided | ≈ $0.63 |
-| **A4.4 Assembly + combination test** | Complete maps, dev Global, A1 + A2 + A4 vs A1 + A2 (no new calls) | 225 / 225 valid; success test 2 | $0 |
-| **A4.5 Test run + report** | 11 test maps, once | Run once, on the user's go | ≈ $0.04 |
+| **A4.2 Pilot** | 50 training-split maps: base, a worked example, one wording fix | Settings frozen by the pre-set rules | **Done** (D078), $0.40 |
+| **A4.3 Dev run** | 225 dev maps, frozen settings; decision layer; calibration; success tests | Honest dev ARI next to A1–A3; H1–H5 decided | **Done** (D079), $0.62 |
+| **A4.4 Assembly + combination test** | Complete maps, dev Global, A1 + A2 + A4 vs A1 + A2 (no new calls) | 225 / 225 valid; success test 2 | **Done** (D079), $0 |
+| **A4.5 Test run + report** | 11 test maps, once | Run once (authorised in D077) | **Done** (D080), $0.04 |
 
 ### A4.1 Setup and feasibility — passed (2026-10-06)
 Evidence: [`check.json`](../results/a4/check.json), [`probe.json`](../results/a4/probe.json), and the raw answers in [`probe/`](../results/a4/probe/) and [`probe-repeat/`](../results/a4/probe-repeat/). Decisions D074–D076.
@@ -164,29 +177,74 @@ Evidence: [`check.json`](../results/a4/check.json), [`probe.json`](../results/a4
   | Repeatability | the same request twice: 98.1% identical choices, probabilities up to 0.17 apart. Not deterministic, so answers are cached and committed |
   | Sanity score, 5 maps, matched density | pair 47.9 / 27.8 · source 53.8 / 32.6 · **both 56.2 / 37.1**. The answers carry signal; nothing is chosen from 5 maps |
 
-### A4.2 Pilot (one pass, training maps only)
+### A4.2 Pilot — done (2026-10-06)
+Evidence: [`pilot_table.json`](../results/a4/pilot_table.json), raw answers in `pilot-k0/`, `pilot-k1/` and `pilot-k0-w2/`. Decisions D077–D078.
 - **Maps:** A2's 50-map pilot set (`maps_50`: 3 training episodes, kept out of the example pool), with gold links. Dev stays untouched.
-- **One pass**, at the frozen design: short options, the guide, no examples, both views and both orders.
-- **Rule (fixed before the pass, D076):** take the view with the best ARI general at matched density. If `pair` or `source` alone is within 1.0 of `both`, take that single view, which halves later requests.
-- **At most 1 wording fix,** and only for a clear failure seen in the errors. Then everything is frozen.
+- **Arms:** the base design; one retrieved worked example in the state (k = 1, D077); and one wording fix of the source question (D078).
+- **Rules, fixed before each run:**
+  - k = 1 only with ≥ +1.0 general;
+  - the wording fix only if `both` improves;
+  - then the best view, with a single view preferred if it is within 1.0 of `both`.
 
-### A4.3 Dev run and decision layer
-- 225 dev maps, frozen configuration, the labeller's links: one pass with both views and both orders.
-- **Decision layer:** temperature + thresholds fitted on all of dev (kept for test); the honest estimate is leave-one-episode-out.
-- **Report:**
-  - honest dev ARI next to A1, A2 and A3;
-  - per-type P / R / F1, Inference direction, maps with an invented Conflict;
-  - calibration: reliability plot and class-wise ECE, before and after temperature, against A1 on the same pairs;
-  - overlap with A1 and A2 (which pairs only A4 gets right);
-  - the success tests and H1–H5 (§6).
+  | ARI at matched density (396 relations) | Pair | Source | Both |
+  |---|---|---|---|
+  | Base (k = 0) | 47.22 / 25.28 | 48.68 / 27.57 | **51.83 / 31.13** |
+  | k = 1 worked example | 46.83 / 24.52 | 50.06 / 28.01 | 51.95 / 31.32 (+0.12: not kept) |
+  | Source wording v2 | 47.56 / 25.08 | 48.36 / 26.50 | 51.21 / 30.68 (−0.62: not kept) |
 
-### A4.4 Assembly and combination test (no new calls)
-- 225 / 225 valid maps through `build_map`, with the labeller's turn types; honest dev Global.
-- **Combination test:** cross-fitted averages of A1 + A2 + A4 against A1 + A2 (success test 2), from saved scores.
+- **Frozen:** k = 0, the original wording, view `both`. Neither single view comes within 1.0 of `both`.
+- *Why the wording fix was tried:* source questions get Inference direction right only 76% of the time, against 91% for pair questions. The suspected cause was the word "bear on", which also fits a conclusion's link to its premise. v2 asked what P "supports, restates or attacks"; direction stayed at 76.5%, so the cause is the question form, not the word.
+- *Unlike A2*, a worked example doesn't help: +0.12, against A2's +4.5.
 
-### A4.5 Test run
-- 11 test inputs, frozen configuration. Maps are assembled, validated and saved before `data/evaluation/` is read, then scored once, with nothing changed afterwards (as A2.5 / A3.6).
-- Then the report and a discussion: where System One does well and where it doesn't, per relation type, against A1–A3 and the 2024 field.
+### A4.3 Dev run and decision layer — done (2026-10-06)
+Evidence: [`dev/dev_report.json`](../results/a4/dev/dev_report.json), [`dev/thresholds.json`](../results/a4/dev/thresholds.json), `dev/responses.jsonl.gz`. Decision D079.
+- **Run:** 225 dev maps, the frozen configuration and the labeller's links. 402 requests, all valid; $0.62; 0.75 s per request.
+- **Decision layer:** per-type thresholds (Inference 0.55, Conflict 0.75, Rephrase 0.30), stable across folds. There is no temperature step, because Jev already returns probabilities.
+
+  | Dev ARI, general / focused | |
+  |---|---|
+  | A1 (trained encoder), honest | 50.50 / 32.61 |
+  | A2 (Claude, whole map), honest | **54.63 / 34.12** |
+  | A3 (fine-tuned Qwen3-4B), honest | 47.65 / 27.23 |
+  | **A4 (Jev), both views, honest** | **52.17 / 32.45** |
+  | A4, pair view alone / source view alone | 50.50 / 32.57 · 46.32 / 26.73 |
+
+- **Per type** (tuned), P / R / F1:
+  - Inference 0.34 / 0.42 / **0.38** (A1 0.32, A2 0.37);
+  - Conflict 0.52 / 0.12 / 0.19 (A2 0.19);
+  - Rephrase 0.44 / 0.38 / 0.41 (A1 0.47, A2 0.51).
+  - 8.6 relations per map (gold 8.3); 8 maps with an invented Conflict (A1 8, A2 8).
+- **Success tests and hypotheses:** §6.
+
+### A4.4 Assembly and combination test — done (2026-10-06)
+Evidence: [`dev/dev_global.json`](../results/a4/dev/dev_global.json). Decision D079.
+- **225 / 225 valid maps**, with the labeller's turn types. Honest dev Global is **71.16 / 56.56** (A1 70.29 / 56.63, A2 72.53 / 57.63, A3 68.90 / 53.95).
+- **Combination** (cross-fitted averages of pair scores):
+  - A1 + A2: 55.12 / 36.18;
+  - **A1 + A2 + A4: 55.51 / 37.01** (+0.39 / +0.83);
+  - A2 + A4: 54.16 / 33.65;
+  - A1 + A4: 53.48 / 34.85.
+
+### A4.5 Test run — done (2026-10-06)
+Evidence: [`test_global.json`](../results/a4/test_global.json), [`test_predictions/`](../results/a4/test_predictions/), `test/responses.jsonl.gz`. Decision D080.
+- **Protocol:** the 11 test inputs, the configuration frozen from dev (D079). 22 requests, $0.04. The maps were assembled, validated (11 / 11) and saved before `data/evaluation/` was read, then scored once.
+
+  | Test F1, general / focused | ARI | ILO | Global |
+  |---|---|---|---|
+  | Best 2024 entries | 55.33 / 35.89 | 81.17 / 72.09 | 67.05 / 48.25 |
+  | A1 + labeller | 51.38 / 30.77 | 92.64 / 84.28 | 72.01 / 57.53 |
+  | A2 + labeller + LLM types | **55.77 / 33.34** | 91.56 / 83.20 | **73.67 / 58.27** |
+  | A3 + labeller | 53.70 / 32.05 | 92.64 / 84.28 | 73.17 / 58.17 |
+  | **A4 (Jev) + labeller** | **54.21 / 30.98** | 92.64 / 84.28 | **73.42 / 57.63** |
+
+- **Against 2024:** Global 1st / 1st; ARI general 2nd (DFKI 55.33).
+- **Per type:**
+  - Inference F1 0.42, with direction 86% right;
+  - Rephrase 0.49;
+  - Conflict 1 of 13;
+  - no invented relation types.
+- **Dev → test: +2.0 ARI.** A1 moved +0.9, A2 +1.1 and A3 +6.1, and the order A1 < A4 < A2 is the same as on dev.
+- **Per map:** A4 beats A1 on 5 of 11 maps, A2 on 4 and A3 on 5. It is the best of all four on map 11 (79.3) and the worst on map 9 (32.8).
 
 ---
 
@@ -204,6 +262,18 @@ Evidence: [`check.json`](../results/a4/check.json), [`probe.json`](../results/a4
 | **H4** | Direction needs no reasoning | Inference direction ≥ 85% (A1 86%, A2 84%) | PLAN's caveat was that System One might lag here |
 | **H5** | It is fast and cheap | Median ≤ 1 s per map; cost per dev pass reported | The research question asks "at what cost and speed" |
 
+**Outcome (dev, D079):**
+- **Success test 1 fails, narrowly:** A4 − A1 = +1.68 general, 95% interval [−0.20, +3.65]. A4 is better on 123 maps and A1 on 100.
+- **Success test 2 fails:** adding A4 to A1 + A2 gains +0.39 general (+0.83 focused).
+
+| | Result | Verdict |
+|---|---|---|
+| H1 | Class-wise ECE 0.030 vs A1's 0.018, with Inference measured per direction. Conflict (0.013) and Rephrase (0.007; A1 0.028) are well calibrated. **Inference is over-confident (0.070):** at a stated ~0.9, 35% are right | Fails |
+| H2 | Source view 46.07 vs pair view 47.22. Invented relations fall to 67% of the pair view's (778 vs 1,155), but direction drops to 76% (pair 91%). Together the views reach 51.13 | Fails |
+| H3 | Within-speaker Conflict recall 12.1%: below the bar, but the best of any system (A1 8.8%, A2 6.6%, A3 11%) | Fails |
+| H4 | Inference direction 86.6% (A1 85.8%, A2 84.3%) | **Passes** |
+| H5 | 0.83 s per map (requests in parallel; 1.28 s one after another); $0.62 per dev pass | **Passes** |
+
 ---
 
 ## 7. Ablations
@@ -212,20 +282,24 @@ None beyond the core (user, D076). The only comparisons are the ones the tests n
 ---
 
 ## 8. Budget and time
-- **Measured in A4.1:** the state is billed once per request, at 2.96 characters per token.
-- **Projected at list price ($0.042 / 1M input tokens):**
-  - pilot 3.1M tokens ≈ $0.13;
-  - dev 15.1M ≈ $0.63;
-  - test 0.9M ≈ $0.04.
-  - **≈ $0.80 for everything left**, on top of A4.1's $0.035. A single-view choice in A4.2 would roughly halve dev and test.
-- **Paid** from the user's gateway credit (D075), and every request's cost is logged. The balance after A4.1 was $14.96.
-- **Time:** about 1 s per request, so a dev pass is a few minutes of requests.
+- **Spent: $1.08** of the $10 budget (D077); the balance is $13.92.
+
+  | Phase | Cost |
+  |---|---|
+  | A4.1 probe | $0.035 |
+  | A4.2 pilot, 3 arms | $0.40 |
+  | A4.3 dev | $0.62 |
+  | A4.5 test | $0.04 |
+
+  702 answered requests over 392 map passes, about 26M input tokens at $0.042 per million. Output is free, and nothing was trained.
+- **Time:** about 0.8 s per request. The whole dev pass (402 requests, 6 at a time) took **69 s**, and the test pass 3.9 s. A2 needed ~2.5 h of calls and A1 94 min of training.
+- *For comparison per map:* A2 costs $0.18 API-equivalent and takes ~25 s; A1 needs a GPU and training; A4 costs **$0.003 and takes 0.8 s**.
 
 ## 9. Risks
 - ~~Jev not on the free tier~~: it wasn't (D074); a paid credit was chosen (D075).
 - **Early access:** the API has already renamed `evaluate` to `decide`. The model version is logged on every answer, and raw answers are committed.
 - **Distractor state and option-order bias:** no examples in the state; two orders, because they disagree on 9% of choices.
-- **Over-linking from independent questions:** source questions plus thresholds; if H2 fails, iterative commitment (D073).
+- **Over-linking from independent questions:** source questions plus thresholds. H2 failed on direction, not over-linking, so iterative commitment was not run (D081).
 - **Request limits:** large maps are split into several requests sharing the state.
 - **Contamination:** Jev's training data is unknown. The dev → test change is compared with A1's (+0.9), A2's (+1.1) and A3's (+6.1).
 - **Data leaving the machine:** only map inputs (with gold links on training maps) are sent. Dev and test gold never are. QT30 is a public corpus, and Jev doesn't train on customer requests.
@@ -235,3 +309,16 @@ None beyond the core (user, D076). The only comparisons are the ones the tests n
 2. **Iterative commitment (PLAN's 4b):** deferred. It runs only if H2 fails.
 3. **D017's Jev corpus profiling:** dropped, because A4.3's per-type breakdown answers the same question.
 4. **Success test 1's bar:** beat A1, the trained encoder.
+
+## 11. Assessment
+- **A decision model can do argument mining at encoder level with no training.** Honest dev ARI is 52.17, against the trained encoder's 50.50 and Claude's 54.63. That held on test (54.21), at $0.003 and under a second per map.
+- **It is strongest where the annotation is closest to plain reading:** support between neighbouring turns (the best recall of any system) and its direction.
+- **It is weakest where the annotation follows a convention:** an elaboration counts as Rephrase, and a speaker's own concession counts as Conflict. Jev applies its definitions literally, the guide's convention notes don't reach it, and a worked example doesn't help.
+- **How the questions are asked matters more than any setting.**
+  - Independent pair questions give good direction but over-link.
+  - Competing per-proposition questions over-link less but lose direction.
+  - Averaging the two is what lifts Jev from A1's level to between A1 and A2.
+- **Calibration is uneven:** good for Conflict and Rephrase, over-confident for Inference. So the decision layer's thresholds were still needed.
+- **As a component, it adds little to A1 + A2 on general** (+0.39), but somewhat more on focused (+0.83). Its value is that it costs almost nothing, and that it finds relations the others miss.
+- **Not separated:** Jev against the guide's wording (only one wording fix was tried), and run-to-run variation. Repeat requests differ by up to 0.17 in probability; one dev pass was run.
+- Discussion: [`A4-discussion.md`](A4-discussion.md).

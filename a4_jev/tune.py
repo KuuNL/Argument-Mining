@@ -40,7 +40,6 @@ from a4_jev.runner import answers, builds, config, jobs, load
 
 OUT = RESULTS / "a4" / "dev"
 RUN, VIEW = "dev", "both"
-KINDS = {"Inference": (1, 2), "Conflict": (3,), "Rephrase": (4,)}
 
 
 def a4_scores(base: Base, bs, ans, view: str = VIEW) -> Scores:
@@ -65,24 +64,25 @@ def a1_tempered(base: Base) -> Scores:
     return Scores(base, base.aligned({(r["map"], r["a"], r["b"]): p[k] for k, r in enumerate(a1.rows)}))
 
 
-def gold_kind(base: Base, sc: Scores) -> np.ndarray:
-    """Per row: 0 None, 1 Inference (either direction), 2 Conflict, 3 Rephrase."""
+def gold_label(base: Base, sc: Scores) -> np.ndarray:
+    """Per row, A1's label index: 0 None, 1 Inference A->B, 2 Inference B->A, 3 Conflict, 4 Rephrase."""
     out = np.zeros(len(sc.rows), dtype=int)
     for k, r in enumerate(sc.rows):
         g = base.gold[r["map"]]
-        c = g.get((r["a"], r["b"]), g.get((r["b"], r["a"])))
-        out[k] = 0 if c is None else c + 1
+        ab, ba = g.get((r["a"], r["b"])), g.get((r["b"], r["a"]))
+        out[k] = 1 if ab == 0 else 2 if ba == 0 else 3 if 1 in (ab, ba) else 4 if 2 in (ab, ba) else 0
     return out
 
 
 def ece(base: Base, sc: Scores, mask: np.ndarray, bins: int = 15) -> dict:
-    """Class-wise expected calibration error over the masked rows, with each class's reliability bins."""
-    kind = gold_kind(base, sc)[mask]
+    """Class-wise expected calibration error over the masked rows, per A1 label, with reliability bins.
+    Inference is measured per direction (A->B, B->A), each a probability from one question, then averaged: the
+    sum of the two directions is not a probability in A4's source view (two questions answer them, D081)."""
+    lab = gold_label(base, sc)[mask]
     probs = sc.probs[mask]
     out = {}
-    for c, (name, cols) in enumerate(KINDS.items(), start=1):
-        p = probs[:, list(cols)].sum(1)
-        y = (kind == c).astype(float)
+    for c, name in ((1, "Inference A->B"), (2, "Inference B->A"), (3, "Conflict"), (4, "Rephrase")):
+        p, y = probs[:, c], (lab == c).astype(float)
         edges = np.minimum((p * bins).astype(int), bins - 1)
         e, rel = 0.0, []
         for b in range(bins):
@@ -91,7 +91,8 @@ def ece(base: Base, sc: Scores, mask: np.ndarray, bins: int = 15) -> dict:
                 e += sel.mean() * abs(p[sel].mean() - y[sel].mean())
                 rel.append([round(b / bins, 3), int(sel.sum()), round(float(p[sel].mean()), 4), round(float(y[sel].mean()), 4)])
         out[name] = {"ece": round(float(e), 4), "reliability [bin start, n, mean p, observed]": rel}
-    out["mean"] = round(st.mean(v["ece"] for v in out.values()), 4)
+    out["Inference"] = {"ece": round((out["Inference A->B"]["ece"] + out["Inference B->A"]["ece"]) / 2, 4)}
+    out["mean"] = round(st.mean(out[k]["ece"] for k in ("Inference", "Conflict", "Rephrase")), 4)
     return out
 
 

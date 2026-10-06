@@ -1,0 +1,140 @@
+{
+ "run": "test",
+ "settings": {
+  "split": "test",
+  "maps": [
+   "map1",
+   "map2",
+   "map3",
+   "map4",
+   "map5",
+   "map6",
+   "map7",
+   "map8",
+   "map9",
+   "map10",
+   "map11"
+  ],
+  "defs": "short",
+  "k": 0
+ },
+ "refused": [],
+ "requests": 22,
+ "answered": 22,
+ "maps_complete": 11,
+ "maps_with_problems": {},
+ "usd": 0.038268,
+ "input_tokens": 911133,
+ "models": [
+  "typesafe-ai/jev"
+ ],
+ "per_request": {
+  "seconds_p50": 0.737,
+  "seconds_max": 1.418,
+  "tokens_p50": 47870.0,
+  "tokens_max": 56585,
+  "retries": 0,
+  "chars_per_token": 2.906
+ },
+ "per_map": [
+  {
+   "map": "map1",
+   "repeat": 0,
+   "requests": 2,
+   "questions": 292,
+   "tokens": 95078,
+   "usd": 0.003993,
+   "seconds": 2.371
+  },
+  {
+   "map": "map2",
+   "repeat": 0,
+   "requests": 4,
+   "questions": 656,
+   "tokens": 209618,
+   "usd": 0.008804,
+   "seconds": 5.123
+  },
+  {
+   "map": "map3",
+   "repeat": 0,
+   "requests": 1,
+   "questions": 150,
+   "tokens": 43611,
+   "usd": 0.001832,
+   "seconds": 0.618
+  },
+  {
+   "map": "map4",
+   "repeat": 0,
+   "requests": 2,
+   "questions": 198,
+   "tokens": 67438,
+   "usd": 0.002832,
+   "seconds": 1.225
+  },
+  {
+   "map": "map5",
+   "repeat": 0,
+   "requests": 2,
+   "questions": 308,
+   "tokens": 102336,
+   "usd": 0.004298,
+   "seconds": 1.581
+  },
+  {
+   "map": "map6",
+   "repeat": 0,
+   "requests": 2,
+   "questions": 222,
+   "tokens": 70868,
+   "usd": 0.002976,
+   "seconds": 1.151
+  },
+  {
+   "map": "map7",
+   "repeat": 0,
+   "requests": 2,
+   "questions": 176,
+   "tokens": 56472,
+   "usd": 0.002372,
+   "seconds": 0.988
+  },
+  {
+   "map": "map8",
+   "repeat": 0,
+   "requests": 2,
+   "questions": 210,
+   "tokens": 71134,
+   "usd": 0.002988,
+   "seconds": 1.351
+  },
+  {
+   "map": "map9",
+   "repeat": 0,
+   "requests": 2,
+   "questions": 242,
+   "tokens": 86162,
+   "usd": 0.003619,
+   "seconds": 1.404
+  },
+  {
+   "map": "map10",
+   "repeat": 0,
+   "requests": 1,
+   "questions": 132,
+   "tokens": 42114,
+   "usd": 0.001769,
+   "seconds": 0.601
+  },
+  {
+   "map": "map11",
+   "repeat": 0,
+   "requests": 2,
+   "questions": 198,
+   "tokens": 66302,
+   "usd": 0.002785,
+   "seconds": 1.472
+  }
+ ]
+}

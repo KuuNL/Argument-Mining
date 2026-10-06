@@ -120,6 +120,7 @@ Key numbers (training):
 | Ours: A1 + ILO labeller, test (2026-10-03) | 51.4 / 30.8 | **92.6 / 84.3** | 72.01 / 57.53: see `reports/A1-cross-encoder.md` |
 | **Ours: A2 (Sonnet 5.5, whole map) + ILO labeller, test (2026-10-05)** | **55.8** / 33.3 | 91.6 / 83.2 | **73.67 / 58.27**: see `reports/A2-whole-map-llm.md` |
 | Ours: A3 (fine-tuned Qwen3-4B) + ILO labeller, test (2026-10-06) | 53.7 / 32.1 | 92.6 / 84.3 | 73.17 / 58.17: see `reports/A3-finetuned-llm.md` (on dev it trails A1 and A2) |
+| Ours: A4 (Jev, no training) + ILO labeller, test (2026-10-06) | 54.2 / 31.0 | 92.6 / 84.3 | 73.42 / 57.63: see `reports/A4-jev.md` (2nd on dev too; $1.08 in all) |
 
 Every winning system was a **pairwise encoder classifier** (DeBERTa/RoBERTa). It read two sentences at a time with no
 surrounding dialogue. This caused five failures:
@@ -200,7 +201,7 @@ Each question is asked in two option orders, and the probabilities are averaged.
     - about 0.9 s per request;
     - answers aren't deterministic, so they are cached and committed.
   - Scope is the core only (D076): pair and source questions, no turn-type questions and no extra ablations.
-- **Plan and status:** `reports/A4-jev.md` and the phase map (A4.1–A4.5).
+- **Outcome (final, 2026-10-06):** test Global 73.42 / 57.63 (ARI 54.21 / 30.98), between A3 and A2. On dev it is 2nd (honest ARI 52.17 / 32.45, A1 50.50, A2 54.63), and both success tests narrowly fail. It has the best Inference and Conflict recall of the four systems, the worst Rephrase, and costs $0.003 and 0.8 s per map. See `reports/A4-jev.md` and `reports/A4-discussion.md`. It runs in `~/.venvs/a3` (it reuses A3's comparison code).
 
 **Combination.** The methods have complementary strengths. A1 or A4 is fast and calibrated, and A2 is slow but reasons.
 So a cheap pass decides the confident pairs, and only the uncertain ones go to A2.

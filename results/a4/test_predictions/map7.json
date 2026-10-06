@@ -1,0 +1,935 @@
+{
+ "nodes": [
+  {
+   "nodeID": "7_168019561412742010",
+   "text": "there is no reason to not aim for the highest sustained growth",
+   "type": "I"
+  },
+  {
+   "nodeID": "8_168019561412742010",
+   "text": "Thangam Debbonaire: Why would we not aim for that",
+   "type": "L"
+  },
+  {
+   "nodeID": "10_168019561412742010",
+   "text": "Amelie: Thangam Debbonaire: Why would we not aim for that",
+   "type": "L"
+  },
+  {
+   "nodeID": "12_168019561412742010",
+   "text": "aiming for the highest sustained growth is a mission",
+   "type": "I"
+  },
+  {
+   "nodeID": "13_168019561412742010",
+   "text": "Thangam Debbonaire: It is a mission",
+   "type": "L"
+  },
+  {
+   "nodeID": "15_168019561412742010",
+   "text": "Amelie: Thangam Debbonaire: It is a mission",
+   "type": "L"
+  },
+  {
+   "nodeID": "17_168019561412742010",
+   "text": "a mission is a great thing for a political party to have",
+   "type": "I"
+  },
+  {
+   "nodeID": "18_168019561412742010",
+   "text": "Thangam Debbonaire: a mission is a great thing for a political party to have",
+   "type": "L"
+  },
+  {
+   "nodeID": "20_168019561412742010",
+   "text": "Amelie: Thangam Debbonaire: a mission is a great thing for a political party to have",
+   "type": "L"
+  },
+  {
+   "nodeID": "22_168019561412742010",
+   "text": "we have suffered for too long with a government that has low ambitions, low growth, low productivity",
+   "type": "I"
+  },
+  {
+   "nodeID": "23_168019561412742010",
+   "text": "Thangam Debbonaire: We have suffered for too long with a government that has low ambitions, low growth, low productivity",
+   "type": "L"
+  },
+  {
+   "nodeID": "25_168019561412742010",
+   "text": "Amelie: Thangam Debbonaire: We have suffered for too long with a government that has low ambitions, low growth, low productivity",
+   "type": "L"
+  },
+  {
+   "nodeID": "27_168019561412742010",
+   "text": "we\u2019ve had that stagnating economy for 12 years now",
+   "type": "I"
+  },
+  {
+   "nodeID": "28_168019561412742010",
+   "text": "Thangam Debbonaire: We\u2019ve had that stagnating economy for 12 years now",
+   "type": "L"
+  },
+  {
+   "nodeID": "30_168019561412742010",
+   "text": "Amelie: Thangam Debbonaire: We\u2019ve had that stagnating economy for 12 years now",
+   "type": "L"
+  },
+  {
+   "nodeID": "32_168019561412742010",
+   "text": "when Thangam Debbonaire first came into parliament in 2015 the first debate she took part in was a debate about low productivity",
+   "type": "I"
+  },
+  {
+   "nodeID": "33_168019561412742010",
+   "text": "Thangam Debbonaire: When I first came into parliament in 2015 the first debate I took part in was a debate about low productivity",
+   "type": "L"
+  },
+  {
+   "nodeID": "35_168019561412742010",
+   "text": "Amelie: Thangam Debbonaire: When I first came into parliament in 2015 the first debate I took part in was a debate about low productivity",
+   "type": "L"
+  },
+  {
+   "nodeID": "37_168019561412742010",
+   "text": "nothing has changed",
+   "type": "I"
+  },
+  {
+   "nodeID": "38_168019561412742010",
+   "text": "Thangam Debbonaire: nothing has changed",
+   "type": "L"
+  },
+  {
+   "nodeID": "40_168019561412742010",
+   "text": "Amelie: Thangam Debbonaire: nothing has changed",
+   "type": "L"
+  },
+  {
+   "nodeID": "42_168019561412742010",
+   "text": "we might have had the same growth rate as we\u2019d had at the last Labour government every single one of us",
+   "type": "I"
+  },
+  {
+   "nodeID": "43_168019561412742010",
+   "text": "Thangam Debbonaire: If we had the same growth rate as we\u2019d had at the last Labour government every single one of us",
+   "type": "L"
+  },
+  {
+   "nodeID": "45_168019561412742010",
+   "text": "Amelie: Thangam Debbonaire: If we had the same growth rate as we\u2019d had at the last Labour government every single one of us",
+   "type": "L"
+  },
+  {
+   "nodeID": "47_168019561412742010",
+   "text": "every income would be around about \u00a310,000 better off",
+   "type": "I"
+  },
+  {
+   "nodeID": "48_168019561412742010",
+   "text": "Thangam Debbonaire: every income would be 10,000\u2026around about \u00a310,000 better off",
+   "type": "L"
+  },
+  {
+   "nodeID": "50_168019561412742010",
+   "text": "Amelie: Thangam Debbonaire: every income would be 10,000\u2026around about \u00a310,000 better off",
+   "type": "L"
+  },
+  {
+   "nodeID": "54_168019561412742010",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "55_168019561412742010",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "58_168019561412742010",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "60_168019561412742010",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "62_168019561412742010",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "64_168019561412742010",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "66_168019561412742010",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "69_168019561412742010",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "71_168019561412742010",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "72_168019561412742010",
+   "text": "every income being \u00a310,000 better off is the sort of economic growth you\u2019d get in the past under the Labour government in the UK",
+   "type": "I"
+  },
+  {
+   "nodeID": "73_168019561412742010",
+   "text": "Thangam Debbonaire: That\u2019s the sort of economic growth you\u2019d get in the past under the Labour government in the UK",
+   "type": "L"
+  },
+  {
+   "nodeID": "75_168019561412742010",
+   "text": "Amelie: Thangam Debbonaire: That\u2019s the sort of economic growth you\u2019d get in the past under the Labour government in the UK",
+   "type": "L"
+  },
+  {
+   "nodeID": "77_168019561412742010",
+   "text": "the economic growth is what we\u2019re going to get in the future",
+   "type": "I"
+  },
+  {
+   "nodeID": "78_168019561412742010",
+   "text": "Thangam Debbonaire: that\u2019s what we\u2019re going to get in the future",
+   "type": "L"
+  },
+  {
+   "nodeID": "80_168019561412742010",
+   "text": "Amelie: Thangam Debbonaire: that\u2019s what we\u2019re going to get in the future",
+   "type": "L"
+  },
+  {
+   "nodeID": "82_168019561412742010",
+   "text": "Thangam Debbonaire is glad Kier is ambitious",
+   "type": "I"
+  },
+  {
+   "nodeID": "83_168019561412742010",
+   "text": "Thangam Debbonaire: I\u2019m glad Kier is ambitious",
+   "type": "L"
+  },
+  {
+   "nodeID": "85_168019561412742010",
+   "text": "Amelie: Thangam Debbonaire: I\u2019m glad Kier is ambitious",
+   "type": "L"
+  },
+  {
+   "nodeID": "88_168019561412742010",
+   "text": "political leaders being ambitious is what this country deserves",
+   "type": "I"
+  },
+  {
+   "nodeID": "89_168019561412742010",
+   "text": "Thangam Debbonaire: that\u2019s what this country deserves",
+   "type": "L"
+  },
+  {
+   "nodeID": "91_168019561412742010",
+   "text": "Amelie: Thangam Debbonaire: that\u2019s what this country deserves",
+   "type": "L"
+  },
+  {
+   "nodeID": "94_168019561412742010",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "97_168019561412742010",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "100_168019561412742010",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "101_168019561412742010",
+   "text": "Default Transition",
+   "type": "TA"
+  },
+  {
+   "nodeID": "a1_ya_0",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_1",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_2",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_3",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_4",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_5",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_6",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_7",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_8",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_9",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_10",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_11",
+   "type": "YA",
+   "text": "Asserting"
+  },
+  {
+   "nodeID": "a1_ya_12",
+   "type": "YA",
+   "text": "Rhetorical Questioning"
+  },
+  {
+   "nodeID": "a1_s_0",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_0",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_1",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_1",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_2",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_2",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_3",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_3",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_4",
+   "type": "MA",
+   "text": "Default Rephrase"
+  },
+  {
+   "nodeID": "a1_ta_ya_4",
+   "type": "YA",
+   "text": "Restating"
+  },
+  {
+   "nodeID": "a1_s_5",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_5",
+   "type": "YA",
+   "text": "Arguing"
+  },
+  {
+   "nodeID": "a1_s_6",
+   "type": "RA",
+   "text": "Default Inference"
+  },
+  {
+   "nodeID": "a1_ta_ya_6",
+   "type": "YA",
+   "text": "Arguing"
+  }
+ ],
+ "edges": [
+  {
+   "edgeID": 40,
+   "fromID": "8_168019561412742010",
+   "toID": "54_168019561412742010"
+  },
+  {
+   "edgeID": 41,
+   "fromID": "54_168019561412742010",
+   "toID": "13_168019561412742010"
+  },
+  {
+   "edgeID": 42,
+   "fromID": "8_168019561412742010",
+   "toID": "55_168019561412742010"
+  },
+  {
+   "edgeID": 43,
+   "fromID": "55_168019561412742010",
+   "toID": "18_168019561412742010"
+  },
+  {
+   "edgeID": 48,
+   "fromID": "23_168019561412742010",
+   "toID": "58_168019561412742010"
+  },
+  {
+   "edgeID": 49,
+   "fromID": "58_168019561412742010",
+   "toID": "28_168019561412742010"
+  },
+  {
+   "edgeID": 52,
+   "fromID": "18_168019561412742010",
+   "toID": "60_168019561412742010"
+  },
+  {
+   "edgeID": 53,
+   "fromID": "60_168019561412742010",
+   "toID": "23_168019561412742010"
+  },
+  {
+   "edgeID": 56,
+   "fromID": "33_168019561412742010",
+   "toID": "62_168019561412742010"
+  },
+  {
+   "edgeID": 57,
+   "fromID": "62_168019561412742010",
+   "toID": "38_168019561412742010"
+  },
+  {
+   "edgeID": 60,
+   "fromID": "28_168019561412742010",
+   "toID": "64_168019561412742010"
+  },
+  {
+   "edgeID": 61,
+   "fromID": "64_168019561412742010",
+   "toID": "33_168019561412742010"
+  },
+  {
+   "edgeID": 64,
+   "fromID": "28_168019561412742010",
+   "toID": "66_168019561412742010"
+  },
+  {
+   "edgeID": 65,
+   "fromID": "66_168019561412742010",
+   "toID": "38_168019561412742010"
+  },
+  {
+   "edgeID": 70,
+   "fromID": "43_168019561412742010",
+   "toID": "69_168019561412742010"
+  },
+  {
+   "edgeID": 71,
+   "fromID": "69_168019561412742010",
+   "toID": "48_168019561412742010"
+  },
+  {
+   "edgeID": 74,
+   "fromID": "38_168019561412742010",
+   "toID": "71_168019561412742010"
+  },
+  {
+   "edgeID": 75,
+   "fromID": "71_168019561412742010",
+   "toID": "43_168019561412742010"
+  },
+  {
+   "edgeID": 94,
+   "fromID": "83_168019561412742010",
+   "toID": "94_168019561412742010"
+  },
+  {
+   "edgeID": 95,
+   "fromID": "94_168019561412742010",
+   "toID": "89_168019561412742010"
+  },
+  {
+   "edgeID": 98,
+   "fromID": "48_168019561412742010",
+   "toID": "97_168019561412742010"
+  },
+  {
+   "edgeID": 99,
+   "fromID": "97_168019561412742010",
+   "toID": "73_168019561412742010"
+  },
+  {
+   "edgeID": 104,
+   "fromID": "73_168019561412742010",
+   "toID": "100_168019561412742010"
+  },
+  {
+   "edgeID": 105,
+   "fromID": "100_168019561412742010",
+   "toID": "78_168019561412742010"
+  },
+  {
+   "edgeID": 106,
+   "fromID": "78_168019561412742010",
+   "toID": "101_168019561412742010"
+  },
+  {
+   "edgeID": 107,
+   "fromID": "101_168019561412742010",
+   "toID": "83_168019561412742010"
+  },
+  {
+   "edgeID": "a1_ya_0_in",
+   "fromID": "13_168019561412742010",
+   "toID": "a1_ya_0",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_0_out",
+   "fromID": "a1_ya_0",
+   "toID": "12_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_1_in",
+   "fromID": "18_168019561412742010",
+   "toID": "a1_ya_1",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_1_out",
+   "fromID": "a1_ya_1",
+   "toID": "17_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_2_in",
+   "fromID": "23_168019561412742010",
+   "toID": "a1_ya_2",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_2_out",
+   "fromID": "a1_ya_2",
+   "toID": "22_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_3_in",
+   "fromID": "28_168019561412742010",
+   "toID": "a1_ya_3",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_3_out",
+   "fromID": "a1_ya_3",
+   "toID": "27_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_4_in",
+   "fromID": "33_168019561412742010",
+   "toID": "a1_ya_4",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_4_out",
+   "fromID": "a1_ya_4",
+   "toID": "32_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_5_in",
+   "fromID": "38_168019561412742010",
+   "toID": "a1_ya_5",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_5_out",
+   "fromID": "a1_ya_5",
+   "toID": "37_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_6_in",
+   "fromID": "43_168019561412742010",
+   "toID": "a1_ya_6",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_6_out",
+   "fromID": "a1_ya_6",
+   "toID": "42_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_7_in",
+   "fromID": "48_168019561412742010",
+   "toID": "a1_ya_7",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_7_out",
+   "fromID": "a1_ya_7",
+   "toID": "47_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_8_in",
+   "fromID": "73_168019561412742010",
+   "toID": "a1_ya_8",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_8_out",
+   "fromID": "a1_ya_8",
+   "toID": "72_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_9_in",
+   "fromID": "78_168019561412742010",
+   "toID": "a1_ya_9",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_9_out",
+   "fromID": "a1_ya_9",
+   "toID": "77_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_10_in",
+   "fromID": "83_168019561412742010",
+   "toID": "a1_ya_10",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_10_out",
+   "fromID": "a1_ya_10",
+   "toID": "82_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_11_in",
+   "fromID": "89_168019561412742010",
+   "toID": "a1_ya_11",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_11_out",
+   "fromID": "a1_ya_11",
+   "toID": "88_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_12_in",
+   "fromID": "8_168019561412742010",
+   "toID": "a1_ya_12",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ya_12_out",
+   "fromID": "a1_ya_12",
+   "toID": "7_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_0_in",
+   "fromID": "22_168019561412742010",
+   "toID": "a1_s_0",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_0_out",
+   "fromID": "a1_s_0",
+   "toID": "7_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_0_in",
+   "fromID": "60_168019561412742010",
+   "toID": "a1_ta_ya_0",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_0_out",
+   "fromID": "a1_ta_ya_0",
+   "toID": "a1_s_0",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_1_in",
+   "fromID": "27_168019561412742010",
+   "toID": "a1_s_1",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_1_out",
+   "fromID": "a1_s_1",
+   "toID": "22_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_1_in",
+   "fromID": "58_168019561412742010",
+   "toID": "a1_ta_ya_1",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_1_out",
+   "fromID": "a1_ta_ya_1",
+   "toID": "a1_s_1",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_2_in",
+   "fromID": "32_168019561412742010",
+   "toID": "a1_s_2",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_2_out",
+   "fromID": "a1_s_2",
+   "toID": "37_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_2_in",
+   "fromID": "62_168019561412742010",
+   "toID": "a1_ta_ya_2",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_2_out",
+   "fromID": "a1_ta_ya_2",
+   "toID": "a1_s_2",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_3_in",
+   "fromID": "42_168019561412742010",
+   "toID": "a1_s_3",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_3_out",
+   "fromID": "a1_s_3",
+   "toID": "47_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_3_in",
+   "fromID": "69_168019561412742010",
+   "toID": "a1_ta_ya_3",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_3_out",
+   "fromID": "a1_ta_ya_3",
+   "toID": "a1_s_3",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_4_in",
+   "fromID": "72_168019561412742010",
+   "toID": "a1_s_4",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_4_out",
+   "fromID": "a1_s_4",
+   "toID": "47_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_4_in",
+   "fromID": "97_168019561412742010",
+   "toID": "a1_ta_ya_4",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_4_out",
+   "fromID": "a1_ta_ya_4",
+   "toID": "a1_s_4",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_5_in",
+   "fromID": "72_168019561412742010",
+   "toID": "a1_s_5",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_5_out",
+   "fromID": "a1_s_5",
+   "toID": "77_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_5_in",
+   "fromID": "100_168019561412742010",
+   "toID": "a1_ta_ya_5",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_5_out",
+   "fromID": "a1_ta_ya_5",
+   "toID": "a1_s_5",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_6_in",
+   "fromID": "88_168019561412742010",
+   "toID": "a1_s_6",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_s_6_out",
+   "fromID": "a1_s_6",
+   "toID": "82_168019561412742010",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_6_in",
+   "fromID": "94_168019561412742010",
+   "toID": "a1_ta_ya_6",
+   "formEdgeID": null
+  },
+  {
+   "edgeID": "a1_ta_ya_6_out",
+   "fromID": "a1_ta_ya_6",
+   "toID": "a1_s_6",
+   "formEdgeID": null
+  }
+ ],
+ "locutions": [
+  {
+   "nodeID": "8_168019561412742010",
+   "personID": 83,
+   "start": "2023-02-23 22:45:01",
+   "end": null
+  },
+  {
+   "nodeID": "13_168019561412742010",
+   "personID": 83,
+   "start": "2023-02-23 22:45:04",
+   "end": null
+  },
+  {
+   "nodeID": "18_168019561412742010",
+   "personID": 83,
+   "start": "2023-02-23 22:45:07",
+   "end": null
+  },
+  {
+   "nodeID": "23_168019561412742010",
+   "personID": 83,
+   "start": "2023-02-23 22:45:12",
+   "end": null
+  },
+  {
+   "nodeID": "28_168019561412742010",
+   "personID": 83,
+   "start": "2023-02-23 22:45:23",
+   "end": null
+  },
+  {
+   "nodeID": "33_168019561412742010",
+   "personID": 83,
+   "start": "2023-02-23 22:45:28",
+   "end": null
+  },
+  {
+   "nodeID": "38_168019561412742010",
+   "personID": 83,
+   "start": "2023-02-23 22:45:39",
+   "end": null
+  },
+  {
+   "nodeID": "43_168019561412742010",
+   "personID": 83,
+   "start": "2023-02-23 22:45:41",
+   "end": null
+  },
+  {
+   "nodeID": "48_168019561412742010",
+   "personID": 83,
+   "start": "2023-02-23 22:45:51",
+   "end": null
+  },
+  {
+   "nodeID": "73_168019561412742010",
+   "personID": 83,
+   "start": "2023-02-23 22:45:57",
+   "end": null
+  },
+  {
+   "nodeID": "78_168019561412742010",
+   "personID": 83,
+   "start": "2023-02-23 22:46:07",
+   "end": null
+  },
+  {
+   "nodeID": "83_168019561412742010",
+   "personID": 83,
+   "start": "2023-02-23 22:46:12",
+   "end": null
+  },
+  {
+   "nodeID": "89_168019561412742010",
+   "personID": 83,
+   "start": "2023-02-23 22:46:15",
+   "end": null
+  }
+ ]
+}
