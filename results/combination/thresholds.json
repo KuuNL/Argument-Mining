@@ -1,0 +1,15 @@
+{
+ "main": "A1+A2+A4",
+ "thresholds": {
+  "A1+A2+A4": {
+   "Inference": 0.4,
+   "Conflict": 0.55,
+   "Rephrase": 0.3
+  },
+  "A1+A2": {
+   "Inference": 0.35,
+   "Conflict": 0.45,
+   "Rephrase": 0.35
+  }
+ }
+}

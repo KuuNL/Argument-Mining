@@ -38,7 +38,8 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | A4.3 | Dev run + decision layer | 225 dev maps, frozen settings, labeller links; A1's temperature + thresholds, cross-fitted; calibration | Honest dev ARI next to A1–A3; success tests and H1–H5 decided | A4 | **Done (D079)**: honest dev ARI 52.17 / 32.45 (A1 50.50, A2 54.63); both success tests narrowly fail; H4, H5 pass; $0.62 |
 | A4.4 | Assembly + combination test | Valid maps, dev Global (labeller's turn types); A1 + A2 + A4 vs A1 + A2, from saved answers; no ablations (D076) | 225 / 225 valid; success test 2 | A4 | **Done (D079)**: 225 / 225 valid; honest dev Global 71.16 / 56.56; A1 + A2 + A4 = +0.39 over A1 + A2 |
 | A4.5 | Test run + report | Final A4 row; `reports/A4-jev.md` | Run once, on the user's go | Final run | **Done (D080)**: test Global 73.42 / 57.63 (ARI 54.21 / 30.98), between A3 and A2; A4 total $1.08 |
-| — | Combination · Final run | — | — | Combination / Final run | Not started |
+| C | Combination | `combination/run.py`: mean of A1 + A2 + A4 pair scores → A1's decision layer, cross-fitted; test once (all answers cached) | Pre-registered main (A1 + A2 + A4) and comparison (A1 + A2) fixed before the test gold is read | Combination | In progress (D083) |
+| 4 | Four-approach comparison | `reports/04-comparison.md` | Every number from a committed result | Final run and write-up | In progress |
 
 ---
 
@@ -1199,3 +1200,42 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - Re-running `a4_jev.tune` (no calls, deterministic) left the thresholds and every score identical. The test predictions, made before, are untouched.
 - **Discussion** (dev, matched density): A4 is the best of A1 / A2 / A4 at Inference (471 found with direction, against 396 and 301; neighbour recall 0.51) and at Conflict (29 found, against 23 and 19). It is the worst at Rephrase (201 found, against 377 and 358; 169 called Inference). It falls behind on maps of 26+ propositions. The two question forms are complementary.
 - **A4 totals:** $1.08 of the $10 budget, no training, ~2 h of work from plan approval to test.
+
+### D082 — Is A4's result solid? A second dev pass and a no-labels decode
+- **2026-10-06 · A4 · by Claude, under the user's request to check critically whether Jev does well ("think critically … nothing bloating") · Finding** (`results/a4/robust.json`, `dev-repeat/`; `python -m a4_jev.runner --run=dev-repeat --export`, `python -m a4_jev.robust`; $0.62)
+- *Why:*
+  - Jev isn't deterministic, and A4.3 was one pass. Its +1.68 over A1 sat inside the bootstrap interval, so run-to-run noise had to be measured before claiming encoder-level performance.
+  - "No training" also had to be checked against the labelled dev set the thresholds use.
+- *Run to run* (the identical 402 requests sent again; same cross-fitted procedure):
+
+  | Dev ARI, honest | General / focused | A4 − A1 general, 95% interval |
+  |---|---|---|
+  | Pass 1 (the A4.3 result) | 52.17 / 32.45 | +1.68 [−0.20, +3.65] |
+  | Pass 2 | 51.75 / 32.24 | +1.25 [−0.66, +3.23] |
+  | Mean of the two passes | 51.58 / 31.93 | +1.08 [−0.80, +3.04] |
+
+  - Both passes choose the same thresholds. At those thresholds, 88.5% of decided relations are identical; per-map ARI differs by 2.0 on average (at most 28.8).
+  - **The dev score is stable to about ±0.4.** A4's edge over A1 (+1.1 to +1.7) is always positive but never significant.
+  - Averaging the passes doesn't help, so the second pass stays a check, not part of the system.
+- *No labels* (no dev-tuned thresholds; dev ARI general / focused):
+
+  | System | ARI |
+  |---|---|
+  | A1, argmax | 50.08 / 33.82 |
+  | A2, every listed relation | 52.07 / 39.41 |
+  | A3, greedy (D069) | 49.46 / 31.19 |
+  | **A4, argmax** | **50.84 / 36.42** |
+
+  **With no labelled data at all, Jev matches the trained encoder.** Tuned thresholds add +1.3 general and cost −4.0 focused, as they did for A1 and A2.
+
+### D083 — Combination: the mean of A1 + A2 + A4 pair scores; pre-registered before its test run
+- **2026-10-06 · Combination · by Claude, under the user's request for "an overall good project on 4 approaches" · Approved within that request** (`combination/run.py`; `results/combination/dev_report.json`, `thresholds.json`)
+- *Form:* the simplest version of PLAN's Combination. Every pair's five scores are averaged over A1 (with its temperature), A2 (confidence-weighted votes of 3 answers) and A4 (two views). Then come A1's per-type thresholds, cross-fitted, and the labeller's turn types.
+  - *Not run:* the confidence-routing variant (A2 only on A1's / A4's uncertain pairs), and any weighting. Averaging was the measured form, and routing would add a tuned band.
+  - *Not included:* A3, because adding it lowered the A1 + A2 average on dev (D070).
+- *Dev (honest):*
+  - **A1 + A2 + A4: ARI 55.51 / 37.01, Global 72.83 / 58.84** (thresholds Inference 0.40, Conflict 0.55, Rephrase 0.30);
+  - A1 + A2: 55.12 / 36.18, Global 72.64 / 58.43.
+  - Both give 225 / 225 valid maps.
+- **Pre-registered for the one test run (now, before the gold is read):** main = A1 + A2 + A4, the best on dev; A1 + A2 is reported beside it, to show what A4 adds on test.
+  - Inputs: A1's saved test probabilities, A2's cached test-v1 answers, A4's test answers. No new calls; $0.

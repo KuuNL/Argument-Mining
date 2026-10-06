@@ -75,3 +75,4 @@ when,approach,stage,seconds,peak_vram_gib,host,info
 2026-10-06T16:24:22,a4,run:test,3.896,,KunalPC,"{""requests"": 22, ""to_send"": 22, ""workers"": 6, ""answered"": 22, ""usd"": 0.038268, ""input_tokens"": 911133}"
 2026-10-06T16:24:52,a4,A4.5_test,0.744,0.00,KunalPC,"{""maps"": 11}"
 2026-10-06T16:39:03,a4,A4.3_tune,317.571,0.00,KunalPC,"{""maps"": 225, ""honest"": 52.17}"
+2026-10-06T16:59:21,a4,run:dev-repeat,70.746,,KunalPC,"{""requests"": 804, ""to_send"": 402, ""workers"": 6, ""answered"": 804, ""usd"": 1.237507, ""input_tokens"": 29464462}"

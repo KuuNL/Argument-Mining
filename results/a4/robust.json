@@ -1,0 +1,112 @@
+{
+ "run_to_run": {
+  "pass 1": {
+   "honest": {
+    "general": 52.17,
+    "focused": 32.45
+   },
+   "thresholds": {
+    "Inference": 0.55,
+    "Conflict": 0.75,
+    "Rephrase": 0.3
+   },
+   "A4_minus_A1_general": {
+    "maps": 225,
+    "mean_difference": 1.68,
+    "ci95": [
+     -0.2,
+     3.65
+    ],
+    "a_better_maps": 123,
+    "b_better_maps": 100
+   }
+  },
+  "pass 2": {
+   "honest": {
+    "general": 51.75,
+    "focused": 32.24
+   },
+   "thresholds": {
+    "Inference": 0.55,
+    "Conflict": 0.75,
+    "Rephrase": 0.3
+   },
+   "A4_minus_A1_general": {
+    "maps": 225,
+    "mean_difference": 1.25,
+    "ci95": [
+     -0.66,
+     3.23
+    ],
+    "a_better_maps": 116,
+    "b_better_maps": 108
+   }
+  },
+  "mean of both passes": {
+   "honest": {
+    "general": 51.58,
+    "focused": 31.93
+   },
+   "thresholds": {
+    "Inference": 0.55,
+    "Conflict": 0.75,
+    "Rephrase": 0.3
+   },
+   "A4_minus_A1_general": {
+    "maps": 225,
+    "mean_difference": 1.08,
+    "ci95": [
+     -0.8,
+     3.04
+    ],
+    "a_better_maps": 113,
+    "b_better_maps": 111
+   }
+  },
+  "pass 1 vs pass 2 at the dev thresholds": {
+   "mean_abs_map_ari_difference": 2.0,
+   "max_abs_map_ari_difference": 28.82,
+   "relations_identical_share": 0.885
+  }
+ },
+ "no_labels_decode": {
+  "A1 argmax": {
+   "general": 50.08,
+   "focused": 33.82
+  },
+  "A2 every listed relation (3 answers)": {
+   "general": 52.07,
+   "focused": 39.41
+  },
+  "A3 greedy, every listed relation (D069)": {
+   "general": 49.46,
+   "focused": 31.19
+  },
+  "A4 argmax": {
+   "general": 50.84,
+   "focused": 36.42
+  },
+  "A4 argmax, mean of both passes": {
+   "general": 50.77,
+   "focused": 36.4
+  }
+ },
+ "with_dev_thresholds (honest)": {
+  "A1": {
+   "general": 50.5,
+   "focused": 32.61
+  },
+  "A2": {
+   "general": 54.63,
+   "focused": 34.12
+  },
+  "A3": {
+   "general": 47.65,
+   "focused": 27.23
+  },
+  "A4": {
+   "general": 52.17,
+   "focused": 32.45
+  }
+ }
+}

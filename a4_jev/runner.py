@@ -46,6 +46,8 @@ RUNS = {
     # Frozen by A4.2 (D078): guide v1, short options, k = 0, wording v1, pair + source questions, both orders.
     "dev": {"split": "dev", "maps": "dev225", "defs": "short", "k": 0},
     "test": {"split": "test", "maps": "test11", "defs": "short", "k": 0},
+    # Run-to-run check (D082): the dev requests again; repeat 0 is the cached `dev` pass, repeat 1 is new.
+    "dev-repeat": {"split": "dev", "maps": "dev225", "defs": "short", "k": 0, "repeats": 2},
 }
 
 
