@@ -253,7 +253,7 @@ The metric averages F1 over the labels present in a map, gold *or predicted*. A 
 | One false new illocution type (e.g. Challenging) | 1,217 | **72.8** |
 
 **57% of maps have no Conflict**, and in those maps a single wrong Conflict costs about a quarter of the ARI score. The same holds for ILO's rare types.
-This is why every approach ends in a **decision layer**: predict a rare label only when the probability clears a strict threshold, tuned on dev for the per-map metric. A missed Conflict costs less than an invented one.
+This is why every approach ends in a **decision layer**: predict a rare label only when the probability clears a strict threshold, tuned on dev for the per-map metric. A Conflict prediction pays only if it lands on exactly the right pair, and a wrong one costs points in every map, so when unsure, abstaining is the safer bet. (A *missed* gold Conflict also scores that class 0: the metric averages over labels in gold *or* prediction.)
 
 ---
 
