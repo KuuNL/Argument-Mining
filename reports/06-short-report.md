@@ -1,6 +1,6 @@
 # DialAM-2024 revisited: the short report
 
-*6 October 2026 · a condensed, critical companion to the [final report](05-final-report.md). Every number comes from a committed file under `results/` or `eda/`, from the [decision log](../decisionlog.md) (D001–D087), or from the 2024 overview paper. The per-map bootstrap intervals, pooled test counts and gain split are recomputed by `python reports/short_report_numbers.py` into [`results/short_report/derived.json`](../results/short_report/derived.json).*
+*6 October 2026 · a condensed, critical companion to the [final report](05-final-report.md). Every number comes from a committed file under `results/` or `eda/`, from the [decision log](../decisionlog.md) (D001–D087), or from the 2024 overview paper. The per-map bootstrap intervals, pooled test counts and gain split are recomputed by `python reports/short_report_numbers.py` into [`results/short_report/derived.json`](../results/short_report/derived.json); the figures are redrawn from committed files by `python reports/short_report_figures.py`.*
 
 ---
 

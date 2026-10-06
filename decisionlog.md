@@ -1299,4 +1299,5 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - ILO's share of the Global margin: 0.93 general, 0.81 focused;
   - per-map test ILO: 100 on 7 maps, 98.6 on map 6, about 73 on maps 1, 2 and 9 (bimodal; not diagnosed, since that would mean reading the test gold).
 - *Not new:* every other number is quoted from the final report, the comparison and per-approach reports, or the committed result files they cite.
-- *No new runs, no scoring, no spend.* The figures were drawn in Claude Science; their plotting code is not in the repository, but every plotted value is in a committed file.
+- *Reproduce:* `python reports/short_report_numbers.py`, then `python reports/short_report_figures.py` (numpy and matplotlib only; matplotlib is not in the pinned ML venv, so any Python with both works). The figure script reads only `results/` plus a few quoted constants, each with its source in the file: the 2024 field (overview paper), the dev floor and ceiling (D044) and the time per map (final report §7.3).
+- *No new runs, no scoring, no spend.*
