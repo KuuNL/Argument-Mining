@@ -4,7 +4,7 @@
 > **Status:** final (2026-10-05). The test set was scored once, with nothing changed afterwards: **Global 73.67 / 58.27**, against A1's 72.01 / 57.53 and the 2024 best of 67.05 / 48.25.
 > **Evidence:** [`../results/a2/`](../results/a2/) (summaries, scores and every raw model answer). Decisions D051–D064 are in [`../decisionlog.md`](../decisionlog.md).
 > **Discussion:** [`A2-discussion.md`](A2-discussion.md) asks why A2 and A1 each win where they do.
-> **What came after:** A2 stayed the best single system of the four on dev (A2 > A4 ≈ A1 > A3). Averaged with A1 and A4 it forms the project's best pre-registered system (test Global 74.51 / 59.47). See [`04-comparison.md`](04-comparison.md) and the [final report](05-final-report.md).
+> **What came after:** A2 stayed the best single system of the four on dev (A2 > A4 ≈ A1 > A3). See [`04-comparison.md`](04-comparison.md) and the [final report](05-final-report.md).
 
 ## In one minute
 - **The task.** A televised debate is turned into a *map*: **propositions** (claims) and **turns** (who said what, in order). A system must say which propositions **support** (Inference), **attack** (Conflict) or **restate** (Rephrase) which others, and *how* each turn was said (asserting, questioning, …).
@@ -340,7 +340,7 @@ The thresholds are Inference 0.35, Conflict 0.50 and Rephrase 0.25, identical in
   - only A2 right: 1,173;
   - only A1 right: 622;
   - both wrong: 1,186.
-  - Picking the right system per pair would score **66.1 / 46.0**. That's an upper bound, but a large one, for the combination phase.
+  - Picking the right system per pair would score **66.1 / 46.0**. That's an upper bound, but a large one, on what combining the two could gain.
 - *Not yet:* turn types (Task B) and complete maps come in A2.4. Test comes in A2.5.
 
 ### A2.4 Complete maps, turn types and ablations — done
@@ -396,7 +396,7 @@ Evidence: [`../results/a2/dev-v1/a24_report.json`](../results/a2/dev-v1/a24_repo
 - **Each part of the decision layer adds about 1 general point and costs 1–2 focused:** 3 answers, the confidence weights and the tuned thresholds. They make A2 more cautious, which the general metric rewards.
 - **The direction rule isn't needed:** the model gets Conflict and Rephrase direction right by itself.
 - **Long-range relations rarely matter:** A2 links nearby propositions, as the annotators do.
-- **For the test run** the frozen settings stay, including `xhigh`, as decided before dev was seen. Medium would be 2.7× faster for nearly the same score, which is worth knowing for the combination phase.
+- **For the test run** the frozen settings stay, including `xhigh`, as decided before dev was seen. Medium would be 2.7× faster for nearly the same score, which is worth knowing for later LLM passes.
 
 ### A2.5 Test run — done
 Evidence: [`../results/a2/test_global.json`](../results/a2/test_global.json), [`../results/a2/test_predictions/`](../results/a2/test_predictions/) (the 11 submitted maps), `results/a2/test-v1/` (raw answers) and [`../results/a2/test_posthoc.json`](../results/a2/test_posthoc.json).
@@ -491,12 +491,10 @@ Each ablation switches off one component and re-scores.
 - **The pilot misled twice.** Its reasoning gain didn't hold on dev, and the turn types that looked good there hurt on test. 20 maps and a changing prompt were too thin a basis.
 - **Small evidence:** one model and one prompt family; 11 test maps with a wide spread; no seed, so no exact reruns (the raw answers are committed instead).
 
-**For the combination phase, and what happened**
-- **A1 and A2 get different pairs right** (dev oracle 66.1 / 46.0), so combining them was the clear next step.
-  - *Outcome (D083–D084):* the plain average of A1 + A2 pair scores gives honest dev ARI 55.12 (+0.5 over A2), and test Global 75.17 / 60.32. The pre-registered A1 + A2 + A4 average gives test Global 74.51 / 59.47.
-  - Averaging captures only a small part of the 66.1 oracle. Routing only the uncertain pairs to the LLM was not tried.
-- **Use effort medium** for further LLM passes: nearly the same quality at 2.7× the speed. *(Not needed in the end: the combination reused the cached answers, so no new calls were made.)*
-- **Keep the ILO labeller's turn types.** *(Done: every later system and the combination use them.)*
+**For later work, and what happened**
+- **A1 and A2 get different pairs right** (dev oracle 66.1 / 46.0). A plain average of their pair scores captures only a small part of that (honest dev ARI 55.12, +0.5 over A2), and routing only the uncertain pairs to the LLM was not tried.
+- **Use effort medium** for further LLM passes: nearly the same quality at 2.7× the speed. *(Not needed in the end: no new Claude calls were made after A2's test run.)*
+- **Keep the ILO labeller's turn types.** *(Done: every later system uses them.)*
 
 ---
 <details><summary>Decisions and build log</summary>

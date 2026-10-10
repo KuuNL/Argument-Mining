@@ -2,7 +2,7 @@
 
 > **What this is:** the report on approach A1, from idea to final test result. It's written for readers new to the project; terms are explained where they first appear.
 > **Status:** final (2026-10-03). The test set was scored once, with nothing tuned afterwards (D049).
-> **What came after:** A2 (Claude reading the whole map) beat A1's relations on dev by +4.1 (significant), and A4 (Jev) matched them with no training. A1 is part of the best pre-registered system, the averaged A1 + A2 + A4 (test Global 74.51 / 59.47). See [`04-comparison.md`](04-comparison.md) and the project's [final report](05-final-report.md).
+> **What came after:** A2 (Claude reading the whole map) beat A1's relations on dev by +4.1 (significant), and A4 (Jev) matched them with no training. See [`04-comparison.md`](04-comparison.md) and the project's [final report](05-final-report.md).
 > **Evidence:** every number comes from a committed file in [`../results/a1/`](../results/a1/); the test predictions are in [`../results/a1/v1/test_predictions/`](../results/a1/v1/test_predictions/). Decisions D018–D050 are in [`../decisionlog.md`](../decisionlog.md).
 
 ## In one minute
@@ -202,7 +202,7 @@ xychart-beta
 - **A larger encoder** (large models with an 8-bit optimizer, about 4–5 h per run) and seed ensembles.
 - **More Conflict signal:** the chunked giant maps, transition-anchored Disagreeing examples, a focal loss.
 - **Map-level decoding:** choose a map's relations jointly.
-- **LLM adjudication** of uncertain pairs. The combination phase averaged A1's and the LLMs' pair scores instead (D083–D084); routing only the uncertain pairs was not run.
+- **LLM adjudication** of uncertain pairs: routing only the pairs A1 is unsure about to an LLM was not run.
 
 ---
 <details><summary>Build log (A1.1–A1.7)</summary>

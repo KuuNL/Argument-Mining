@@ -232,7 +232,7 @@ Linking costs under 1 point; minority-type typing holds about 7. These are upper
 
 ## 10. Open items
 - **Rare types** (not planned now): add transition-anchored Agreeing / Disagreeing / Challenging examples as training signal; give reply turns the turn they answer as explicit context; or revisit after A1, if ILO becomes the bottleneck.
-  - *Outcome:* ILO never became the bottleneck, so the labeller was not retrained. A2 let Claude override its turn types: +0.3 on dev, but −1.1 on test (3 changes, all wrong; D063–D064). A3, A4 and the combination keep the labeller's types.
+  - *Outcome:* ILO never became the bottleneck, so the labeller was not retrained. A2 let Claude override its turn types: +0.3 on dev, but −1.1 on test (3 changes, all wrong; D063–D064). A3 and A4 keep the labeller's types.
 - ~~**D029** (no node-ID shortcuts) still needs a user decision.~~ Approved on 2026-10-01; every approach follows it.
 
 ## Reproduce

@@ -121,7 +121,6 @@ Key numbers (training):
 | **Ours: A2 (Sonnet 5.5, whole map) + ILO labeller, test (2026-10-05)** | **55.8** / 33.3 | 91.6 / 83.2 | **73.67 / 58.27**: see `reports/A2-whole-map-llm.md` |
 | Ours: A3 (fine-tuned Qwen3-4B) + ILO labeller, test (2026-10-06) | 53.7 / 32.1 | 92.6 / 84.3 | 73.17 / 58.17: see `reports/A3-finetuned-llm.md` (on dev it trails A1 and A2) |
 | Ours: A4 (Jev, no training) + ILO labeller, test (2026-10-06) | 54.2 / 31.0 | 92.6 / 84.3 | 73.42 / 57.63: see `reports/A4-jev.md` (2nd on dev too; $1.70 in all) |
-| **Ours: A1 + A2 + A4 averaged (pre-registered combination), test (2026-10-06)** | **56.4** / 34.7 | 92.6 / 84.3 | **74.51 / 59.47**: see `reports/04-comparison.md` (A1 + A2 alone: 75.17 / 60.32) |
 
 Every winning system was a **pairwise encoder classifier** (DeBERTa/RoBERTa). It read two sentences at a time with no
 surrounding dialogue. This caused five failures:
@@ -145,10 +144,9 @@ flowchart TB
   A2["A2 · Whole-map LLM<br/>reasons over everything"]
   A3["A3 · Fine-tuned open LLM<br/>learns the annotation style"]
   A4["A4 · Jev System One<br/>typed decisions + probabilities"]
-  A1 & A2 & A3 & A4 --> C["Combination<br/>fast scorer first, LLM on uncertain pairs"]
-  C --> E["Final run on 11 test maps<br/>F1 + timing + cost + ablations"]
+  A1 & A2 & A3 & A4 --> E["Final run on 11 test maps<br/>F1 + timing + cost + ablations"]
 ```
-*Figure: four independent approaches on one shared foundation, compared and then combined.*
+*Figure: four independent approaches on one shared foundation, each scored once on test and then compared.*
 
 **Shared foundation.** A loader and writer, the ported scorer, a dev split, and exploratory data analysis (EDA) of structural cues:
 how far apart related propositions are in the dialogue, whether conflict tends to cross speakers, whether answers rephrase questions.
@@ -204,9 +202,7 @@ Each question is asked in two option orders, and the probabilities are averaged.
   - Scope is the core only (D076): pair and source questions, no turn-type questions and no extra ablations.
 - **Outcome (final, 2026-10-06):** test Global 73.42 / 57.63 (ARI 54.21 / 30.98), between A3 and A2. On dev it is 2nd (honest ARI 52.17 / 32.45, A1 50.50, A2 54.63), and both success tests narrowly fail. It has the best Inference and Conflict recall of the four systems, the worst Rephrase, and costs $0.003 and 0.8 s per map. See `reports/A4-jev.md` and `reports/A4-discussion.md`. It runs in `~/.venvs/a3` (it reuses A3's comparison code).
 
-**Combination.** The methods have complementary strengths. A1 or A4 is fast and calibrated, and A2 is slow but reasons.
-So a cheap pass decides the confident pairs, and only the uncertain ones go to A2.
-- **Outcome (D083–D084):** the simplest form, the mean of A1 + A2 + A4 pair scores, gives test Global 74.51 / 59.47, the best pre-registered system. Routing was not run. All four approaches are compared in `reports/04-comparison.md`, and the whole project is written up in `reports/05-final-report.md` (D086).
+**Comparison and write-up.** All four approaches are compared in `reports/04-comparison.md`, and the whole project is written up in `reports/05-final-report.md` (D086) and `reports/06-short-report.md` (D087). The write-ups present the project as an exploration: each approach follows one shortfall of the 2024 systems (D089). The averaged A1 + A2 + A4 run (D083–D085, `combination/`) is kept as a record but is not presented in the README, reports or figures.
 
 **Measured for every approach:** ARI / ILO / Global (general and focused), training time, inference time, cost, and
 *ablations* (switch off one component, such as context, pruning, thresholds or the LLM step, and re-score to see what it contributed).

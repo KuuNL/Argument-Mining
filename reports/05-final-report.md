@@ -1,14 +1,14 @@
 # DialAM-2024 revisited: final report
 
 > **What this is:** the whole project end to end, for a reader who knows none of it: the task, the data, what the 2024 shared task achieved, our four approaches, what they scored and why, and what the benchmark can and cannot measure. The per-phase reports hold the details; they are listed at the end.
-> **Status:** final (2026-10-06). Each system's pre-registered configuration was scored on the 11 test maps exactly once; later checks are marked post-hoc.
+> **Status:** final (2026-10-06). Each system's configuration was fixed on dev and scored on the 11 test maps exactly once; later checks are marked post-hoc.
 > **Evidence:** every number comes from a committed file under `results/` or `eda/`, through the report cited in each section, or from the 2024 overview paper ([`../reference/2024.argmining-1.8.pdf`](../reference/2024.argmining-1.8.pdf)). Decisions D001–D088 are in [`../decisionlog.md`](../decisionlog.md).
 
 ## Summary
 - **The task.** In televised debates (BBC *Question Time*), already cut into units by annotators, a system must say which claims **support**, **attack** or **restate** which others (*relations*), and *how* each utterance was said: asserted, asked, agreed (*illocutions*). The 2024 shared-task winner scored **67.05** on the official F1 measure (48.25 in its stricter "focused" form, §2.3).
-- **The aim.** Beat that with 2026 methods, and find out *which kind of method* helps, at what cost.
-- **What we built.** One shared pipeline (official scoring, a trained illocution labeller, a tuned decision step) with four interchangeable relation scorers: a trained encoder (A1), Claude reading the whole map (A2), a fine-tuned small open LLM (A3) and a decision model, Jev (A4). The final system averages A1, A2 and A4.
-- **Result.** All four systems and the combination beat the 2024 winner; the combination scores **74.51 / 59.47**. But **most of the margin comes from illocutions** (F1 92.6 against 2024's 78.8–81.2). On relations, our best systems are within about one point of 2024's best on test, which 11 maps cannot separate.
+- **The exploration.** Start from where the 2024 systems fell short, follow each shortfall with a different kind of model, and ask throughout: *what do models that appeared since 2024 change, and where do they still fail?* (§1)
+- **What we built.** One shared pipeline (official scoring, a trained illocution labeller, a tuned decision step) with four interchangeable relation scorers: a trained encoder (A1), Claude reading the whole map (A2), a fine-tuned small open LLM (A3) and a decision model, Jev (A4).
+- **Result.** All four systems beat the 2024 winner; the best, Claude, scores **73.67 / 58.27**. But **most of the margin comes from illocutions** (F1 92.6 against 2024's 78.8–81.2). On relations, our best systems are within about one point of 2024's best on test, which 11 maps cannot separate.
 - **Which method works.** On the 225-map dev set, which can rank systems, **Claude reading the whole map finds relations best** (+4.1 over the trained encoder, significant). **Jev matches the trained encoder with no training**, at $0.003 a map. **Fine-tuning a 4B open LLM was the worst trade-off.**
 - **How far there is to go.** Four very different methods land within 7 points of each other on dev relations (47.7–54.6 F1), where the pipeline would allow 98.6. **Conflict is unsolved:** most annotated attacks are a speaker's own unmarked concessions, and no system finds more than about one in five.
 - **Why relations barely moved (§10).** Not our safeguards, the pipeline or the later test debates. 82–86% of every system's errors are about *whether* two propositions are related at all; long-range and within-speaker relations are mostly missed; the labels follow conventions annotators agree on only moderately; and the per-map metric dilutes relation gains. The 11-map test is also too small to show the modest gain that dev measures.
@@ -17,7 +17,17 @@
 ---
 
 ## 1. What we set out to do
-The research question: **which post-2024 method class solves dialogical argument mining best, and at what cost and speed?** Success meant beating the 2024 best Global score (67.05 / 48.25), recording every approach's F1, time, cost and ablations, and showing which 2024 failure each new method fixes. All three were met, with ablations cut to the core for A3 and A4 by user decision (D071, D076). The work ran in gated phases (foundation, data analysis, illocution labeller, A1–A4, combination), with every decision logged as it was made.
+**An exploration with a direction.** The 2024 overview paper reports where the shared-task systems fell short: argument relations were the bottleneck, attacks were missed, argument direction was misread, and the LLM entries did not beat the pairwise encoders (§4). Rather than test one hypothesis, this project followed each shortfall, together with our own hypothesis about its cause (marked as ours in the table), with a different kind of model. One question runs through all of it: **what do models that appeared since 2024 change in dialogical argument mining, and where do they still fail?**
+
+| Where 2024 fell short | Idea explored | Approach |
+|---|---|---|
+| Illocutions classified pair by pair | Link each turn to one proposition, with thresholds tuned to the metric | the shared ILO labeller (§5.1) |
+| Two sentences judged in isolation | Give the 2024 recipe the whole dialogue | A1 · trained encoder |
+| Direction misread (and, we suspected, no consistency across a map) | Let a frontier LLM read the map and decide every relation together | A2 · Claude Sonnet 5.5 |
+| LLM entries lost to encoders | Teach the annotators' conventions to a small open LLM | A3 · Qwen3-4B, QLoRA |
+| (We suspected) LLM output too unreliable to threshold | A decision model that answers typed questions with probabilities, untrained | A4 · Jev |
+
+Success meant beating the 2024 best Global score (67.05 / 48.25), recording every approach's F1, time, cost and ablations, and showing which 2024 shortfall each new method moves. All three goals were met, with ablations cut to the core for A3 and A4 by user decision (D071, D076). The work ran in gated phases (foundation, data analysis, illocution labeller, then A1–A4), with every decision logged as it was made. The answer is in §12: illocutions were fixed by engineering, relations were not fixed by any model we tried, and §10 explains why.
 
 ---
 
@@ -219,8 +229,6 @@ T2  Minister: yes, they deserve one
 
 A2 and A3 answer in JSON constrained by a per-map **schema**, so no answer is lost to parsing. Jev, a **decision model**, writes no text: it answers many typed questions against one shared *state*. A4 asks about each relation two ways, per pair ("how is P2 related to P3?") and per proposition ("which one proposition does P3 bear on, and how?", where the candidate targets compete), each in two option orders.
 
-**The combination** averages the pair scores of A1, A2 and A4 and puts them through the same decision layer. It was chosen on dev and **pre-registered**, that is, fixed before its test run (D083). A3 was left out because adding it lowered the dev score. Routing (a fast system decides confident pairs, the LLM only uncertain ones) was planned but not run.
-
 ---
 
 ## 6. How to read the results
@@ -246,12 +254,10 @@ F1 general / focused on the 11 test maps:
 | A2 · Claude, whole map | 55.77 / 33.34 | 91.56 / 83.20 | 73.67 / 58.27 |
 | A3 · fine-tuned Qwen3-4B | 53.70 / 32.05 | 92.64 / 84.28 | 73.17 / 58.17 |
 | A4 · Jev | 54.21 / 30.98 | 92.64 / 84.28 | 73.42 / 57.63 |
-| **A1 + A2 + A4 (pre-registered)** | **56.39 / 34.65** | 92.64 / 84.28 | **74.51 / 59.47** |
-| A1 + A2 (reported beside it) | 57.69 / 36.37 | 92.64 / 84.28 | 75.17 / 60.32 |
 
-- **Every system beats the 2024 winner on Global,** by 5.0–7.5 general and 9.3–11.2 focused.
-- **The margin is illocutions.** The combination's +7.46 Global (general) over DFKI splits into **+6.93 from ILO** and +0.53 from ARI, since Global is the mean of the two; on focused, ILO gives about 80%. The labeller is perfect on 7 of the 11 test maps. (A2's submission let Claude override 3 turn types, all wrongly, which cost it 1.1 ILO.)
-- **On relations, we are level with 2024.** The best ARI general (A2 55.77, combination 56.39) is 0.4–1.1 above DFKI's 55.33, well inside the ±8 test noise; A1 is 4 below it. On focused ARI only the A1 + A2 average (36.37) passes Pokemon's 35.89, which Pokemon reached by over-predicting.
+- **Every system beats the 2024 winner on Global,** by 5.0–6.6 general and 9.3–10.0 focused.
+- **The margin is illocutions.** Global is the mean of the two tasks, so each system's gain over DFKI splits into **+6.4 to +6.9 from ILO** and −2.0 to +0.2 from ARI (general; focused: +8.6 to +9.1 and +0.2 to +1.5). Claude's +6.62 is +6.39 from ILO and +0.22 from ARI. The labeller is perfect on 7 of the 11 test maps. (A2's submission let Claude override 3 turn types, all wrongly, which cost it 1.1 ILO.)
+- **On relations, we are level with 2024.** The best ARI general (A2, 55.77) is 0.4 above DFKI's 55.33, well inside the ±8 test noise; A1 is 4 below it. On focused ARI no system passes Pokemon's 35.89, which Pokemon reached by over-predicting.
 - **Conflict:** no system found more than 2 of the 13. None put a Conflict into a map without one, but 5 of the 10 Conflicts predicted by A1, A2 and A4 were wrong.
 
 We can't run DFKI's system on our dev set, so **whether our relation scoring beats 2024's can't be settled**.
@@ -262,14 +268,13 @@ Honest dev results (225 maps; "vs A1" is the paired bootstrap on ARI general):
 | System | ARI | vs A1 (95% interval) | Global |
 |---|---|---|---|
 | A1 · trained encoder | 50.50 / 32.61 | — | 70.29 / 56.63 |
-| A2 · Claude | **54.63 / 34.12** | **+4.14 [2.21, 6.12]** | 72.53 / 57.63 |
+| A2 · Claude | **54.63 / 34.12** | **+4.14 [2.21, 6.12]** | **72.53 / 57.63** |
 | A3 · fine-tuned Qwen3-4B | 47.65 / 27.23 | −2.85 [−4.7, −1.0] | 68.90 / 53.95 |
 | A4 · Jev | 52.17 / 32.45 | +1.68 [−0.20, 3.65] | 71.16 / 56.56 |
-| **A1 + A2 + A4** | **55.51 / 37.01** | | **72.83 / 58.84** |
 | *Reference:* predicting no relation / every candidate pair right | 30.93 / 0 · 98.64 / 94.44 | | |
 
 - **The ranking is A2 > A4 ≈ A1 > A3.** A2 is significantly better than A1 and than A4 (by 2.46); A3 is significantly worse than A1; A4 and A1 are within noise.
-- **The combination adds about one point over A2** (+0.9 general, +2.9 focused; not tested for significance). Picking the better of A1 and A2 for each pair would score 66.1, so averaging captures only a small part of how differently they err.
+- **A1 and A2 err differently.** Picking the better of the two for each pair would score 66.1, against 54.6 for A2 alone.
 - **Jev needs no labelled pairs, training or tuned thresholds.** With plain argmax (each pair's most probable label), it scores 50.84 against A1's 50.08, though its guide's base rates were measured on the corpus.
 
 ### 7.3 Cost and speed
@@ -333,13 +338,13 @@ The benchmark shapes these results as much as the models do.
 ---
 
 ## 10. Why relation mining barely moved since 2024
-Illocutions rose 11 points over 2024; relations rose about one. On dev, four methods that share nothing but the data and the metric converge within 7 points (47.7–54.6 ARI), closing only 29–36% of the distance from predicting nothing (30.9) to labelling every candidate pair correctly (98.6). When methods this different converge, the limit is likely in what they share. Each candidate cause, checked against the evidence:
+Illocutions rose 11 points over 2024; relations rose about one. On dev, four methods that share nothing but the data and the metric converge within 7 points (47.7–54.6 ARI), closing only 25–35% of the distance from predicting nothing (30.9) to labelling every candidate pair correctly (98.6). When methods this different converge, the limit is likely in what they share. Each candidate cause, checked against the evidence:
 
 | Candidate cause | Verdict | Evidence |
 |---|---|---|
 | **Our safeguards** | Not the cause | Cross-fitting costs A1 0.4 ARI against thresholds tuned on all of dev (50.50 against 50.90). The node-ID ban (D029) concerns turn–proposition links, not relations. Freezing each configuration before its single test run removes test-set tuning, which can only inflate a score. |
 | **The pipeline** | Not the cause | Pruning at 10 turns keeps about 98.5% of relations, and labelling every candidate pair correctly would score 98.64 / 94.44. The labeller's turn links, which place each test proposition, are 98.3% right. |
-| **The data split** | Not the cause | The test debates are later (2022–23) and chosen for complex structure, yet every system scores *higher* on test than on dev: A1 +0.9, A2 +1.1, A4 +2.0, the combination +0.9 (A3 +6.1, within 11-map noise). |
+| **The data split** | Not the cause | The test debates are later (2022–23) and chosen for complex structure, yet every system scores *higher* on test than on dev: A1 +0.9, A2 +1.1, A4 +2.0 (A3 +6.1, within 11-map noise). |
 | **The test set's size** | Hides a real gain | Every system's 11-map 95% interval spans about ±8 points and contains DFKI's 55.33. Claude's significant +4.1 over the encoder on dev would not show, and DFKI can't be scored on dev. |
 | **Training data and model scale** | Contributes; not fully tested | The whole training corpus has 1,232 Conflicts, 56% of them within one speaker's talk. The 19 giant maps (12.8% of relations) were never trained on, and the 8 GB GPU capped models at a 150M encoder and a 4-bit 4B LLM. Against that: whole-dialogue context added A1 only +1.5, reasoning added A2 only +0.8, and the two untrained systems land in the same band as the trained ones. |
 | **The task and its labels** | **Main cause** | Below |
@@ -352,7 +357,7 @@ Illocutions rose 11 points over 2024; relations rose about one. On dev, four met
 - **Deciding whether two propositions are connected at all.** 82–86% of every system's errors are a missed or an invented relation; a wrong type (229–263 cases) or direction (61–83) is the minority. With some 200 ordered pairs and 8 relations per map, the task is mostly detection, and the connection is often unmarked: a concession counts as an attack without a "but", an elaboration as a rephrase.
 - **Long-range relations.** 69% of relations join adjacent turns, and there every system finds 41–46%. Two to three turns apart, the pairwise encoder finds 16% and Claude 37%; four to ten turns apart, 12% against 30%. Almost all of Claude's dev advantage over the encoder comes from these.
 - **Conventions with moderate agreement.** QT30's annotators agree at 0.56 CASS. The systematic type errors follow the conventions: Jev, reading literally, turns 169 gold rephrases into support; the fine-tuned Qwen turns 252 gold supports into rephrases. Attacks within one speaker's talk, 70% of dev Conflicts, stay at 7–12% recall for every method.
-- **A metric that compresses relation gains.** ARI averages the relation classes with "None", which is about 95% of pairs and near-perfect. A1's tuned dev F1 is 0.32 for Inference, 0.14 for Conflict and 0.47 for Rephrase. On test, raising pooled Inference F1 by 17 points (A1 0.29 → combination 0.46), with small gains elsewhere, moved ARI by only 5.0. A large gain in *finding* relations shows up as a modest gain in the score.
+- **A metric that compresses relation gains.** ARI averages the relation classes with "None", which is about 95% of pairs and near-perfect. A1's tuned dev F1 is 0.32 for Inference, 0.14 for Conflict and 0.47 for Rephrase. On test, Claude raises pooled Inference F1 by 15 points over the encoder (0.29 → 0.44), with small changes elsewhere, yet ARI moves by only 4.4. A large gain in *finding* relations shows up as a modest gain in the score.
 
 **In short:** the plateau belongs to the task more than to our methods or our checks. Relation identification is mostly detection of implicit, convention-laden connections, scored by a metric that dilutes gains and tested on a set too small to show the gain that dev does measure. The remaining levers target exactly this: annotators' judgement on our errors, the conventions taught as data, and a larger test set (§12).
 
@@ -361,18 +366,18 @@ Illocutions rose 11 points over 2024; relations rose about one. On dev, four met
 ## 11. Limits
 - **Contamination isn't ruled out** for A2 and A4, whose training data is unknown; QT30 and the 2024 test gold are public. Their dev → test changes (+1.1, +2.0) resemble A1's (+0.9), which argues against memorisation, but no probe was run.
 - **One configuration and one seed per approach,** and no ablations for A3 and A4 beyond their core comparisons, so A3's causes and Jev's Rephrase failure (model or wording) are not separated. Most "why" explanations fit the evidence without being tested by intervention.
-- **Not tried:** a larger encoder (the 8 GB GPU limits A1 to the base model), the giant maps' Conflict examples, routing in the combination, and a human ceiling.
+- **Not tried:** a larger encoder (the 8 GB GPU limits A1 to the base model), the giant maps' Conflict examples, and a human ceiling.
 
 ---
 
 ## 12. Conclusions
-**The research question.** The best accuracy comes from a frontier LLM reading the whole map, averaged with a trained encoder. The best accuracy per cost comes from the decision model, which matches the trained encoder with no training or GPU for under a cent per map, provided the questions are designed well. Fine-tuning a small open LLM is the worst trade-off: as much training as the encoder, and a lower score.
+**What the exploration answers.** Illocutions were fixed by engineering, not by model scale: a trained labeller with one-to-one linking and tuned thresholds. Relations were not fixed by any model we tried, and §10 places the limit in the task and its labels. Among the relation scorers, the best accuracy comes from a frontier LLM reading the whole map. The best accuracy per cost comes from the decision model, which matches the trained encoder with no training or GPU for under a cent per map, provided the questions are designed well. Fine-tuning a small open LLM is the worst trade-off: as much training as the encoder, and a lower score.
 
 **What changed since 2024:**
 
-| 2024 failure | Now | Evidence |
+| Where 2024 fell short | Now | Evidence |
 |---|---|---|
-| Relations are the bottleneck | Better on dev, level on test | Dev ARI 54.6 (A2), 55.5 combined, against A1's 50.5; test within noise of DFKI |
+| Relations are the bottleneck | Better on dev, level on test | Dev ARI 54.6 (A2) against A1's 50.5; test within noise of DFKI |
 | Conflict missed or invented | **Not fixed** | Invention is rarer (A1: 8 dev maps get a false Conflict, against 34 untuned), but dev recall is 6–12% at tuned thresholds; test ≤ 2 of 13 |
 | Direction in argument structure | **Partly** | Pairwise direction 83–87% for every method; divergent arguments over-drawn by A1 (17% of propositions start 2+ relations), under-drawn by A2 (0.7%), gold 6% |
 | No global consistency | Better | Joint decisions (A2's single list, A4's competing questions) invent 805–859 relations against A1's 905 at matched density |
@@ -380,11 +385,11 @@ Illocutions rose 11 points over 2024; relations rose about one. On dev, four met
 | Illocutions | **Largely fixed** | Test ILO 92.6 against 81.2; the rarest types are still never predicted |
 
 **Broader lessons:**
-- **Very different methods converge well below the ceiling.** Four methods sit within 7 points on dev relations. Neither more context (+1.5 for A1) nor reasoning (+1 for A2) moved them much; most remaining errors concern the annotators' conventions and implicit attacks.
+- **Very different methods converge well below the ceiling.** Four methods sit within 7 points on dev relations. Neither more context (+1.5 for A1) nor reasoning (+1 for A2) moved them much; most remaining errors are about whether two propositions are connected at all, often through an implicit attack or an annotation convention.
 - **Measure on enough data.** A 20-map pilot overstated reasoning (+11 → +1), a +0.3 dev gain on turn types reversed on test (−1.1), and 11 test maps put A3 above A1. Only the 225-map dev set with cross-fitting gave rankings that held.
 - **Thresholds protect more than they add.** For A1, A2 and A4 they add 0.4–2.6 ARI general, but they cut A1's dev maps with an invented Conflict from 34 to 8. The large gains came from the models: the trained labeller adds 14 ILO points over text similarity, and Claude 4.1 ARI points over the encoder.
 
-**What we'd do next:** teach the conventions directly (concession examples for Conflict, elaboration examples for Rephrase); route only uncertain pairs to the LLM; train a larger encoder with the giant maps; and measure how often annotators themselves disagree on the pairs our systems "get wrong".
+**Where the exploration points next:** the open problem is deciding *which* pairs are connected, not what type a relation is. So: teach the conventions directly (concession examples for Conflict, elaboration examples for Rephrase); test whether a router can use how differently the encoder and Claude err; train a larger encoder with the giant maps; and measure how often annotators themselves disagree on the pairs our systems "get wrong".
 
 ---
 
@@ -399,5 +404,5 @@ Illocutions rose 11 points over 2024; relations rose about one. On dev, four met
 | A2 · Claude, whole map | [`A2-whole-map-llm.md`](A2-whole-map-llm.md) · [discussion](A2-discussion.md) |
 | A3 · fine-tuned Qwen3-4B | [`A3-finetuned-llm.md`](A3-finetuned-llm.md) · [discussion](A3-discussion.md) |
 | A4 · Jev | [`A4-jev.md`](A4-jev.md) · [discussion](A4-discussion.md) |
-| Four approaches and the combination, compared | [`04-comparison.md`](04-comparison.md) |
+| The four approaches compared | [`04-comparison.md`](04-comparison.md) |
 | Every decision, and the phase map | [`../decisionlog.md`](../decisionlog.md) |

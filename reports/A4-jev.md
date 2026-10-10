@@ -2,7 +2,7 @@
 
 > **What this is:** the report on approach A4, from plan to final test result. Each phase was written as a plan first and then became the record of what ran.
 > **Status:** final (2026-10-06). The test set was scored once, with nothing changed afterwards: **Global 73.42 / 57.63** (ARI 54.21 / 30.98), between A3 (73.17 / 58.17) and A2 (73.67 / 58.27). On dev (225 maps) A4 is 2nd of the four systems (honest ARI 52.17 / 32.45), and both pre-registered success tests narrowly fail. The planned phases cost **$1.08**, and a later robustness re-run $0.62 more (D082), with no training. At the user's request the scope was kept to A4's core (D076–D077).
-> **What came after:** a second identical dev pass scored 51.75 (D082), and in the final combination A4 added nothing reliable (+0.4 on dev, −1.3 on test, D084). See [`04-comparison.md`](04-comparison.md) and the [final report](05-final-report.md).
+> **What came after:** a second identical dev pass scored 51.75 (D082). See [`04-comparison.md`](04-comparison.md) and the [final report](05-final-report.md).
 > **Discussion:** [`A4-discussion.md`](A4-discussion.md) asks how Jev performs on argument mining, and where a decision model is useful.
 > **Evidence:** [`../results/a4/`](../results/a4/). Decisions D073–D081 in [`../decisionlog.md`](../decisionlog.md).
 > **Background:** [A1](A1-cross-encoder.md) (trained pairwise encoder), [A2](A2-whole-map-llm.md) and [its discussion](A2-discussion.md) (Claude reading the whole map), [A3](A3-finetuned-llm.md) and [its discussion](A3-discussion.md) (fine-tuned Qwen3-4B).
@@ -14,7 +14,7 @@
 - **The idea:** put the whole map in the state, ask about every candidate relation as a typed question, and get a **probability for every pair**. That gives whole-map context, as in A2, and a continuous score per pair, as in A1, with no training. Those scores go through the decision layer the other approaches already share.
 - **What's new in A4:** besides one question per pair (A1's 5 labels), it asks **one question per proposition**: "which of your candidate propositions do you relate to, and how?" All of a proposition's candidate targets then compete inside one probability distribution. A2 found that deciding jointly was the LLM's real advantage over the encoder, and this is a way to get it without generating text.
 - **Cost (measured in A4.1):** the state is billed once per request, so **a dev pass costs ≈ $0.63** at list price, and everything left (pilot, dev, test) ≈ $0.80. Jev turned out not to be on the gateway's free tier (D074), so A4 runs on a small paid credit with a cap (D075).
-- **Success (fixed in advance):** with no training, A4 beats A1 on honest dev ARI, *or* adding A4 to the A1 + A2 average gains ≥ 1.0. **Both narrowly fail:** +1.68 over A1 with a 95% interval of [−0.20, +3.65], and +0.39 in the combination. A second identical dev pass scores 51.75 (+1.25 over A1). With no tuned thresholds at all, Jev scores 50.84 against A1's 50.08 (D082). In the test-set combination it adds nothing (D084).
+- **Success (fixed in advance):** with no training, A4 beats A1 on honest dev ARI, *or* adding A4 to the A1 + A2 average gains ≥ 1.0. **Both narrowly fail:** +1.68 over A1 with a 95% interval of [−0.20, +3.65], and +0.39 when added to the A1 + A2 average. A second identical dev pass scores 51.75 (+1.25 over A1). With no tuned thresholds at all, Jev scores 50.84 against A1's 50.08 (D082).
 - **Test result (11 maps, scored once): Global 73.42 / 57.63**, ARI 54.21 / 30.98. That is 1st on Global and 2nd on ARI general against the 2024 field (best 67.05 / 48.25), and 2nd of our four systems.
 - **On dev (225 maps, the reliable comparison): honest ARI 52.17 / 32.45**, between A1 (50.50 / 32.61) and A2 (54.63 / 34.12), and above A3 (47.65 / 27.23).
 - **What Jev does well:**
@@ -40,7 +40,7 @@
 | **Conflict within one speaker's talk** | 70% of gold Conflicts (91 of 130). A1–A3 find 7–11% of them at matched density | State the IAT convention in the Conflict option: a speaker's own concession or contrast counts. Jev reads instructions literally, which helps here | H3 |
 | **Direction** | A2 read direction from the text; reasoning didn't change it (A2 discussion, Q3) | Tests direction with no reasoning step at all | H4 |
 | **Cost and speed** | A2: ~25 s and $0.18 API-equivalent per map, limited by Pro quota. A1: 94 min of training | 0.9 s per request, measured (A4.1); ≈ $0.003 per map; no training | H5 |
-| **Combination** | The A1 + A2 average beats A2 alone, and the oracle is 66.1. PLAN's Combination needs a "fast calibrated pass" | A third, cheap opinion whose errors may differ, and a candidate for that fast pass | Success test 2 |
+| **Complementarity** | A1 and A2 get different pairs right (per-pair oracle 66.1) | A third, cheap opinion whose errors may differ | Success test 2 |
 
 ### 1.2 Where it will probably be weak
 - **No reasoning step.** TypeSafe's own list of jev-1.13's weak spots includes multi-step reasoning and indirection, literal reading, a **lean toward the first option**, and **lower accuracy as unrelated content grows in the state**. The design answers the last two directly (§4).
@@ -151,7 +151,7 @@ The map text is `common/serialise.py`'s, as in A2 and A3: turns T1… in dialogu
 | **A4.1 Setup + feasibility** | Key, client, cache, parser; probe on 5 training maps | Lossless round trip; live answers valid; billing, speed, bias and repeatability measured; budget projection within the cap | **Passed** (D076), $0.035 |
 | **A4.2 Pilot** | 50 training-split maps: base, a worked example, one wording fix | Settings frozen by the pre-set rules | **Done** (D078), $0.40 |
 | **A4.3 Dev run** | 225 dev maps, frozen settings; decision layer; calibration; success tests | Honest dev ARI next to A1–A3; H1–H5 decided | **Done** (D079), $0.62 |
-| **A4.4 Assembly + combination test** | Complete maps, dev Global, A1 + A2 + A4 vs A1 + A2 (no new calls) | 225 / 225 valid; success test 2 | **Done** (D079), $0 |
+| **A4.4 Assembly + success test 2** | Complete maps, dev Global, A4 added to the A1 + A2 average (no new calls) | 225 / 225 valid; success test 2 | **Done** (D079), $0 |
 | **A4.5 Test run + report** | 11 test maps, once | Run once (authorised in D077) | **Done** (D080), $0.04 |
 
 ### A4.1 Setup and feasibility — passed (2026-10-06)
@@ -217,14 +217,10 @@ Evidence: [`dev/dev_report.json`](../results/a4/dev/dev_report.json), [`dev/thre
   - 8.6 relations per map (gold 8.3); 8 maps with an invented Conflict (A1 8, A2 8).
 - **Success tests and hypotheses:** §6.
 
-### A4.4 Assembly and combination test — done (2026-10-06)
+### A4.4 Assembly and success test 2 — done (2026-10-06)
 Evidence: [`dev/dev_global.json`](../results/a4/dev/dev_global.json). Decision D079.
 - **225 / 225 valid maps**, with the labeller's turn types. Honest dev Global is **71.16 / 56.56** (A1 70.29 / 56.63, A2 72.53 / 57.63, A3 68.90 / 53.95).
-- **Combination** (cross-fitted averages of pair scores):
-  - A1 + A2: 55.12 / 36.18;
-  - **A1 + A2 + A4: 55.51 / 37.01** (+0.39 / +0.83);
-  - A2 + A4: 54.16 / 33.65;
-  - A1 + A4: 53.48 / 34.85.
+- **Success test 2** (cross-fitted averages of pair scores): adding A4 to the A1 + A2 average (55.12 / 36.18) gains **+0.39 / +0.83**, below the 1.0 bar.
 
 ### A4.5 Test run — done (2026-10-06)
 Evidence: [`test_global.json`](../results/a4/test_global.json), [`test_predictions/`](../results/a4/test_predictions/), `test/responses.jsonl.gz`. Decision D080.
@@ -252,7 +248,7 @@ Evidence: [`test_global.json`](../results/a4/test_global.json), [`test_predictio
 ## 6. What A4 tests (fixed before any run)
 **Success (honest dev), if either holds:**
 1. **No training, encoder level:** A4's ARI general is above A1's 50.50, with a paired per-map bootstrap 95% interval above 0.
-2. **Adds to the combination:** a cross-fitted average of A1 + A2 + A4 pair scores beats A1 + A2 (55.12) by ≥ 1.0 general.
+2. **Adds to an A1 + A2 average:** adding A4's pair scores to the cross-fitted A1 + A2 average (55.12) gains ≥ 1.0 general.
 
 **Hypotheses, with decision rules** (dev, matched density at 8.3 relations per map unless stated):
 | | Claim | Pass if | Why it matters |
@@ -320,6 +316,6 @@ None beyond the core (user, D076). The only comparisons are the ones the tests n
   - Competing per-proposition questions over-link less but lose direction.
   - Averaging the two is what lifts Jev from A1's level to between A1 and A2.
 - **Calibration is uneven:** good for Conflict and Rephrase, over-confident for Inference. So the decision layer's thresholds were still needed.
-- **As a component, it adds nothing reliable:** against A1 + A2, +0.39 / +0.83 on dev but −1.30 / −1.72 on test (D084).
+- **As an addition to A1 + A2, it adds little:** +0.39 / +0.83 on dev (success test 2).
 - **Not separated:** Jev against the guide's wording (only one wording fix was tried). Run-to-run variation is small: a second dev pass scores 51.75 / 32.24 (D082).
 - Discussion: [`A4-discussion.md`](A4-discussion.md). Cross-approach comparison: [`04-comparison.md`](04-comparison.md).

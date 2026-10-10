@@ -92,7 +92,7 @@
 ## 4. Where a decision model is useful in argument mining
 - **As a no-training substitute for a trained encoder.** Relation scores at or above encoder level (+1.7 on dev, not significant; +2.8 on test) at $0.003 and under a second per map. It needs no GPU and no labelled pairs, only a one-page guide (whose base rates were measured on the corpus). Even with no labelled data at all (untuned argmax) it scores 50.84, against A1's 50.08 (D082). For a new corpus or annotation scheme without training data, this is the cheapest strong baseline we have.
 - **For the parts of the task that are plain reading:** finding support and its direction, including between distant turns, and attacks between speakers.
-- **Not as a third member of a combination:** adding it to A1 + A2 gained +0.39 on dev but lost 1.3 on test (D084). The encoder and the LLM already cover what it finds.
+- **Not as an addition to the encoder and the LLM:** adding it to an A1 + A2 average gained only +0.39 on dev (success test 2). The two already cover most of what it finds.
 - **Not for convention-heavy labels** (Rephrase vs Inference, concession as Conflict): there an LLM applying definitions with examples (A2) or a model trained on the annotations (A1) does better.
 - **Not without engineering in our code:** two question forms, two option orders, thresholds and consistency all live in the pipeline, not in the model.
 

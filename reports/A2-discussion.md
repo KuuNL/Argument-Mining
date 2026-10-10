@@ -170,7 +170,7 @@ To predict:  P2 Rephrase P1 · P3 Inference P2 · T1 Pure Questioning, T2 and T3
 - **Conflict remains the open problem for every approach.** The next lever is teaching the convention (concession examples), not more reasoning.
 
 **What happened next** (details in [`04-comparison.md`](04-comparison.md) and the [final report](05-final-report.md)):
-- **Combining:** a plain average of A1 + A2 pair scores beat A2 alone (dev ARI 55.12; test Global 75.17 / 60.32). It captures only a small part of the 66.1 oracle, and the propose-and-check split above was not built.
+- **Combining:** a plain average of A1 + A2 pair scores scores dev ARI 55.12, +0.5 over A2 alone. It captures only a small part of the 66.1 oracle, and the propose-and-check split above was not built.
 - **Q2's premise reverses at matched density.** When every system predicts as many relations as gold, A1's recall of neighbouring Inferences is 0.39 against A2's 0.42 (A3 report, H1). A1's lead in Q2 came from its looser thresholds, not from learning a habit A2 lacks.
 - **A3** answered Q2 and Q4 negatively. Fine-tuning a 4B LLM on the annotations taught the format and the density, but not the neighbour habit or concessive Conflict, and it scored below both A1 and A2 on dev. Q7 (turn types) was not tested.
 - **A4** confirmed Q3: Jev got Inference direction right 87% of the time with no reasoning step at all.

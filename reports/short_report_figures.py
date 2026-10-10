@@ -30,10 +30,10 @@ FIELD_2024 = [("DFKI (2024 1st)", 55.33, 30.40), ("Pungene", 46.22, 20.51), ("Kn
 # Dev references (A1 report section 5, D044): no relations predicted; every candidate pair labelled right.
 DEV_MAJORITY, DEV_CEILING = 30.93, 98.64
 # Time per map, seconds (final report section 7.3; A3 is a 22-40 s range, plotted at its midpoint).
-TIME = {"A1": 0.94, "A2": 25.0, "A3": 31.0, "A4": 0.8, "A1+A2+A4": 26.7}
+TIME = {"A1": 0.94, "A2": 25.0, "A3": 31.0, "A4": 0.8}
 A3_TIME_RANGE = (22.0, 40.0)
 
-COL = {"A1": "#6b7280", "A2": "#2a78d6", "A3": "#b45309", "A4": "#7c3aed", "A1+A2+A4": "#111827"}
+COL = {"A1": "#6b7280", "A2": "#2a78d6", "A3": "#b45309", "A4": "#7c3aed"}
 C_ILO, C_ARI = "#2a78d6", "#e08a1e"
 
 
@@ -56,15 +56,13 @@ def letter(ax, s):
 
 def systems():
     a3 = load("a3/test_global.json")["votes"]
-    comb = load("combination/test_global.json")["A1+A2+A4"]
     return {"A1": load("a1/v1/test_global.json"), "A2": load("a2/test_global.json"), "A3": a3,
-            "A4": load("a4/test_global.json"), "A1+A2+A4": comb}
+            "A4": load("a4/test_global.json")}
 
 
-def fig_gain(S, keys=None, out_name="short-gain-vs-2024.png"):
-    names = {"A1": "A1 · encoder", "A2": "A2 · Claude", "A3": "A3 · fine-tuned Qwen", "A4": "A4 · Jev",
-             "A1+A2+A4": "A1+A2+A4 (pre-registered)"}
-    keys = (keys or list(names))[::-1]
+def fig_gain(S):
+    names = {"A1": "A1 · encoder", "A2": "A2 · Claude", "A3": "A3 · fine-tuned Qwen", "A4": "A4 · Jev"}
+    keys = list(names)[::-1]
     y = np.arange(len(keys))
     fig, axs = plt.subplots(1, 2, figsize=(7.2, 3.1), sharey=True)
     for ax, (si, s) in zip(axs, enumerate(("general", "focused"))):
@@ -88,7 +86,7 @@ def fig_gain(S, keys=None, out_name="short-gain-vs-2024.png"):
     for a, l in zip(axs, "ab"):
         letter(a, l)
     fig.tight_layout(rect=(0, 0.07, 1, 1))
-    fig.savefig(OUT / out_name)
+    fig.savefig(OUT / "short-gain-vs-2024.png")
     plt.close(fig)
 
 
@@ -96,8 +94,7 @@ def per_map_ari(S):
     return {"A1": [S["A1"]["per_map_f1"][m]["ari"][0] for m in MAPS],
             "A2": [S["A2"]["per_map_f1"][m]["ari"][0] for m in MAPS],
             "A3": [S["A3"]["per_map_ari_f1"][m][0] for m in MAPS],
-            "A4": [S["A4"]["per_map_ari_f1"][m][0] for m in MAPS],
-            "A1+A2+A4": [S["A1+A2+A4"]["per_map_ari_f1"][m][0] for m in MAPS]}
+            "A4": [S["A4"]["per_map_ari_f1"][m][0] for m in MAPS]}
 
 
 def fig_dev_vs_test(S, derived):
@@ -121,8 +118,8 @@ def fig_dev_vs_test(S, derived):
     axa.set_title("Dev (225 maps) separates the systems", loc="left")
 
     pm = per_map_ari(S)
-    order = ["A1", "A2", "A3", "A4", "A1+A2+A4"]
-    labels = {"A1": "A1 encoder", "A2": "A2 Claude", "A3": "A3 Qwen", "A4": "A4 Jev", "A1+A2+A4": "A1+A2+A4"}
+    order = ["A1", "A2", "A3", "A4"]
+    labels = {"A1": "A1 encoder", "A2": "A2 Claude", "A3": "A3 Qwen", "A4": "A4 Jev"}
     jit = np.random.default_rng(1)
     for i, k in enumerate(order):
         v = np.array(pm[k])
@@ -133,7 +130,7 @@ def fig_dev_vs_test(S, derived):
     axb.axhline(DFKI["ari"][0], color="#374151", lw=0.9, ls="--")
     axb.text(-0.45, 81.5, f"dashed line: 2024 winner, {DFKI['ari'][0]:.1f}", fontsize=6.5, color="#374151", va="center")
     axb.set_xticks(range(len(order)), [labels[k] for k in order])
-    axb.set_xlim(-0.5, 4.5)
+    axb.set_xlim(-0.5, 3.5)
     axb.set_ylim(15, 85)
     axb.set_ylabel("Test relation F1 per map (general)")
     axb.set_title("Eleven test maps cannot separate them", loc="left")
@@ -206,10 +203,9 @@ def fig_strengths():
 def fig_cost_and_scoring(S):
     rob = load("a4/robust.json")["with_dev_thresholds (honest)"]
     dev = {k: rob[k]["general"] for k in ("A1", "A2", "A3", "A4")}
-    dev["A1+A2+A4"] = load("combination/dev_report.json")["A1+A2+A4"]["honest_ari"]["general"]
     labels = {"A1": "A1 encoder\n$0 · 94 min training", "A2": "A2 Claude\n$0.18/map (API-equivalent)",
-              "A3": "A3 Qwen\n$0 · 110 min training", "A4": "A4 Jev\n$0.003/map · no training", "A1+A2+A4": "A1+A2+A4"}
-    offsets = {"A1": (6, -24), "A2": (-6, 12), "A3": (8, -22), "A4": (6, 10), "A1+A2+A4": (6, 4)}
+              "A3": "A3 Qwen\n$0 · 110 min training", "A4": "A4 Jev\n$0.003/map · no training"}
+    offsets = {"A1": (6, -24), "A2": (-6, 12), "A3": (8, -22), "A4": (6, 10)}
 
     fig, (axc, axs) = plt.subplots(1, 2, figsize=(7.2, 3.0))
     axc.plot(A3_TIME_RANGE, [dev["A3"]] * 2, color=COL["A3"], lw=1.2)
@@ -234,10 +230,10 @@ def fig_cost_and_scoring(S):
     for name, x, y in FIELD_2024:
         axs.plot(x, y, "s", ms=4.5, mfc="white", mec="#6b7280", mew=1)
         axs.annotate(name, (x, y), xytext=off24[name], textcoords="offset points", fontsize=6, color="#4b5563")
-    for k in ("A1", "A2", "A3", "A4", "A1+A2+A4"):
+    for k in ("A1", "A2", "A3", "A4"):
         axs.plot(S[k]["ari"]["general"][2], S[k]["ari"]["focused"][2], "o", ms=4.5, color=COL[k], zorder=4)
-    c = S["A1+A2+A4"]["ari"]
-    axs.annotate("ours (A1–A4, A1+A2+A4)", (c["general"][2], c["focused"][2]), xytext=(-48, 18),
+    c = S["A2"]["ari"]
+    axs.annotate("ours (A1–A4)", (c["general"][2], c["focused"][2]), xytext=(-40, 20),
                  textcoords="offset points", fontsize=6, color="#111827",
                  arrowprops=dict(arrowstyle="-", lw=0.5, color="#6b7280"))
     axs.set_xlim(20, 62)
@@ -308,7 +304,6 @@ def main():
     style()
     S = systems()
     fig_gain(S)
-    fig_gain(S, keys=["A1", "A2", "A3", "A4"], out_name="readme-gain-vs-2024.png")  # README: single systems only
     fig_dev_vs_test(S, derived)
     fig_strengths()
     fig_cost_and_scoring(S)

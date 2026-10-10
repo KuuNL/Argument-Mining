@@ -1,19 +1,30 @@
 # Dialogical Argument Mining, Revisited
 
-**Can 2026 NLP methods beat the best system of the DialAM-2024 shared task at reconstructing the arguments in televised debates, and which kind of method helps?**
+**An exploration of what modern language models change in dialogical argument mining: starting from where the 2024 shared-task systems fell short, and following each shortfall with a different kind of model.**
 
 Kunal Kamra · October 2026 · [Short report](reports/06-short-report.md) · [Final report](reports/05-final-report.md) · [Decision log](decisionlog.md)
 
-## At a glance
+## The exploration
 
-- **Task.** Given BBC *Question Time* debates already segmented into turns and propositions ([DialAM-2024](https://aclanthology.org/2024.argmining-1.8/), QT30 corpus), predict **(A)** the argument relations between propositions (support, attack or rephrase; the corpus calls them Inference, Conflict and Rephrase) and **(B)** the speech act (illocution) linking each turn to its proposition.
-- **Four post-2024 methods** share one verified pipeline: a fine-tuned ModernBERT cross-encoder (A1), Claude reading the whole map (A2), a QLoRA-tuned Qwen3-4B (A3), and Jev, TypeSafe AI's new System One decision model (A4).
-- **Result.** All four systems beat the 2024 winner on Global F1, the task's headline metric: **72.0–73.7** against **67.05** (general). The best, Claude, scores **73.67 / 58.27** (general / focused) against **67.05 / 48.25**.
-- **But the gain is uneven.** Almost all of it comes from Task B, where a trained illocution labeller scores 91.6–92.6 against 2024's best of 81.2. On argument relations the systems score 51.4–55.8 against the 2024 winner's 55.3: level, and well inside the noise of an 11-map test set.
-- **Method ranking** on 225 dev maps (cross-fitted thresholds, paired bootstrap): Claude > Jev ≈ fine-tuned encoder > fine-tuned Qwen. Claude's lead over the encoder is +4.1 F1 (95% CI 2.2–6.1). Jev matches the encoder with no training, at $0.003 per map.
-- **Why relations plateau.** The hard part is deciding *whether* two propositions are connected at all, often through an unmarked concession or elaboration, under labels that annotators themselves agree on only moderately. Four very different models stall at the same level, so the limit is the task and its labels more than the models. Our safeguards, the pipeline and the later test debates were checked and ruled out.
+**The task.** BBC *Question Time* debates arrive already segmented into turns and propositions ([DialAM-2024](https://aclanthology.org/2024.argmining-1.8/), QT30 corpus). A system must predict **(A)** the argument relations between propositions (support, attack or rephrase; the corpus calls them Inference, Conflict and Rephrase) and **(B)** the speech act (illocution) linking each turn to its proposition.
 
-![Global F1 gain over the 2024 winner, split by task](reports/figures/readme-gain-vs-2024.png)
+**The starting point.** Every strong 2024 system classified two sentences at a time. The shared task's overview paper reports that argument relations were the bottleneck, that attacks were missed and argument direction misread, and that the LLM entries did not beat the encoders. This project turns those observations, and our hypotheses about their causes (marked as ours in the table), into a map. Rather than test one hypothesis, it follows each shortfall with a model built to address it, and asks one question throughout: *what do models that appeared since 2024 change, and where do they still fail?*
+
+| Where 2024 fell short | Idea explored here | Approach |
+|---|---|---|
+| Illocutions classified pair by pair | A trained labeller that links each turn to one proposition, with thresholds tuned to the metric | ILO labeller (shared) |
+| Two sentences judged in isolation | Give the 2024 recipe the whole dialogue as context | A1 · fine-tuned encoder |
+| Direction misread (and, we suspected, no consistency across a map) | Let a frontier LLM read the whole map and decide every relation together | A2 · Claude Sonnet 5.5 |
+| LLM entries lost to encoders | Teach the annotators' conventions to a small open LLM by fine-tuning | A3 · Qwen3-4B (QLoRA) |
+| (We suspected) LLM output too unreliable to threshold | A decision model that answers typed questions with probabilities, with no training | A4 · Jev (TypeSafe AI) |
+
+## What the exploration found
+
+- **Illocutions were fixed by engineering.** The trained labeller scores 91.6–92.6 on test against the best 2024 entry's 81.2, and this carries every system past the 2024 winner on Global F1 (**72.0–73.7** against **67.05**, general). The best, Claude, scores **73.67 / 58.27** (general / focused) against **67.05 / 48.25**.
+- **Relations were not fixed by any model.** On test the four systems score 51.4–55.8 against the 2024 winner's 55.3, well inside the noise of an 11-map test set. On 225 dev maps (cross-fitted thresholds, paired bootstrap) they rank Claude > Jev ≈ fine-tuned encoder > fine-tuned Qwen. Claude leads the encoder by +4.1 F1 (95% CI 2.2–6.1), and Jev matches the encoder with no training, at $0.003 per map.
+- **The reason is the task, not the models.** The hard part is deciding *whether* two propositions are connected at all, often through an unmarked concession or elaboration, under labels that annotators themselves agree on only moderately. Four very different models stall at the same level. Our safeguards, the pipeline and the later test debates were checked and ruled out.
+
+![Global F1 gain over the 2024 winner, split by task](reports/figures/short-gain-vs-2024.png)
 
 *Global F1 above the 2024 winner on the 11 test maps, split into the part from illocutions (blue) and from relations (orange).*
 
@@ -31,7 +42,7 @@ flowchart LR
 
 Every approach plugs into the same pipeline, so the four are directly comparable. Only the relation scorer changes. The illocution labeller handles Task B for all of them (A2 also let Claude override a few turn types) and gives each test proposition its turn and speaker.
 
-## The four approaches
+## The four approaches in more detail
 
 - **A1 · Fine-tuned encoder.** ModernBERT-base (150M parameters), trained for 94 minutes on ~105k labelled proposition pairs. For each pair it reads both propositions, the whole dialogue, their distance and whether one speaker said both, and outputs a probability for each relation. This is the 2024 winning recipe, given context.
 - **A2 · Frontier LLM, prompted.** Claude Sonnet 5.5, not trained: it reads the whole map after 4 similar solved training maps and lists every relation as JSON. It ran at effort `xhigh`, the only setting that made it reason first, on the expectation that this would help a lot: a 20-map pilot suggested +11 focused points, but on 225 dev maps it added about 1. Three answers per map are combined by vote.
@@ -58,7 +69,7 @@ Global is the mean of ARI and ILO. Every row's ILO comes from the shared illocut
 - **Test set untouched until the end:** each test configuration was fixed on dev before its single scored run. Later checks on test are labelled post-hoc and never fed back into a system.
 - **Traceable:** every number in the reports comes from a committed file under `results/`, and every decision (88 of them) is in [`decisionlog.md`](decisionlog.md) with its rationale and status.
 
-## Key findings
+## Findings in more detail
 
 1. **The win over 2024 is mostly a Task B win.** Task B is largely a matching problem: in the training data, text similarity alone links 94% of turns to the right proposition, and 90% of illocutions are *Asserting*. On dev, a trained labeller with one-to-one decoding links 98.3% of turns at 99.6% precision.
 2. **Relation mining is still hard.** On dev, no method closes more than about a third of the gap between predicting nothing (30.9) and labelling every candidate pair correctly (98.6). On test, the best system (Claude) gets 53 of 124 relations right and finds 2 of 13 attacks.
@@ -68,7 +79,7 @@ Global is the mean of ARI and ILO. Every row's ILO comes from the shared illocut
 
 ## Why relations are hard, even for 2026 models
 
-For every pair of propositions a system must answer two questions: **are they related at all**, and if so, **how** (support, attack or rephrase, and in which direction)? The systems handle the second reasonably well; they fail on the first. For the encoder on dev:
+For every pair of propositions a system must answer two questions: **are they related at all**, and if so, **how** (support, attack or rephrase, and in which direction)? The systems handle the second reasonably well; they fail on the first. For the encoder on dev, when it predicts as many relations as gold (so missed and invented counts are equal by construction):
 
 | Error | Count |
 |---|---|
@@ -89,7 +100,7 @@ So 82–86% of every system's errors happen before a relation type is even chose
 
 *Left: the errors each system makes on the 1,873 dev gold relations, mostly missed or invented relations. Right: recall by turn distance.*
 
-**Why this matters.** Even with the best system, the 11 test maps are missing more than half of their true links (71 of 124) and about half of the predicted links are wrong (59 of 112), so a map can't be used to analyse a debate without a person correcting it. The finding also shows where the field's effort should go: not into better relation-type classifiers, but into deciding which pairs are connected. That means reading the whole dialogue (most of Claude's gain is on long-range links), teaching the annotation conventions explicitly, and building each map as a whole rather than pair by pair.
+**Where the exploration points.** Even with the best system, the 11 test maps are missing more than half of their true links (71 of 124) and about half of the predicted links are wrong (59 of 112), so a map can't be used to analyse a debate without a person correcting it. The next step is therefore better detection of which pairs are connected: reading the whole dialogue (most of Claude's gain is on long-range links), teaching the annotation conventions explicitly, and building each map as a whole rather than pair by pair.
 
 ## Repository
 

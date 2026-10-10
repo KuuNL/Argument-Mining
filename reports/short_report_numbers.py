@@ -1,9 +1,9 @@
-"""Numbers derived for reports/06-short-report.md, recomputed from committed result files.
+"""Numbers derived for the README and the short / final reports, recomputed from committed result files.
 
     python reports/short_report_numbers.py      # from the repo root; writes results/short_report/derived.json
 
-No model runs, no scoring, and data/evaluation/ is not read: only the per-map scores and diagnostics
-that the final test runs already committed under results/.
+Single systems only (A1-A4). No model runs, no scoring, and data/evaluation/ is not read: only the per-map
+scores and diagnostics that the final test runs already committed under results/.
 """
 import json
 from pathlib import Path
@@ -13,6 +13,10 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "results"
 MAPS = [f"map{i}" for i in range(1, 12)]
+# 2024 winner (DFKI-MLST) on the 11 test maps, general / focused F1: overview paper, Tables 1-3.
+DFKI = {"ari": (55.33, 30.40), "ilo": (78.78, 66.10), "global": (67.05, 48.25)}
+# Dev references (D044): no relations predicted, and every candidate pair labelled right.
+DEV_MAJORITY, DEV_CEILING = 30.93, 98.64
 
 
 def load(rel):
@@ -21,16 +25,13 @@ def load(rel):
 
 
 def main():
-    a1, a2 = load("a1/v1/test_global.json"), load("a2/test_global.json")
-    a3, a4 = load("a3/test_global.json")["votes"], load("a4/test_global.json")
-    comb = load("combination/test_global.json")
-    per_map = {
-        "A1": [a1["per_map_f1"][m]["ari"][0] for m in MAPS],
-        "A2": [a2["per_map_f1"][m]["ari"][0] for m in MAPS],
-        "A3": [a3["per_map_ari_f1"][m][0] for m in MAPS],
-        "A4": [a4["per_map_ari_f1"][m][0] for m in MAPS],
-        "A1+A2+A4": [comb["A1+A2+A4"]["per_map_ari_f1"][m][0] for m in MAPS],
-    }
+    S = {"A1": load("a1/v1/test_global.json"), "A2": load("a2/test_global.json"),
+         "A3": load("a3/test_global.json")["votes"], "A4": load("a4/test_global.json")}
+    per_map = {"A1": [S["A1"]["per_map_f1"][m]["ari"][0] for m in MAPS],
+               "A2": [S["A2"]["per_map_f1"][m]["ari"][0] for m in MAPS],
+               "A3": [S["A3"]["per_map_ari_f1"][m][0] for m in MAPS],
+               "A4": [S["A4"]["per_map_ari_f1"][m][0] for m in MAPS]}
+
     # 95% bootstrap interval of each system's mean test ARI over the 11 maps (20,000 resamples, seed 0).
     rng = np.random.default_rng(0)
     boot = {}
@@ -39,31 +40,40 @@ def main():
         means = rng.choice(v, (20000, len(v))).mean(1)
         boot[k] = [round(float(x), 1) for x in (v.mean(), *np.percentile(means, [2.5, 97.5]))]
 
-    # Pooled test relations for the combination: correct = recall x gold, per relation type.
-    pt = comb["A1+A2+A4"]["diagnostics"]["per_type"]
-    gold = sum(t["gold"] for t in pt.values())
-    pred = sum(t["predicted"] for t in pt.values())
-    correct = sum(round(t["recall"] * t["gold"]) for t in pt.values())
+    # Each system's Global margin over DFKI, split into the illocution half and the relation half
+    # (Global is the mean of ARI and ILO, so each task contributes half of its own gain).
+    split = {}
+    for k, d in S.items():
+        split[k] = {}
+        for si, s in enumerate(("general", "focused")):
+            ilo = (d["ilo"][s][2] - DFKI["ilo"][si]) / 2
+            ari = (d["ari"][s][2] - DFKI["ari"][si]) / 2
+            split[k][s] = {"from_ilo": round(ilo, 2), "from_ari": round(ari, 2),
+                           "global_gain": round(d["global"][s][2] - DFKI["global"][si], 2)}
 
-    # Share of the dev gap between "predict no relations" (30.93) and the pipeline ceiling (98.64) that is closed.
-    def closed(ari):
-        return round((ari - 30.93) / (98.64 - 30.93), 3)
+    # Pooled test relations per system: correct = recall x gold, per relation type.
+    pooled = {}
+    for k, d in S.items():
+        pt = d["diagnostics"]["per_type"]
+        gold = sum(t["gold"] for t in pt.values())
+        pred = sum(t["predicted"] for t in pt.values())
+        correct = sum(round(t["recall"] * t["gold"]) for t in pt.values())
+        pooled[k] = {"gold": gold, "correct": correct, "predicted": pred,
+                     "precision": round(correct / pred, 3), "recall": round(correct / gold, 3),
+                     "inference_f1": pt["Inference"]["f1"],
+                     "conflict_found": round(pt["Conflict"]["recall"] * pt["Conflict"]["gold"]),
+                     "conflict_gold": pt["Conflict"]["gold"]}
 
-    dev_combo = load("combination/dev_report.json")["A1+A2+A4"]["honest_ari"]["general"]
-    dev_a1 = load("a4/robust.json")["with_dev_thresholds (honest)"]["A1"]["general"]
+    # Share of the dev gap between "predict no relations" and the pipeline ceiling that each system closes.
+    dev_honest = load("a4/robust.json")["with_dev_thresholds (honest)"]
+    headroom = {k: round((dev_honest[k]["general"] - DEV_MAJORITY) / (DEV_CEILING - DEV_MAJORITY), 3) for k in S}
+    dev_to_test = {k: round(S[k]["ari"]["general"][2] - dev_honest[k]["general"], 2) for k in S}
 
-    # Split of the Global margin over DFKI-MLST (overview paper: ARI 55.33 / 30.40, ILO 78.78 / 66.10).
-    def g(t, s):
-        return comb["A1+A2+A4"][t][s][2]
-
-    ilo_half = {s: (g("ilo", s) - d) / 2 for s, d in (("general", 78.78), ("focused", 66.10))}
-    ari_half = {s: (g("ari", s) - d) / 2 for s, d in (("general", 55.33), ("focused", 30.40))}
-
-    # Why relations barely moved (section "Why relation mining barely moved since 2024" in both reports).
+    # Why relations barely moved (final report section 10, short report section 6).
     disc = load("a4/discussion.json")
-    systems = {"A1": "A1", "A2": "A2", "A4": "A4 both"}
-    errors = {}
-    for name, key in systems.items():
+    views = {"A1": "A1", "A2": "A2", "A4": "A4 both"}
+    errors, recall_by_distance = {}, {}
+    for name, key in views.items():
         wg, inv = disc["what_gold_becomes"][key], disc["invented_by_type"][key]
         right = sum(wg[t].get("right", 0) for t in wg)
         # Same relation type, other direction ("Inference, reversed"; for Rephrase / Conflict the same label, not right).
@@ -75,8 +85,6 @@ def main():
         errors[name] = {"gold": n_rel, "right": right, "reversed": reversed_, "wrong_type": wrong_type,
                         "missed": missed, "invented": invented,
                         "share_of_errors_on_whether_related": round((missed + invented) / (missed + invented + wrong_type + reversed_), 3)}
-    recall_by_distance = {}
-    for name, key in systems.items():
         rec = disc["recall"][key]
         row = {}
         for dist in ("1 turn", "2-3 turns", "4-10 turns"):
@@ -84,54 +92,25 @@ def main():
             n_gold = sum(c["gold"] for c in cells)
             row[dist] = {"gold": n_gold, "recall": round(sum(c["recall"] * c["gold"] for c in cells) / n_gold, 3)}
         recall_by_distance[name] = row
+
     # The honest protocol's cost for A1: thresholds tuned on all of dev vs cross-fitted by episode.
     a1_dev = load("a1/v1/thresholds.json")["dev_ari_f1"]
     protocol_cost_a1 = round(a1_dev["tuned_on_all_dev (optimistic)"]["general"] - a1_dev["cross_fitted (honest)"]["general"], 2)
-    # How the per-map metric dilutes relation gains: test Inference F1 and ARI, A1 against the combination.
-    a1_pt = a1["diagnostics"]["per_type"]
-    dilution = {"A1": {"inference_f1": a1_pt["Inference"]["f1"], "ari_general": round(a1["ari"]["general"][2], 2)},
-                "A1+A2+A4": {"inference_f1": pt["Inference"]["f1"], "ari_general": round(g("ari", "general"), 2)}}
-    # Dev -> test change in ARI general for each system (honest dev against the single test run).
-    dev_honest = load("a4/robust.json")["with_dev_thresholds (honest)"]
-    test_ari = {"A1": a1["ari"]["general"][2], "A2": load("a2/test_global.json")["ari"]["general"][2],
-                "A3": a3["ari"]["general"][2], "A4": a4["ari"]["general"][2]}
-    dev_to_test = {k: round(test_ari[k] - dev_honest[k]["general"], 2) for k in test_ari}
-    dev_to_test["A1+A2+A4"] = round(g("ari", "general") - dev_combo, 2)
-
-    # README figures that use single systems only (the README does not present the combination).
-    a2_pt = a2["diagnostics"]["per_type"]
-    a2_gold = sum(t["gold"] for t in a2_pt.values())
-    a2_pred = sum(t["predicted"] for t in a2_pt.values())
-    a2_correct = sum(round(t["recall"] * t["gold"]) for t in a2_pt.values())
-    singles = {"A1": a1, "A2": a2, "A3": a3, "A4": a4}
-    readme = {
-        "a2_test_pooled": {"gold": a2_gold, "correct": a2_correct, "predicted": a2_pred,
-                           "precision": round(a2_correct / a2_pred, 3), "recall": round(a2_correct / a2_gold, 3),
-                           "conflict_found": round(a2_pt["Conflict"]["recall"] * a2_pt["Conflict"]["gold"]),
-                           "conflict_gold": a2_pt["Conflict"]["gold"]},
-        "headroom_share_A2": closed(dev_honest["A2"]["general"]),
-        "metric_dilution_A1_to_A2_test": {"inference_f1": [a1_pt["Inference"]["f1"], a2_pt["Inference"]["f1"]],
-                                          "ari_general": [round(a1["ari"]["general"][2], 2), round(a2["ari"]["general"][2], 2)]},
-        "test_ranges_single_systems": {
-            t: [round(min(v[t]["general"][2] for v in singles.values()), 2), round(max(v[t]["general"][2] for v in singles.values()), 2)]
-            for t in ("ari", "ilo", "global")},
-    }
 
     out = {
-        "readme_single_systems": readme,
+        "test_ranges": {t: [round(min(d[t]["general"][2] for d in S.values()), 2),
+                            round(max(d[t]["general"][2] for d in S.values()), 2)] for t in ("ari", "ilo", "global")},
+        "gain_split_vs_dfki": split,
+        "test_pooled_relations": pooled,
+        "test_ari_boot95": boot,
+        "metric_dilution_A1_to_A2_test": {"inference_f1": [pooled["A1"]["inference_f1"], pooled["A2"]["inference_f1"]],
+                                          "ari_general": [round(S["A1"]["ari"]["general"][2], 2), round(S["A2"]["ari"]["general"][2], 2)]},
+        "headroom_share_dev": headroom,
+        "dev_to_test_ari_general": dev_to_test,
         "relation_errors_dev_matched_density": errors,
         "relation_recall_by_distance_dev": recall_by_distance,
         "protocol_cost_a1_ari_general": protocol_cost_a1,
-        "metric_dilution_test": dilution,
-        "dev_to_test_ari_general": dev_to_test,
-        "headroom_share_combo": closed(dev_combo),
-        "headroom_share_A1": closed(dev_a1),
-        "combo_test_pooled": {"gold": gold, "correct": correct, "predicted": pred,
-                              "precision": round(correct / pred, 3), "recall": round(correct / gold, 3)},
-        "test_ari_boot95": boot,
-        "ilo_test_per_map": {m: a1["per_map_f1"][m]["ilo"][0] for m in MAPS},
-        "ilo_share_of_global_gain_general": round(ilo_half["general"] / (ilo_half["general"] + ari_half["general"]), 3),
-        "ilo_share_of_global_gain_focused": round(ilo_half["focused"] / (ilo_half["focused"] + ari_half["focused"]), 3),
+        "ilo_test_per_map": {m: S["A1"]["per_map_f1"][m]["ilo"][0] for m in MAPS},
     }
     dst = RES / "short_report" / "derived.json"
     dst.parent.mkdir(parents=True, exist_ok=True)

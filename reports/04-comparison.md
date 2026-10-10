@@ -1,19 +1,19 @@
 # 04 — Four approaches compared
 
-> **What this is:** the project's comparison of its four approaches to DialAM-2024 and their combination: how well each does, at what cost and speed, and what each is good at. It also gives a critical answer to whether Jev (A4) is impressive.
+> **What this is:** the project's comparison of the four approaches its exploration produced: how well each does, at what cost and speed, what each is good at, and which of the 2024 shortfalls each one moved (§5). It also gives a critical answer to whether Jev (A4) is impressive.
 > **Evidence:** every number comes from a committed file:
-> - test: `results/a1/v1/test_global.json`, `results/a2/test_global.json`, `results/a3/test_global.json`, `results/a4/test_global.json`, `results/combination/test_global.json`;
-> - dev: `results/a4/dev/dev_report.json`, `results/a4/robust.json`, `results/a4/discussion.json`, `results/a3/v1/discussion.json`, `results/combination/dev_report.json`;
+> - test: `results/a1/v1/test_global.json`, `results/a2/test_global.json`, `results/a3/test_global.json`, `results/a4/test_global.json`;
+> - dev: `results/a4/dev/dev_report.json`, `results/a4/robust.json`, `results/a4/discussion.json`, `results/a3/v1/discussion.json`;
 > - timing: `results/timing.csv`.
 >
 > **The whole project, end to end** (task, data, 2024, approaches, results and a critique of the benchmark): the [final report](05-final-report.md).
 >
-> Decisions D050, D064, D072, D079–D085. Per-approach reports: [A1](A1-cross-encoder.md), [A2](A2-whole-map-llm.md) · [discussion](A2-discussion.md), [A3](A3-finetuned-llm.md) · [discussion](A3-discussion.md), [A4](A4-jev.md) · [discussion](A4-discussion.md).
+> Decisions D050, D064, D072, D079–D082. Per-approach reports: [A1](A1-cross-encoder.md), [A2](A2-whole-map-llm.md) · [discussion](A2-discussion.md), [A3](A3-finetuned-llm.md) · [discussion](A3-discussion.md), [A4](A4-jev.md) · [discussion](A4-discussion.md).
 
 ## In one minute
-- **All four approaches beat the 2024 winner on Global** (67.05 / 48.25), and so does their combination. Most of that margin is the shared, trained ILO labeller (92.6 test ILO, against 2024's 81.2), so the systems are told apart by **relations (ARI)**.
+- **All four approaches beat the 2024 winner on Global** (67.05 / 48.25). Most of that margin is the shared, trained ILO labeller (92.6 test ILO, against 2024's 81.2), so the systems are told apart by **relations (ARI)**.
 - **On relations, dev (225 maps) ranks A2 > A4 ≈ A1 > A3.** A2 beats A1 by +4.1 and A4 by +2.5, both significant. A4 and A1 are within noise of each other (+1.3 to +1.7 for A4), and A3 is significantly below A1 (−2.9).
-- **The best result is a combination:** the mean of A1 + A2 + A4 pair scores, pre-registered, gives **test Global 74.51 / 59.47** and ARI 56.39 / 34.65, above every single system and above the best 2024 relation score. A1 + A2 alone scored higher on test (75.17 / 60.32), so Jev's share of the combination is about zero.
+- **The best system is Claude reading the whole map (A2):** test Global **73.67 / 58.27** and ARI 55.77 / 33.34, the only relation score above the 2024 winner's 55.33 / 30.40, though well within the noise of 11 test maps.
 - **Jev is the efficiency winner.**
   - It reaches the trained encoder's accuracy with no training, no GPU and no labelled data: 50.84 untuned, against A1's 50.08.
   - It costs about 1/60 of Claude's price per map and is about 30× faster, at 2.5 points lower ARI.
@@ -30,18 +30,15 @@
 | A2 · Claude, whole map | 55.77 / 33.34 | 91.56 / 83.20 | 73.67 / 58.27 |
 | A3 · fine-tuned Qwen3-4B | 53.70 / 32.05 | 92.64 / 84.28 | 73.17 / 58.17 |
 | A4 · Jev, typed questions | 54.21 / 30.98 | 92.64 / 84.28 | 73.42 / 57.63 |
-| **A1 + A2 + A4, averaged (pre-registered)** | **56.39 / 34.65** | 92.64 / 84.28 | **74.51 / 59.47** |
-| A1 + A2, averaged (reported beside it) | 57.69 / 36.37 | 92.64 / 84.28 | 75.17 / 60.32 |
 
 **Dev (225 maps, honest: thresholds cross-fitted by episode). This is the reliable comparison:**
 
 | | Dev ARI | Paired bootstrap, ARI general (95% interval) | Dev Global |
 |---|---|---|---|
 | A1 | 50.50 / 32.61 | — | 70.29 / 56.63 |
-| A2 | **54.63 / 34.12** | A2 − A1 **+4.14 [2.21, 6.12]** | 72.53 / 57.63 |
+| A2 | **54.63 / 34.12** | A2 − A1 **+4.14 [2.21, 6.12]** | **72.53 / 57.63** |
 | A3 | 47.65 / 27.23 | A3 − A1 −2.85 [−4.7, −1.0] | 68.90 / 53.95 |
 | A4 | 52.17 / 32.45 (second pass 51.75) | A4 − A1 +1.68 [−0.20, 3.65]; A4 − A2 −2.46 [−4.19, −0.73] | 71.16 / 56.56 |
-| A1 + A2 + A4 | **55.51 / 37.01** | | **72.83 / 58.84** |
 
 - **Test is too small to rank systems.** One test map moves a mean by about 9%. A3's dev → test jump (+6.1) is within 11-map variation (D072). Rankings come from dev; test numbers are for the 2024 comparison.
 - **Run-to-run noise was measured only for Jev:** two identical dev passes differ by 0.4 (D082). A2 averaged 3 answers and A3 8 samples; A1 is deterministic.
@@ -100,21 +97,22 @@
   - *Calibrated:* partly. Conflict and Rephrase yes; Inference over-confident (ECE 0.070 against A1's 0.018).
   - *Not mentioned by the vendor:* answers vary between identical requests (88.5% of decisions identical), and the order of options changes 9% of choices.
 - **It is limited by literal reading.** The annotators' conventions are where it loses: an elaboration counts as Rephrase, a concession as Conflict. It is also weaker on large maps (−5 against A1 at 26+ propositions), and a worked example in the state doesn't help it (+0.1, against A2's +4.5).
-- **It adds little in combination:** +0.4 on dev, −1.3 on test, on top of A1 + A2.
-- **Verdict:** for argument mining, a decision model is a strong *no-data* baseline. It is the cheapest way to encoder-level relation mining and the best support finder of the four. It isn't a replacement for a frontier LLM where the labels follow conventions, and it isn't a useful third member next to an encoder and an LLM.
+- **Verdict:** for argument mining, a decision model is a strong *no-data* baseline. It is the cheapest way to encoder-level relation mining and the best support finder of the four. It isn't a replacement for a frontier LLM where the labels follow conventions.
 
-## 5. The research question: which post-2024 method class works best, at what cost?
+## 5. What each thread of the exploration found
 
-| 2024 failure | Best fix here | Evidence |
+The exploration followed the shortfalls of the 2024 systems: those the overview paper reports (relations as the bottleneck, missed Conflicts, direction errors, LLMs losing to encoders) and one we hypothesised (no consistency across a map). For each, the approach that moved it most, or the evidence that none did:
+
+| Where 2024 fell short | What moved it most | Evidence |
 |---|---|---|
-| 1. Relations are the bottleneck | Whole-map frontier LLM (A2), then A1 + A2 combined | Dev ARI 54.6 single, 55.5 combined (A1 50.5); test 55.8 / 56.4 above 2024's 55.3 |
+| 1. Relations are the bottleneck | Whole-map frontier LLM (A2), but only modestly | Dev ARI 54.6 against A1's 50.5; test 55.8, level with 2024's 55.3 |
 | 2. Conflict is missed | Not fixed by any method | Recall 12–22% overall; 7–12% within one speaker; test 0–2 of 13 found |
 | 3. Direction errors | Every method; best A4, then A1 / A2 | 83–87% right at matched density; reasoning added nothing (A2) |
 | 4. No global consistency (over-linking) | Joint decisions: A2 / A3's single list, A4's competing questions | Invented relations 805–859 against A1's 905; A4's source view alone cuts its own by a third |
 | 5. LLMs lost to encoders | Reversed only for a frontier LLM | A2 > A1 (+4.1); a fine-tuned 4B LLM still loses (A3 −2.9) |
 | (ILO) | A trained labeller with one-to-one decoding and rare-type thresholds | Test ILO 92.6 against 2024's 81.2; LLM turn types hurt (A2 −1.1) |
 
-- **Best accuracy:** a frontier LLM reading the whole map (A2), averaged with a trained encoder (A1 + A2 or A1 + A2 + A4).
+- **Best accuracy:** a frontier LLM reading the whole map (A2).
 - **Best accuracy per cost:** Jev (A4), at encoder level for ~$0.003 per map with no training.
 - **Worst trade-off:** fine-tuning a small open LLM (A3). It costs as much training as A1 and scores below it on dev.
 
@@ -123,4 +121,3 @@
 - **One configuration per approach,** with ablations cut to the core for A3 and A4 (user decisions D071, D076). A1's and A2's ablations are in their reports.
 - **The ILO labeller is shared,** so Global differences are mostly ARI differences. "No training" for A2 and A4 refers to relations only.
 - **Contamination isn't ruled out** for A2 and A4, whose training data is unknown. Their dev → test changes (+1.1, +2.0) look like A1's (+0.9).
-- **The combination is the simplest average.** Confidence routing (A2 only on uncertain pairs) and weighting were not tried.

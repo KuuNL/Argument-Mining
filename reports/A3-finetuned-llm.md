@@ -5,7 +5,7 @@
 > **Evidence:** [`../results/a3/`](../results/a3/). Decisions D065–D072 in [`../decisionlog.md`](../decisionlog.md).
 > **Discussion:** [`A3-discussion.md`](A3-discussion.md) asks why A3 lands where it does against A1, A2 and the 2024 systems.
 > **Background:** [A1](A1-cross-encoder.md) (a trained pairwise encoder), [A2](A2-whole-map-llm.md) (Claude reading the whole map) and [the A2 discussion](A2-discussion.md) (why each wins where it does).
-> **What came after:** A4 (Jev) also ranked above A3 on dev, so A3 is last of the four (A2 > A4 ≈ A1 > A3). It was left out of the final combination because it lowered the dev score. See [`04-comparison.md`](04-comparison.md) and the [final report](05-final-report.md).
+> **What came after:** A4 (Jev) also ranked above A3 on dev, so A3 is last of the four (A2 > A4 ≈ A1 > A3). See [`04-comparison.md`](04-comparison.md) and the [final report](05-final-report.md).
 
 ## In one minute
 - **The task.** A televised debate becomes a *map*: **propositions** (claims) and **turns** (who said what, in order). A system must say which propositions **support** (Inference), **attack** (Conflict) or **restate** (Rephrase) which others, and *how* each turn was said.
@@ -249,7 +249,7 @@ Evidence: [`v1/dev_report.json`](../results/a3/v1/dev_report.json), [`v1/thresho
 
 **Success tests (§6): both fail.**
 1. **A3 − A2 = −6.99 general**, 95% interval [−8.9, −5.2]; A2 is better on 153 maps, A3 on 69. Against A1: −2.85 [−4.7, −1.0].
-2. **Adding A3 to an A1 + A2 average lowers it:** 55.12 → 54.24 general. *For the Combination phase:* the plain A1 + A2 average already beats A2 alone (55.12 / 36.18).
+2. **Adding A3 to an A1 + A2 average lowers it:** 55.12 → 54.24 general.
 
 **Findings**
 - **Learned:** the format (every answer valid) and the annotators' density. At matched density it invents no more relations than A2 (H2 holds).
@@ -385,7 +385,7 @@ Test 1 needs a margin because A3, unlike A2, chose its checkpoint on dev.
   - test maps were saved before the gold was read, and the test result was checked against 11-map dev variation.
 
 **Shortcomings**
-- **It doesn't beat A1 or A2 on dev,** and adds nothing to their combination.
+- **It doesn't beat A1 or A2 on dev,** and adds nothing to an average of the two.
   - It confuses Inference with Rephrase twice as often as they do.
   - Its temperature-1 samples are too diffuse for votes to work well.
 - **Several causes can't be told apart.** Model size, 4-bit storage and the amount of supervision are confounded: 8B couldn't train on 8 GB, and the ablations weren't run.
@@ -403,7 +403,7 @@ An independent reviewer agent, not involved in writing the plan, checked it agai
 |---|---|
 | The 8B memory case rested on vendor minimums; untied embeddings, TRL's 32-bit upcast and full-vocabulary logits make it borderline | Memory savings built in; the 8B / 4B choice by a fixed rule (it chose 4B) |
 | Generation memory and time underestimated; the untrained ablation with examples wouldn't fit | Batch sizes probed; relations sampled from a shared greedy start; zero-shot baseline |
-| The success criterion couldn't fail (a 3-way oracle always beats a 2-way one) | A bootstrap test against A2, and a buildable combination test with a 1.0 margin |
+| The success criterion couldn't fail (a 3-way oracle always beats a 2-way one) | A bootstrap test against A2, and a buildable test (adding A3 to an A1 + A2 average) with a 1.0 margin |
 | The hypotheses had no decision rules, and depended on thresholds | Matched density, and a pass rule for each |
 | The Qwen3.5-2B ablation changed four things at once | Dropped |
 | A2's schema and parser require confidence; free whitespace could run away | A3 versions; a strict grammar; every gold answer must pass it |
