@@ -204,6 +204,8 @@ Each question is asked in two option orders, and the probabilities are averaged.
 
 **Comparison and write-up.** All four approaches are compared in `reports/04-comparison.md`, and the whole project is written up in `reports/05-final-report.md` (D086) and `reports/06-short-report.md` (D087). The write-ups present the project as an exploration: each approach follows one shortfall of the 2024 systems (D089). The averaged A1 + A2 + A4 run (D083–D085, `combination/`) is kept as a record but is not presented in the README, reports or figures.
 
+**Next, proposed (D090).** A dev-only test of whether Claude Sonnet 5.5 can do Task B end to end (linking and typing) better than the ILO labeller. The full brief, with every setting, command and gate, is `plans/claude-ilo-dev-test/README.md`; it waits for the user's approval.
+
 **Measured for every approach:** ARI / ILO / Global (general and focused), training time, inference time, cost, and
 *ablations* (switch off one component, such as context, pruning, thresholds or the LLM step, and re-score to see what it contributed).
 

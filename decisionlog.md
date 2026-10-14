@@ -44,6 +44,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | 6 | Short report | `reports/06-short-report.md`, `reports/figures/short-*.png`, `reports/short_report_numbers.py`, `reports/short_report_figures.py` | Every number and figure recomputed from committed files | Final run and write-up | **Done (D087)** |
 | 7 | Final README + relation-plateau analysis | `README.md`; §10 of the final report and §6 of the short report; `reports/figures/short-why-relations.png` | Every claim traced to a committed file; every link resolves | Final run and write-up | **Done (D088)** |
 | 8 | Write-ups reframed as an exploration | `README.md` and every report; `reports/short_report_numbers.py`, `reports/short_report_figures.py` and the figures they draw | No result or method changed; no combination in any write-up or figure; every number traced to a committed file; every link resolves | Final run and write-up | **Done (D089)** |
+| 9 | Claude as ILO labeller (dev test) | `ilo_llm/`, `results/ilo_llm/`, `reports/figures/ilo-claude-vs-labeller.png`; brief in `plans/claude-ilo-dev-test/README.md` | Gold round trip ≥ 98.6 / 94.7; labeller reference 90.08 / 80.64 reproduced; 675/675 valid dev answers; verdict by the D090 stop rule | Final run and write-up | **Proposed (D090)** |
 
 ---
 
@@ -1329,3 +1330,16 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - *The combination.* The A1 + A2 + A4 average (D083–D085) is removed from the README, every report and every figure. Headline numbers are now single systems: best Claude (A2), test Global 73.67 / 58.27; the gain over DFKI splits into +6.4 to +6.9 from ILO and −2.0 to +0.2 from ARI (general) per system; the pooled test example is A2 (53 of 124 relations right, 112 predicted); the metric-dilution example is A1 → A2 (Inference F1 0.29 → 0.437, ARI 51.38 → 55.77). The share of the dev gap closed is 25–35% (single systems). A3's and A4's fixed-in-advance success test 2 ("adding it to the A1 + A2 average gains ≥ 1.0") stays, reported by its dev result only.
 - *Scripts.* `reports/short_report_numbers.py` drops the keys that included the combination or were superseded by per-system versions (`readme_single_systems`, `combo_test_pooled`, `headroom_share_combo`, `headroom_share_A1`, `ilo_share_of_global_gain_general`, `ilo_share_of_global_gain_focused`, `metric_dilution_test`) and adds `test_ranges`, `gain_split_vs_dfki`, `test_pooled_relations`, `metric_dilution_A1_to_A2_test`, `headroom_share_dev`; every carried-over value is unchanged. `reports/short_report_figures.py` draws single systems only; `reports/figures/readme-gain-vs-2024.png` is deleted, and the README uses `short-gain-vs-2024.png`.
 - *Kept as a record:* `combination/`, `results/combination/`, decisions D083–D085, and A4's success-test code and results (`a4_jev/tune.py`, `results/a4/dev/dev_report.json`).
+
+### D090 — Dev test: can Claude Sonnet 5.5 do Task B (linking and typing) better than the trained labeller?
+- **2026-10-14 · Phase 9 · by Claude Science, at the user's request** ("run the cheaper first step"; "write the plan thoroughly in a folder, then I can tell the claude environment in my VS Code to run the plan") **· Proposed**
+- *Question:* given dev maps in test format (no turn–proposition links), can Claude Sonnet 5.5 link each dialogue turn to its proposition and type it better than the ILO labeller, whose honest dev ILO is 90.08 / 80.64 (`results/ilo/v1/dev_report.json`)?
+- *Brief:* [`plans/claude-ilo-dev-test/README.md`](plans/claude-ilo-dev-test/README.md) gives every setting, file, command and gate.
+- *Protocol (fixed before any call):*
+  - 225 dev maps, serialised with no links (similarity placement only);
+  - Claude Sonnet 5.5 through `a2_llm/claude_cli.py`, 4 retrieved training maps as worked examples rendered in the same format, 3 answers voted, the labeller's 10 types;
+  - effort chosen on the 20-map A2 pilot (tie, under 5 points, goes to `medium`), with at most one prompt revision, on the pilot only;
+  - decision layer as `ilo/tune.py` (vote-share link threshold, one-to-one matching, per-type-group thresholds), with an honest score by leave-one-dev-episode-out cross-fitting over the same 5 episodes.
+- *Stop rule:* Claude counts as better only if its honest dev ILO exceeds the labeller's by more than 0.5 on both general (> 90.58) and focused (> 81.14). A paired bootstrap over the 225 maps is reported either way.
+- *Out of scope:* the 11 test maps (`data/evaluation/` is not read), and any change to `a2_llm/`, `ilo/` or committed results. Using Claude on test, if it wins, would be a separate decision.
+- *Why now:* the README says Task B was handled by one trained component, and the obvious reviewer question is whether a frontier LLM could do it better. This is the cheapest test, because Claude is the likeliest of the four models to beat the labeller. If it can't, the others are unlikely to.
