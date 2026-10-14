@@ -1480,3 +1480,11 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - **Code changes, outputs unchanged:**
   - `ilo_llm/tune.py`: `ScoredDev` and `tuned_report` were split out for reuse. Re-running Claude's tuning reproduced every score and threshold; only the 16th digit of one map's float differed, from set-order summation, so the committed file was kept.
   - `ilo_llm/evaluate.py`: `disagreements` takes the system's name; the default `"claude"` keeps the old output.
+
+### D102 — The README explains why Task B uses a trained encoder
+- **2026-10-15 · Write-up · by user** ("update the readme with the findings, very briefly, as a part of the reasoning as to why we chose the ILO labeller to be the encoder, and why it might be that the encoder was better") **· Done**
+- **New README section *Why Task B uses a trained encoder*, after *How it works*.** It gives:
+  - the original reasons (EDA: matching under a fixed convention; rare types weigh fully in the macro F1, so thresholdable probabilities were needed);
+  - the D090 / D099 tests as a four-row table;
+  - three data-backed reasons the encoder wins: linking is worth under 1 point; typing follows the annotators' habits; the decision is mostly local.
+- Findings item 1 is shortened to point there, and the README's stale count of decisions is corrected. No result changed.

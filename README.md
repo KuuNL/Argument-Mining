@@ -42,6 +42,33 @@ flowchart LR
 
 Every approach plugs into the same pipeline, so the four are directly comparable. Only the relation scorer changes. The illocution labeller handles Task B for all of them (A2 also let Claude override a few turn types) and gives each test proposition its turn and speaker.
 
+## Why Task B uses a trained encoder
+
+**Why we chose it.** The exploratory analysis showed that Task B is mostly matching under a fixed convention:
+- text similarity alone links 94% of turns to the right proposition;
+- 90% of illocutions are *Asserting*;
+- the transcripts have almost no question marks, so questions can't be spotted by rule.
+
+The rare types count as much as *Asserting* in the macro F1, so the system also needed calibrated probabilities that could be thresholded. A small encoder fits: ModernBERT-base reads one turn, one candidate proposition and two turns either side. One-to-one matching then gives each turn at most one proposition, and thresholds tuned to the metric decide the types. It trains in 20 minutes and runs at 0.2 s per map.
+
+**Whether a general model does better.** We tested this afterwards, on dev only. Claude Sonnet 5.5 and Jev each did the whole of Task B from the same input, through the same matching and thresholds. Neither beat the encoder; both differences are significant in a paired bootstrap.
+
+| Dev, 225 maps | Trained encoder | Claude Sonnet 5.5 | Jev |
+|---|---|---|---|
+| ILO F1, general / focused | **90.08 / 80.64** | 88.03 / 77.48 | 85.35 / 75.76 |
+| Turns linked correctly (recall / precision) | 98.3% / 99.6% | 97.9% / 98.7% | **99.0% / 99.6%** |
+| F1 on *Pure Questioning*, the commonest question type | **0.87** | 0.83 | 0.75 |
+| Maps given a type their gold doesn't contain | 18 | 30 | **17** |
+
+**Why the encoder wins.**
+- **Linking is nearly solved by everyone, and worth little.** All three find 98–99% of links. Even perfect linking would add under 1 point to the encoder's score. Jev links best but can't gain much from it.
+- **The points are in typing, and typing follows the annotators' habits.** Which questions count as rhetorical or assertive, and when a turn is *Agreeing*, isn't marked consistently on the surface. The encoder learned the annotators' balance from 1,231 maps; written definitions didn't transfer it.
+  - Claude over-calls question types: it predicts 38 rhetorical questions where gold has 29, and 30 maps gain a question type their gold lacks. In the macro F1, each such invented type adds a class that scores zero.
+  - Left unthresholded, Jev's first-choice type is a rare one 147 times, against 26 rare links in all of dev. Once the thresholds silence those guesses, it misses real questions.
+- **The decision is mostly local.** A turn's proposition and type depend mainly on the turn and its neighbours, not on the whole debate. So reading the whole map, the advantage that helped Claude find relations, gives little edge here: at most the few extra links Jev found.
+
+Details: [03 report §11](reports/03-ilo-labeller.md) and the [labeller discussion](reports/03-ilo-discussion.md).
+
 ## The four approaches in more detail
 
 - **A1 · Fine-tuned encoder.** ModernBERT-base (150M parameters), trained for 94 minutes on ~105k labelled proposition pairs. For each pair it reads both propositions, the whole dialogue, their distance and whether one speaker said both, and outputs a probability for each relation. This is the 2024 winning recipe, given context.
@@ -67,11 +94,11 @@ Global is the mean of ARI and ILO. Every row's ILO comes from the shared illocut
 - **No leakage:** the dev split is grouped by episode, recovered from the debate panels because maps carry no episode label (1,250 / 228 maps, 0 leaked pairs). A node-ID artefact that gives away 74% of turn–proposition links was banned in every approach.
 - **Honest tuning:** thresholds are cross-fitted across dev episodes, and differences between systems are tested with a paired bootstrap over 225 maps.
 - **Test set untouched until the end:** each test configuration was fixed on dev before its single scored run. Later checks on test are labelled post-hoc and never fed back into a system.
-- **Traceable:** every number in the reports comes from a committed file under `results/`, and every decision (88 of them) is in [`decisionlog.md`](decisionlog.md) with its rationale and status.
+- **Traceable:** every number in the reports comes from a committed file under `results/`, and every decision (101 of them) is in [`decisionlog.md`](decisionlog.md) with its rationale and status.
 
 ## Findings in more detail
 
-1. **The win over 2024 is mostly a Task B win.** Task B is largely a matching problem: in the training data, text similarity alone links 94% of turns to the right proposition, and 90% of illocutions are *Asserting*. On dev, a trained labeller with one-to-one decoding links 98.3% of turns at 99.6% precision. General models doing Task B end to end did not beat it on dev: Claude Sonnet 5.5 scored 88.03 / 77.48 and Jev 85.35 / 75.76, against 90.08 / 80.64. Jev even links better, but both lose on typing the question types ([03 report §11](reports/03-ilo-labeller.md), [discussion](reports/03-ilo-discussion.md); the test set was not re-run).
+1. **The win over 2024 is mostly a Task B win.** Task B is largely a matching problem: in the training data, text similarity alone links 94% of turns to the right proposition, and 90% of illocutions are *Asserting*. On dev, a trained labeller with one-to-one decoding links 98.3% of turns at 99.6% precision, and neither Claude nor Jev doing the task themselves beat it (see *Why Task B uses a trained encoder*; the test set was not re-run).
 2. **Relation mining is still hard.** On dev, no method closes more than about a third of the gap between predicting nothing (30.9) and labelling every candidate pair correctly (98.6). On test, the best system (Claude) gets 53 of 124 relations right and finds 2 of 13 attacks.
 3. **Each model has a recognisable profile.** Jev reads each question literally, so it finds the most support but calls elaborations "support" where annotators wrote "rephrase". The trained models learn the annotators' habits. Claude is the best all-rounder.
 4. **How a judgement is posed matters as much as the model.** Asking Jev each relation two ways scored 52.2 on dev, against 50.5 and 46.3 for either way alone. Reasoning added Claude only 0.8. The fine-tuned 4B LLM learned the output format but not the support judgement.
