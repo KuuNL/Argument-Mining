@@ -1,0 +1,91 @@
+{
+ "run": "smoke",
+ "settings": {
+  "split": "train",
+  "maps": [
+   "nodeset18266",
+   "nodeset18274",
+   "nodeset23907"
+  ],
+  "samples": 1,
+  "k": 4,
+  "effort": "medium",
+  "prompt": "v0"
+ },
+ "cli": "2.1.292 (Claude Code)",
+ "stopped_at_usage_limit": null,
+ "jobs": 3,
+ "ok": 3,
+ "failed": 0,
+ "calls_made": 3,
+ "api_equivalent_usd": 0.1284,
+ "claude_code_reported_usd": 0.1284,
+ "calls_with_side_models": {},
+ "per_answer": {
+  "seconds": {
+   "p50": 4.6,
+   "max": 6.2
+  },
+  "input_tokens_total": {
+   "p50": 9538,
+   "max": 10143
+  },
+  "output_tokens": {
+   "p50": 471,
+   "max": 797
+  },
+  "thinking_tokens": {
+   "p50": 0,
+   "max": 0
+  },
+  "cache_read_tokens_total": 0,
+  "num_turns": [
+   2
+  ],
+  "chars_per_input_token": 2.22
+ },
+ "answers": [
+  {
+   "map": "nodeset18266",
+   "sample": 0,
+   "attempt": 0,
+   "chars": 19614,
+   "input_total": 8583,
+   "cache_read": 0,
+   "output": 266,
+   "thinking": 0,
+   "seconds": 3.8,
+   "usd": 0.036988,
+   "illocutions": 8,
+   "linked": 8
+  },
+  {
+   "map": "nodeset18274",
+   "sample": 0,
+   "attempt": 0,
+   "chars": 21066,
+   "input_total": 9538,
+   "cache_read": 0,
+   "output": 471,
+   "thinking": 0,
+   "seconds": 4.6,
+   "usd": 0.042858,
+   "illocutions": 16,
+   "linked": 16
+  },
+  {
+   "map": "nodeset23907",
+   "sample": 0,
+   "attempt": 0,
+   "chars": 22119,
+   "input_total": 10143,
+   "cache_read": 0,
+   "output": 797,
+   "thinking": 0,
+   "seconds": 6.2,
+   "usd": 0.048538,
+   "illocutions": 28,
+   "linked": 27
+  }
+ ]
+}

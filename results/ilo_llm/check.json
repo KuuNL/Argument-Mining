@@ -1,0 +1,58 @@
+{
+ "1_gold_round_trip": {
+  "maps": 225,
+  "ilo_general": 98.7,
+  "ilo_focused": 96.28,
+  "gate": [
+   98.6,
+   94.7
+  ],
+  "answers_failing_schema": [],
+  "invalid_maps": [],
+  "passed": true
+ },
+ "2_prompts_build": {
+  "maps": {
+   "dev": 225,
+   "pilot": 20
+  },
+  "failures": [],
+  "passed": true
+ },
+ "3_prompt_sizes": {
+  "chars": {
+   "dev": {
+    "min": 13990,
+    "p50": 19780,
+    "max": 27303
+   },
+   "pilot": {
+    "min": 15743,
+    "p50": 19104,
+    "max": 28202
+   }
+  },
+  "a2_dev_k4": {
+   "p50": 21543,
+   "p90": 25190,
+   "max": 29291
+  },
+  "limit": 35149,
+  "passed": true
+ },
+ "4_labeller_reference": {
+  "run": "v1",
+  "maps": 225,
+  "temperature": 1.05,
+  "got": {
+   "general": 90.08,
+   "focused": 80.64
+  },
+  "expected": {
+   "general": 90.08,
+   "focused": 80.64
+  },
+  "passed": true
+ },
+ "all_passed": true
+}

@@ -3,6 +3,7 @@
 > **Status:** passed (2026-10-01). **Run in use: v1** ([`../results/ilo/selected.json`](../results/ilo/selected.json)). A second run, v2, was trained and evaluated but not adopted.
 > **Branch / commits:** `phase3-ilo`: `c34e68c` (3.1–3.2), `66df3ad` (3.3–3.5), `2d70813` (iteration v2).
 > **Sources:** every number below comes from a committed file in [`../results/ilo/`](../results/ilo/): `dataset.json` for the data, and `v1/` and `v2/` for each run (training log, summary, thresholds, dev report, headroom). Decisions are D025 and D028–D039 in [`../decisionlog.md`](../decisionlog.md).
+> **Claude as the labeller (D090, dev only, §11):** not better. Claude Sonnet 5.5 doing Task B end to end scores 88.03 / 77.48 on dev, against the labeller's 90.08 / 80.64 (numbers in [`../results/ilo_llm/`](../results/ilo_llm/)).
 > **Scope:** Task B (ILO) for every approach, plus the turn↔proposition links that the ARI approaches need on test maps.
 > **Test result (scored with A1, D050):** ILO **92.64 / 84.28** on the 11 test maps, perfect on 7 of them, against 2024's best of 81.17 / 72.09. Every system uses its links, and all but A2's submission (which let Claude override 3 types) use its turn types, so it is behind most of the project's Global margin over 2024 ([final report](05-final-report.md)).
 
@@ -234,6 +235,74 @@ Linking costs under 1 point; minority-type typing holds about 7. These are upper
 - **Rare types** (not planned now): add transition-anchored Agreeing / Disagreeing / Challenging examples as training signal; give reply turns the turn they answer as explicit context; or revisit after A1, if ILO becomes the bottleneck.
   - *Outcome:* ILO never became the bottleneck, so the labeller was not retrained. A2 let Claude override its turn types: +0.3 on dev, but −1.1 on test (3 changes, all wrong; D063–D064). A3 and A4 keep the labeller's types.
 - ~~**D029** (no node-ID shortcuts) still needs a user decision.~~ Approved on 2026-10-01; every approach follows it.
+
+## 11. Can Claude do Task B? (D090, dev only)
+
+**The question.** Every system in the project uses this labeller for Task B. Claude had only ever been *given* its links. Could Claude Sonnet 5.5 do the whole task from a test-format map instead: find each turn's proposition *and* type it?
+
+**Setup** (fixed before any call, D090; brief in [`../plans/claude-ilo-dev-test/README.md`](../plans/claude-ilo-dev-test/README.md)):
+- **Input.** Each dev map is serialised with no links, so propositions sit under the turn whose wording they match, and the rest are listed apart.
+- **Prompting.** Four retrieved training maps serve as worked examples, rendered the same way. The model gives 3 answers per map, which are voted, over the labeller's 10 types.
+- **Decision layer.** It is the labeller's own: a link threshold on vote share, one-to-one matching and per-type thresholds. It is scored honestly, by leaving one dev episode out.
+- **Settings.** Effort `medium` was chosen on the 20-map pilot: `xhigh` scored 85.64 / 80.33 against 88.61 / 81.39, and a tie goes to `medium` (D094–D095). The prompt was not revised.
+- **Stop rule.** Claude counts as better only if it beats 90.08 / 80.64 by more than 0.5 on **both** settings.
+
+**Verdict: not better.** Claude's honest dev ILO is **88.03 / 77.48** against the labeller's **90.08 / 80.64**. The paired bootstrap puts the labeller significantly ahead on both settings.
+
+| Dev ILO F1 (225 maps) | Labeller | Claude Sonnet 5.5 |
+|---|---|---|
+| Simple decode (one-to-one, most likely type) | 89.46 / 78.06 | 87.36 / 77.11 |
+| Tuned on all of dev (optimistic) | 90.16 / 80.67 | 88.23 / 77.77 |
+| **Cross-fitted (honest)** | **90.08 / 80.64** | **88.03 / 77.48** |
+| Claude − labeller, honest (95% interval, 10,000 resamples) | | general −2.05 [−3.89, −0.26]; focused −3.16 [−6.31, −0.10] |
+| Maps where Claude / the labeller is better (general) | | 28 / 54 |
+| Link recall / precision (honest links) | 98.33% / 99.62% | 97.89% / 98.69% |
+| Maps with a type absent from their gold (rare-label trap) | 18 | 30 |
+
+![Claude vs the labeller on dev](figures/ilo-claude-vs-labeller.png)
+*Figure 3: **a**, honest dev ILO, with the paired-bootstrap difference. **b**, per-type F1 pooled over dev; n is each type's number of gold links. Drawn by [`ilo_claude_figure.py`](ilo_claude_figure.py) from `results/ilo_llm/dev/dev_report.json`.*
+
+**Where Claude loses:**
+- **It over-calls question types.** It predicts Rhetorical Questioning 38 times for 29 gold. In 30 maps it predicts a question type that the map's gold doesn't contain, against the labeller's 18. Each such map gains a zero-scoring class (the rare-label trap), which is why the focused gap (−3.2) is larger than the general one (−2.1). Per-type F1 is a mixed picture:
+
+  | Type | Labeller F1 | Claude F1 |
+  |---|---|---|
+  | Pure Questioning | 0.870 | 0.834 |
+  | Assertive Questioning | 0.400 | 0.345 |
+  | Rhetorical Questioning | 0.500 | **0.537** |
+
+- **It credits reported claims to the turn that reports them.**
+  - 56 turns are linked by Claude alone; only 21 of those links are right, and all 35 wrong ones take a proposition that gold credits to *another* turn.
+  - Typically a speaker quotes or relays someone ("As James said a moment ago, that will be different for different schools"; "The chief scientist of the WHO has said schools should go back…"). The annotators credit the claim to the original turn, sometimes a reported-speech turn they added themselves ("Chief Scientist of the WHO: schools should go back…").
+  - The labeller links 40 turns that Claude leaves unlinked, and 38 of them are right.
+  - Where both systems link a turn to different propositions (6 turns), Claude is right 5 times.
+- **The rare types don't survive.** Claude's raw answers do propose them (Agreeing 45 times, Disagreeing 12 and Restating once, across 675 answers). But the tuned thresholds switch all six rare types off in every fold, as they do for the labeller: guessing them costs more than it gains.
+
+**Examples of the link disagreements** (from `dev_report.json`, §4):
+
+| Kind | Turn | Proposition linked | Right? |
+|---|---|---|---|
+| Claude only | Chris Philp: As James said a moment ago, that will be different for different schools | the process of going back will be different for different schools | no: gold links it from "James Graham: that will be different for different schools" |
+| Claude only | Camilla Tominey: No | Camilla Tominey does or does not have some of the fears we have heard from teachers… | no: gold links it from Fiona Bruce's question |
+| Claude only | Kofie Unknown: I am a BAME man. | Kofie Unknown is a Black, Asian and minority ethnic man. | yes |
+| Labeller only | Chief Scientist of the WHO: schools should go back in the way we have seen schools go back in parts of Europe | schools should go back in the way we have seen… | yes |
+| Labeller only | Helle Thorning-Schmidt: Why not? | we should be doing innovative education like Denmark here | yes |
+| Different proposition | Mark Harper: The problem is this problem is going to be with us forever | Claude: "the problem is the COVID is going to be with us forever"; labeller: "COVID is going to be with us forever" | Claude |
+
+**Cost:** 675 calls (3 answers × 225 maps), all accepted on the first try. 4.5 s per call (median), no thinking tokens at `medium`, 26 minutes with 2 workers, inside one Pro session, and $12.97 API-equivalent (paid by the Pro plan). The labeller needs 0.21 s per map on the local GPU.
+
+**What it means.** The trained labeller stays. Linking is a matching problem with a clear convention: a proposition belongs to the turn that first said it. The labeller learned that convention from 1,231 maps. Claude, reading the whole map, follows the meaning instead, and often credits a relayed claim to the turn that relays it. Typing questions is a judgement where gold is not consistent on the surface, and Claude's extra Rhetorical calls cost more than they gain. The test set was not re-run (D090).
+
+**Reproduce** (no calls if the answers are cached; else 675 calls on a Claude Pro login):
+```bash
+python -m ilo_llm.check                                           # gates, labeller per-map scores
+python -m ilo_llm.runner --run=pilot-medium --export              # and --run=pilot-xhigh
+python -m ilo_llm.pilot                                           # results/ilo_llm/pilot.json
+python -m ilo_llm.runner --run=dev --export --workers=2 --until-done
+python -m ilo_llm.tune --run=dev                                  # results/ilo_llm/dev/thresholds.json
+~/.venvs/a3/bin/python -m ilo_llm.evaluate --run=dev              # results/ilo_llm/dev/dev_report.json (bootstrap needs the a3 venv)
+python reports/ilo_claude_figure.py                               # any Python with numpy + matplotlib
+```
 
 ## Reproduce
 ```bash

@@ -1,0 +1,539 @@
+{
+ "run": "dev",
+ "maps": 225,
+ "1_main": {
+  "claude": {
+   "cross_fitted (honest)": {
+    "general": 88.03,
+    "focused": 77.48
+   },
+   "argmax_decode": {
+    "general": 87.36,
+    "focused": 77.11
+   },
+   "tuned_on_all_dev (optimistic)": {
+    "general": 88.23,
+    "focused": 77.77
+   }
+  },
+  "labeller": {
+   "cross_fitted (honest)": {
+    "general": 90.08,
+    "focused": 80.64
+   },
+   "argmax_decode": {
+    "general": 89.46,
+    "focused": 78.06
+   },
+   "tuned_on_all_dev (optimistic)": {
+    "general": 90.16,
+    "focused": 80.67
+   }
+  },
+  "claude_thresholds_on_all_dev": {
+   "link_min": 0.01,
+   "type_min": {
+    "Pure Questioning": 0.0,
+    "Assertive Questioning": 0.7,
+    "Rhetorical Questioning": 0.7,
+    "Default Illocuting": 1.01,
+    "Agreeing": 1.01,
+    "Challenging": 1.01,
+    "Disagreeing": 1.01,
+    "Arguing": 1.01,
+    "Restating": 1.01
+   }
+  }
+ },
+ "2_bootstrap_claude_minus_labeller": {
+  "general": {
+   "maps": 225,
+   "mean_difference": -2.05,
+   "ci95": [
+    -3.89,
+    -0.26
+   ],
+   "a_better_maps": 28,
+   "b_better_maps": 54
+  },
+  "focused": {
+   "maps": 225,
+   "mean_difference": -3.16,
+   "ci95": [
+    -6.31,
+    -0.1
+   ],
+   "a_better_maps": 28,
+   "b_better_maps": 49
+  },
+  "resamples": 10000,
+  "seed": 13
+ },
+ "3_verdict": {
+  "rule": "better only if honest general > 90.58 and focused > 81.14 (D090)",
+  "better": false,
+  "line": "Claude does not beat the labeller on dev: honest ILO 88.03 / 77.48 vs 90.08 / 80.64."
+ },
+ "4_linking": {
+  "claude": {
+   "recall": 0.9789,
+   "precision": 0.9869,
+   "gold": 3228,
+   "predicted": 3202
+  },
+  "labeller": {
+   "recall": 0.9833,
+   "precision": 0.9962,
+   "gold": 3228,
+   "predicted": 3186
+  },
+  "labeller_reported (results/ilo/v1, tuned on all dev)": {
+   "recall": 0.9827,
+   "precision": 0.9962
+  },
+  "disagreements": {
+   "claude_only": {
+    "turns": 56,
+    "right": 21,
+    "wrong_with_proposition_gold_linked_elsewhere": 35,
+    "examples_right": [
+     {
+      "map": "nodeset17944",
+      "turn": "Fiona Bruce: What are parents supposed to make of that",
+      "proposition": "parents are supposed to make xxx of a number of schools planning to go ahead with 1st june openings and lots of schools not planning go ahead with 1st June openings",
+      "type": "Pure Questioning",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "parents are supposed to make xxx of a number of schools planning to go ahead with 1st june openings and lots of schools not planning go ahead with 1st June openings"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset17945",
+      "turn": "Helle Thorning-Schmidt: So there is these balances to find but I would just again say find a good balance with also the teachers and take the heat out of it.",
+      "proposition": "there are the balances between children's future and the duration  of the lockdown",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "there are the balances between children's future and the duration  of the lockdown"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset17959",
+      "turn": "James Graham: that unfortunately is not going to be the case with the perfect forming arts venues",
+      "proposition": "the performing arts venues will not open alongside pubs and restaruants and manufacturers and tailers and that is unfortunate",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "the performing arts venues will not open alongside pubs and restaruants and manufacturers and tailers and that is unfortunate"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset17962",
+      "turn": "Helle Thorning-Schmidt: we locked down before, softer lockdown",
+      "proposition": "in Denmark the lockdown was much softer because they started earlier",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "in Denmark the lockdown was much softer because they started earlier"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset18757",
+      "turn": "Kofie Unknown: I am a BAME man.",
+      "proposition": "Kofie Unknown is a Black, Asian and minority ethnic man.",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "Kofie Unknown is a Black, Asian and minority ethnic man."
+      ],
+      "right": true
+     }
+    ],
+    "examples_wrong": [
+     {
+      "map": "nodeset17925",
+      "turn": "Camilla Tominey: No",
+      "proposition": "Camilla Tominey does or does not have some of the fears we have heard from teachers and some of the unions",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": "Fiona Bruce: You don't have some of the fears we have heard from teachers and some of the unions",
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": true,
+      "gold": [],
+      "right": false
+     },
+     {
+      "map": "nodeset17925",
+      "turn": "Camilla Tominey: The chief scientist of the WHO has said schools should go back in the way we have seen schools go back in parts of Europe",
+      "proposition": "schools should go back in the way we have seen schools go back in parts of Europe",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": "Chief Scientist of the WHO: schools should go back in the way we have seen schools go back in parts of Europe",
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": true,
+      "gold": [],
+      "right": false
+     },
+     {
+      "map": "nodeset17930",
+      "turn": "Fiona Bruce: You are saying the only way to tell schools was to do it through a press conference",
+      "proposition": "the only way to tell schools was through a press conference",
+      "type": "Assertive Questioning",
+      "gold_links_this_proposition_from": "Chris Philp: the only way to tell schools was to do it through a press conference",
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": true,
+      "gold": [],
+      "right": false
+     },
+     {
+      "map": "nodeset17930",
+      "turn": "Chris Philp: As James said a moment ago, that will be different for different schools",
+      "proposition": "the process of going back will be different for different schools",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": "James Graham: that will be different for different schools",
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": true,
+      "gold": [],
+      "right": false
+     },
+     {
+      "map": "nodeset17934",
+      "turn": "Fiona Bruce: you had a Member of SAGE, the body that advises the government, saying \"a well functioning track and trace system needs to be embedded and working well before schools can reopen\"",
+      "proposition": "a well functioning track and trace system needs to be embedded and working well before schools can reopen",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": "Member SAGE: a well functioning track and trace system needs to be embedded and working well before schools can reopen",
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": true,
+      "gold": [],
+      "right": false
+     }
+    ]
+   },
+   "labeller_only": {
+    "turns": 40,
+    "right": 38,
+    "wrong_with_proposition_gold_linked_elsewhere": 2,
+    "examples_right": [
+     {
+      "map": "nodeset17921",
+      "turn": "Helle Thorning-Schmidt: Why not?",
+      "proposition": "we should be doing innovative education like Denmark here",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "we should be doing innovative education like Denmark here"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset17925",
+      "turn": "Fiona Bruce: You don't have some of the fears we have heard from teachers and some of the unions",
+      "proposition": "Camilla Tominey does or does not have some of the fears we have heard from teachers and some of the unions",
+      "type": "Pure Questioning",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "Camilla Tominey does or does not have some of the fears we have heard from teachers and some of the unions"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset17925",
+      "turn": "Chief Scientist of the WHO: schools should go back in the way we have seen schools go back in parts of Europe",
+      "proposition": "schools should go back in the way we have seen schools go back in parts of Europe",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "schools should go back in the way we have seen schools go back in parts of Europe"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset17930",
+      "turn": "Chris Philp: the only way to tell schools was to do it through a press conference",
+      "proposition": "the only way to tell schools was through a press conference",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "the only way to tell schools was through a press conference"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset17930",
+      "turn": "James Graham: that will be different for different schools",
+      "proposition": "the process of going back will be different for different schools",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_claude": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "the process of going back will be different for different schools"
+      ],
+      "right": true
+     }
+    ],
+    "examples_wrong": [
+     {
+      "map": "nodeset21582",
+      "turn": "Scientific officer: that",
+      "proposition": "the problem is the COVID is going to be with us forever",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": "Mark Harper: The problem is this problem is going to be with us forever",
+      "that_turn_linked_by_claude": true,
+      "that_turn_linked_by_labeller": true,
+      "gold": [
+       "COVID is going to be with us forever"
+      ],
+      "right": false
+     },
+     {
+      "map": "nodeset22967",
+      "turn": "Brandon Lewis: That’s what we built on",
+      "proposition": "the UK government have built on checks for SPS products",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": "Brandon Lewis: We have built on that for those kind of products",
+      "that_turn_linked_by_claude": true,
+      "that_turn_linked_by_labeller": true,
+      "gold": [
+       "the UK government has built on SPS type checks that have been on products from Great Britain into Northern Ireland since the 19th century"
+      ],
+      "right": false
+     }
+    ]
+   },
+   "different_proposition": {
+    "turns": 6,
+    "examples": [
+     {
+      "map": "nodeset17921",
+      "turn": "Fiona Bruce: Do you think we could be doing that kind of thing here",
+      "claude": "we should be doing innovative education like Denmark here",
+      "labeller": "Helle Thorning-Schmidt does or does not think we could be doing similar innovative education like Denmark",
+      "gold": [
+       "Helle Thorning-Schmidt does or does not think we could be doing similar innovative education like Denmark"
+      ],
+      "right": "labeller"
+     },
+     {
+      "map": "nodeset17938",
+      "turn": "Fiona Bruce: The peak follows the lockdown",
+      "claude": "the peak of the virus follows the lockdown",
+      "labeller": "the peak follows the lockdown",
+      "gold": [
+       "the peak follows the lockdown",
+       "the peak of the virus follows the lockdown"
+      ],
+      "right": "claude"
+     },
+     {
+      "map": "nodeset19911",
+      "turn": "Fiona Bruce: as a consequence of Brexit, a border poll is likely in the future",
+      "claude": "as a consequence of Brexit, a border poll is likely in the future",
+      "labeller": "as a consequence of Brexit, a border poll is likely in the future",
+      "gold": [
+       "as a consequence of Brexit, a border poll is likely in the future"
+      ],
+      "right": "claude"
+     },
+     {
+      "map": "nodeset19911",
+      "turn": "Liam Unknown: as a consequence of Brexit, a border poll is likely in the future",
+      "claude": "as a consequence of Brexit, a border poll is likely in the future",
+      "labeller": "as a consequence of Brexit, a border poll is likely in the future",
+      "gold": [
+       "as a consequence of Brexit, a border poll is likely in the future"
+      ],
+      "right": "claude"
+     },
+     {
+      "map": "nodeset21582",
+      "turn": "Mark Harper: The problem is this problem is going to be with us forever",
+      "claude": "the problem is the COVID is going to be with us forever",
+      "labeller": "COVID is going to be with us forever",
+      "gold": [
+       "the problem is the COVID is going to be with us forever"
+      ],
+      "right": "claude"
+     }
+    ],
+    "right": {
+     "labeller": 1,
+     "claude": 5
+    }
+   }
+  }
+ },
+ "5_per_type": {
+  "claude": {
+   "Asserting": {
+    "gold": 2992,
+    "predicted": 2990,
+    "f1": 0.977
+   },
+   "Pure Questioning": {
+    "gold": 162,
+    "predicted": 164,
+    "f1": 0.834
+   },
+   "Assertive Questioning": {
+    "gold": 19,
+    "predicted": 10,
+    "f1": 0.345
+   },
+   "Rhetorical Questioning": {
+    "gold": 29,
+    "predicted": 38,
+    "f1": 0.537
+   },
+   "Default Illocuting": {
+    "gold": 7,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Agreeing": {
+    "gold": 12,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Challenging": {
+    "gold": 2,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Disagreeing": {
+    "gold": 2,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Arguing": {
+    "gold": 2,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Restating": {
+    "gold": 1,
+    "predicted": 0,
+    "f1": 0.0
+   }
+  },
+  "labeller": {
+   "Asserting": {
+    "gold": 2992,
+    "predicted": 2989,
+    "f1": 0.982
+   },
+   "Pure Questioning": {
+    "gold": 162,
+    "predicted": 176,
+    "f1": 0.87
+   },
+   "Assertive Questioning": {
+    "gold": 19,
+    "predicted": 6,
+    "f1": 0.4
+   },
+   "Rhetorical Questioning": {
+    "gold": 29,
+    "predicted": 15,
+    "f1": 0.5
+   },
+   "Default Illocuting": {
+    "gold": 7,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Agreeing": {
+    "gold": 12,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Challenging": {
+    "gold": 2,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Disagreeing": {
+    "gold": 2,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Arguing": {
+    "gold": 2,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Restating": {
+    "gold": 1,
+    "predicted": 0,
+    "f1": 0.0
+   }
+  },
+  "rare_types": [
+   "Default Illocuting",
+   "Agreeing",
+   "Challenging",
+   "Disagreeing",
+   "Arguing",
+   "Restating"
+  ],
+  "claude_types_as_answered (all answers, before voting and thresholds)": {
+   "Asserting": 8976,
+   "Pure Questioning": 502,
+   "Rhetorical Questioning": 135,
+   "Agreeing": 45,
+   "Assertive Questioning": 42,
+   "Disagreeing": 12,
+   "Restating": 1
+  }
+ },
+ "6_rare_label_trap": {
+  "claude": {
+   "maps": 30,
+   "by_type": {
+    "Pure Questioning": 15,
+    "Rhetorical Questioning": 12,
+    "Assertive Questioning": 4
+   }
+  },
+  "labeller": {
+   "maps": 18,
+   "by_type": {
+    "Pure Questioning": 14,
+    "Rhetorical Questioning": 3,
+    "Assertive Questioning": 1
+   }
+  }
+ },
+ "7_cost": {
+  "calls_made": 675,
+  "accepted_answers": 675,
+  "failed": 0,
+  "seconds_per_call_p50": 4.5,
+  "thinking_tokens_p50": 0,
+  "api_equivalent_usd": 12.9701,
+  "runner_passes": 1,
+  "usage_limit_hits": 0,
+  "pro_sessions_used": 1,
+  "seconds_in_runner": 1583.0
+ }
+}

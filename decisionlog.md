@@ -44,7 +44,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | 6 | Short report | `reports/06-short-report.md`, `reports/figures/short-*.png`, `reports/short_report_numbers.py`, `reports/short_report_figures.py` | Every number and figure recomputed from committed files | Final run and write-up | **Done (D087)** |
 | 7 | Final README + relation-plateau analysis | `README.md`; §10 of the final report and §6 of the short report; `reports/figures/short-why-relations.png` | Every claim traced to a committed file; every link resolves | Final run and write-up | **Done (D088)** |
 | 8 | Write-ups reframed as an exploration | `README.md` and every report; `reports/short_report_numbers.py`, `reports/short_report_figures.py` and the figures they draw | No result or method changed; no combination in any write-up or figure; every number traced to a committed file; every link resolves | Final run and write-up | **Done (D089)** |
-| 9 | Claude as ILO labeller (dev test) | `ilo_llm/`, `results/ilo_llm/`, `reports/figures/ilo-claude-vs-labeller.png`; brief in `plans/claude-ilo-dev-test/README.md` | Gold round trip ≥ 98.6 / 94.7; labeller reference 90.08 / 80.64 reproduced; 675/675 valid dev answers; verdict by the D090 stop rule | Final run and write-up | **Proposed (D090)** |
+| 9 | Claude as ILO labeller (dev test) | `ilo_llm/`, `results/ilo_llm/`, `reports/figures/ilo-claude-vs-labeller.png`; brief in `plans/claude-ilo-dev-test/README.md` | Gold round trip ≥ 98.6 / 94.7; labeller reference 90.08 / 80.64 reproduced; 675/675 valid dev answers; verdict by the D090 stop rule | Final run and write-up | **Done (D090–D098)**: round trip 98.70 / 96.28; reference reproduced; 675 / 675 valid; Claude honest dev ILO 88.03 / 77.48 vs the labeller's 90.08 / 80.64, **not better** |
 
 ---
 
@@ -1332,7 +1332,7 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 - *Kept as a record:* `combination/`, `results/combination/`, decisions D083–D085, and A4's success-test code and results (`a4_jev/tune.py`, `results/a4/dev/dev_report.json`).
 
 ### D090 — Dev test: can Claude Sonnet 5.5 do Task B (linking and typing) better than the trained labeller?
-- **2026-10-14 · Phase 9 · by Claude Science, at the user's request** ("run the cheaper first step"; "write the plan thoroughly in a folder, then I can tell the claude environment in my VS Code to run the plan") **· Proposed**
+- **2026-10-14 · Phase 9 · by Claude Science, at the user's request** ("run the cheaper first step"; "write the plan thoroughly in a folder, then I can tell the claude environment in my VS Code to run the plan") **· Approved by user 2026-10-14 · Done 2026-10-14 (D098): not better, 88.03 / 77.48 vs 90.08 / 80.64**
 - *Question:* given dev maps in test format (no turn–proposition links), can Claude Sonnet 5.5 link each dialogue turn to its proposition and type it better than the ILO labeller, whose honest dev ILO is 90.08 / 80.64 (`results/ilo/v1/dev_report.json`)?
 - *Brief:* [`plans/claude-ilo-dev-test/README.md`](plans/claude-ilo-dev-test/README.md) gives every setting, file, command and gate.
 - *Protocol (fixed before any call):*
@@ -1342,4 +1342,78 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - decision layer as `ilo/tune.py` (vote-share link threshold, one-to-one matching, per-type-group thresholds), with an honest score by leave-one-dev-episode-out cross-fitting over the same 5 episodes.
 - *Stop rule:* Claude counts as better only if its honest dev ILO exceeds the labeller's by more than 0.5 on both general (> 90.58) and focused (> 81.14). A paired bootstrap over the 225 maps is reported either way.
 - *Out of scope:* the 11 test maps (`data/evaluation/` is not read), and any change to `a2_llm/`, `ilo/` or committed results. Using Claude on test, if it wins, would be a separate decision.
+- *Effort (step 4, D095):* **`medium`**. `xhigh` scored lower on the pilot (−2.97 general, −1.06 focused), so the D094 rule picks `medium`.
 - *Why now:* the README says Task B was handled by one trained component, and the obvious reviewer question is whether a frontier LLM could do it better. This is the cheapest test, because Claude is the likeliest of the four models to beat the labeller. If it can't, the others are unlikely to.
+
+### D091 — Definitions of the three added types: spec facts only
+- **2026-10-14 · Phase 9, step 2 · by user** (chose "Spec facts only" when asked) **· Approved**
+- *The gap:* the brief asks for definitions of Disagreeing, Arguing and Restating taken from `reference/` and not invented. None of the three reference files defines them. `annotation-details.pdf` only says where each attaches (Arguing, Restating: transition → relation; Agreeing, Challenging, Disagreeing: transition → proposition), and the overview paper and the data-format spec only name them.
+- *Choice:* the system prompt says only what the spec and the training data say. Disagreeing is grouped with Agreeing and Challenging as a reply to an earlier claim, the opposite of Agreeing, so the proposition is the claim disagreed with. Arguing and Restating normally anchor the step that creates an inference or a rephrase, not a turn, so they are very rare as a turn's type. Their training counts on turn links are Disagreeing 18, Arguing 10 and Restating 4 in 1,231 maps (`results/ilo/dataset.json`).
+- *Alternatives:* names only, with no description; standard IAT meanings written from general knowledge. The second was rejected because it breaks the brief's "don't invent" rule.
+- *Numbering:* the brief reserved D091 for a possible prompt revision. A revision, if any, takes the next free number.
+
+### D092 — Phase 9 step 2: `ilo_llm/` built; all four no-call checks pass
+- **2026-10-14 · Phase 9, step 2 · by Claude · Done**
+- *Result* (`results/ilo_llm/check.json`):
+  1. gold round trip **98.70 / 96.28** on 225 dev maps (gate ≥ 98.6 / 94.7), 0 answers failing the schema, 0 invalid maps. It sits above the 03 report's 98.63 / 94.73 because that ceiling also includes the labeller's candidate misses; here only turns with two propositions are lost;
+  2. prompts build for all 225 dev and 20 pilot maps;
+  3. prompt sizes 13,990 / 19,780 / 27,303 characters (dev min / median / max), with the pilot max at 28,202, under the 35,149 limit (1.2 × A2's 29,291);
+  4. the labeller's honest dev ILO is reproduced at **90.08 / 80.64** (temperature 1.05). Its per-map scores are in `results/ilo_llm/labeller_per_map.json`.
+- *Differences from the brief, none of which changes the protocol:*
+  - **Prompt wording.** The *Input* section no longer says propositions sit "under the turn that expresses them": with no links, a proposition is listed under the turn whose wording it closely matches. The conventions also gain the measured question cues from EDA §3 (almost no "?"; a question starts with a question word, and its proposition often contains "xxx").
+  - **Runner.** `summary()` counts illocutions instead of relations. The pilot lists are read from `results/a2/pilot_maps.json`. `resolve()` no longer puts a list into a set, which crashed on the smoke run's map list; A2's copy has the same latent bug, left untouched. The test split is refused, and the `dev` run refuses to start until its effort and prompt are set in step 4.
+  - **Examples.** Worked examples are serialised from `strip_to_input(gold)`, the same input the target gets.
+
+### D093 — Phase 9 step 3: smoke test passed
+- **2026-10-14 · Phase 9, step 3 · by Claude · Done**
+- `results/ilo_llm/smoke/summary.json`: 3/3 answers valid, every token from `claude-sonnet-5-5`, no side models, 3 calls in total (no retries). Median 4.6 s per call, about 9.5k input tokens, 0 thinking tokens at `medium`, $0.13 API-equivalent in all (paid by Pro).
+- Every answer lists each turn exactly once (8, 16 and 28 turns), so the prompt's "one entry per turn" is followed.
+
+### D094 — Phase 9 step 4: the effort tie rule, made exact before the pilot is scored
+- **2026-10-14 · Phase 9, step 4 · by Claude, fixed before any pilot score was computed · Approved** (within D090's tie rule)
+- D090 says a tie (under 5 points on 20 maps) goes to `medium`, but it doesn't name the metric. **`xhigh` is chosen only if its pilot ILO beats `medium` by at least 5 points on general or on focused** (argmax decoding, the 20 pilot maps). Otherwise `medium` is chosen. Both metrics count because the stop rule uses both.
+
+### D095 — Phase 9 step 4: pilot result; effort `medium`; one timing log slip repaired
+- **2026-10-14 · Phase 9, step 4 · by Claude (pre-set rule D094) · Done** (`results/ilo_llm/pilot.json`; 20 pilot training maps, 1 answer each, argmax decoding)
+
+  | Effort | ILO general / focused | Link recall / precision | Thinking tokens p50 | s per call p50 |
+  |---|---|---|---|---|
+  | **`medium`** | **88.61 / 81.39** | 98.56% / 99.27% | 0 | 4.6 |
+  | `xhigh` | 85.64 / 80.33 | 99.64% / 100% | 265 | 5.35 |
+
+- **Effort `medium`.** `xhigh` reasons a little (median 265 thinking tokens) and links slightly better, but types slightly worse: 3 of 20 map scores differ by 25 points or more in each direction. Neither metric gains 5 points, so the tie rule picks `medium`.
+- **Sanity gate passed.** Both runs score at least 80 general (similarity + Asserting scores 76.0 on dev).
+- Neither run predicts Challenging, Default Illocuting or the three added types. Gold on the pilot has 1 Agreeing, 1 Challenging and 1 Restating. 3 maps (`medium`) and 4 maps (`xhigh`) get a type that is absent from their gold.
+- **Cost:** $0.77 (`medium`) and $0.22 (`xhigh`) API-equivalent; Pro paid. `xhigh` is cheaper only because it reused `medium`'s cached prompts, and the dev run's 2nd and 3rd answers will do the same.
+- **Errors** (`results/ilo_llm/pilot_errors.md`): 14 differing turns, mostly question subtypes that gold itself labels inconsistently, plus tie cases in linking. No clear, fixable pattern, so Claude recommends no prompt revision (the user decides).
+- **Timing log slip.** A `git checkout -- results/timing.csv`, meant to drop one trial-scoring row, also removed the day's `check`, `smoke` and `pilot-medium` rows. The first two were restored verbatim. `pilot-medium` was rebuilt from its call records (seconds = the sum of its call times) and is marked `reconstructed`.
+
+### D096 — Phase 9 step 5: no prompt revision; settings frozen; the dev run is started from this session
+- **2026-10-14 · Phase 9, step 5 · by user** ("You should just run step 5") **· Approved**
+- **No prompt revision.** `system_v0.md` is kept, as D095 recommends.
+- **Frozen dev settings:** Sonnet 5.5, prompt v0, 4 retrieved worked examples, effort `medium`, 3 answers per map, 225 maps (`RUNS["dev"]`).
+- **Where it runs.** The brief and the user's first instruction asked for the dev run in a separate terminal. The user now asks for it to run here, as a background process of this session, with the same command and flags.
+
+### D097 — Steps 6 and 7 run without further approval
+- **2026-10-14 · Phase 9 · by user** ("do not ask for permission, run step 6 and 7 autonomously, running fixes if required, use best judgement") **· Approved**
+- Scoring, analysis, figure, write-up and the commit to main go ahead without stopping. Every fix is logged here. The hard rules still apply: no test maps, no `data/evaluation/`, no changes to `a2_llm/`, `ilo/` or committed results, no combination, and no push.
+
+### D098 — Phase 9 result: Claude doing Task B end to end is not better than the labeller (dev)
+- **2026-10-14 · Phase 9, steps 5–7 · by Claude (D090 stop rule) · Done** (`results/ilo_llm/dev/`: `summary.json`, `responses.jsonl.gz`, `thresholds.json`, `dev_report.json`)
+- **Dev run:** 675 / 675 answers accepted on the first try, all from Sonnet 5.5 with no side models and no usage-limit stop. 26 min with 2 workers; 4.5 s per call, 0 thinking tokens; $12.97 API-equivalent (Pro paid).
+- **Main result** (225 dev maps, ILO general / focused):
+  - Claude, cross-fitted (honest): **88.03 / 77.48**. Simple decode 87.36 / 77.11; tuned on all of dev (optimistic) 88.23 / 77.77.
+  - Labeller, cross-fitted: 90.08 / 80.64.
+  - Claude − labeller, paired bootstrap (10,000 resamples, seed 13): general −2.05 [−3.89, −0.26], focused −3.16 [−6.31, −0.10]. Claude is better on 28 maps and the labeller on 54 (general).
+- **Verdict by the stop rule** (> 90.58 and > 81.14): **not better**. The labeller stays, and the test set is not re-run.
+- **Why Claude loses:**
+  - **Question types.** It predicts Rhetorical Questioning 38 times for 29 gold. 30 maps get a type absent from their gold (labeller: 18).
+  - **Linking.** Recall / precision 97.89% / 98.69% (labeller 98.33% / 99.62%). Of 56 turns only Claude links, 21 are right; all 35 wrong ones take a proposition that gold credits to another turn, typically a relayed or quoted claim. Of 40 turns only the labeller links, 38 are right.
+  - **Rare types.** Claude's answers propose Agreeing 45 times and Disagreeing 12 times, but the tuned thresholds switch all six rare types off in every fold. Both systems therefore score 0 on them.
+  - **Thresholds.** The tuned link threshold sits at the grid floor (0.01): one vote in three is enough, because one-to-one matching already blocks most false links.
+- **Fixes and choices made along the way (D097: no stops):**
+  - `ilo_llm/evaluate.py` runs in `~/.venvs/a3`, as A4's evaluation did, because `a3_finetune.tune.bootstrap` imports `xgrammar`.
+  - The figure is drawn with a throwaway numpy + matplotlib venv outside the repo. No project venv has matplotlib, and the existing figure script says any Python with both works.
+  - The analyses (linking, per type, rare-label trap) use each system's *honest* links: every map is decoded with its held-out fold's thresholds. This is asserted to reproduce both honest scores exactly. The labeller's honest linking (98.33% / 99.62%) therefore differs slightly from its reported tuned-on-all-dev figure (98.27% / 99.62%).
+  - `dev_report.json` also records Claude's raw type counts and, for each wrong link, the turn gold credits the proposition to.
+- **Write-up:** `reports/03-ilo-labeller.md` §11 (with Figure 3, `reports/figures/ilo-claude-vs-labeller.png`, drawn by `reports/ilo_claude_figure.py`), one sentence in the README's findings, and CLAUDE.md §7.
