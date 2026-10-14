@@ -71,7 +71,7 @@ Global is the mean of ARI and ILO. Every row's ILO comes from the shared illocut
 
 ## Findings in more detail
 
-1. **The win over 2024 is mostly a Task B win.** Task B is largely a matching problem: in the training data, text similarity alone links 94% of turns to the right proposition, and 90% of illocutions are *Asserting*. On dev, a trained labeller with one-to-one decoding links 98.3% of turns at 99.6% precision. Claude Sonnet 5.5 doing Task B end to end did not beat it on dev: 88.03 / 77.48 against 90.08 / 80.64. Claude over-calls question types and credits relayed claims to the turn that relays them ([03 report §11](reports/03-ilo-labeller.md); the test set was not re-run).
+1. **The win over 2024 is mostly a Task B win.** Task B is largely a matching problem: in the training data, text similarity alone links 94% of turns to the right proposition, and 90% of illocutions are *Asserting*. On dev, a trained labeller with one-to-one decoding links 98.3% of turns at 99.6% precision. General models doing Task B end to end did not beat it on dev: Claude Sonnet 5.5 scored 88.03 / 77.48 and Jev 85.35 / 75.76, against 90.08 / 80.64. Jev even links better, but both lose on typing the question types ([03 report §11](reports/03-ilo-labeller.md), [discussion](reports/03-ilo-discussion.md); the test set was not re-run).
 2. **Relation mining is still hard.** On dev, no method closes more than about a third of the gap between predicting nothing (30.9) and labelling every candidate pair correctly (98.6). On test, the best system (Claude) gets 53 of 124 relations right and finds 2 of 13 attacks.
 3. **Each model has a recognisable profile.** Jev reads each question literally, so it finds the most support but calls elaborations "support" where annotators wrote "rephrase". The trained models learn the annotators' habits. Claude is the best all-rounder.
 4. **How a judgement is posed matters as much as the model.** Asking Jev each relation two ways scored 52.2 on dev, against 50.5 and 46.3 for either way alone. Reasoning added Claude only 0.8. The fine-tuned 4B LLM learned the output format but not the support judgement.
@@ -113,6 +113,7 @@ So 82–86% of every system's errors happen before a relation type is even chose
 ├── eda/                  exploratory analysis of the corpus
 ├── ilo/                  Task B: the trained illocution labeller, shared by every approach
 ├── ilo_llm/              dev-only test: Claude doing Task B end to end, against the labeller (D090)
+├── ilo_jev/              the same test with Jev (D099)
 ├── a1_cross_encoder/     A1 · fine-tuned ModernBERT cross-encoder
 ├── a2_llm/               A2 · whole-map Claude prompting (prompts, runner, decision layer)
 ├── a3_finetune/          A3 · QLoRA fine-tuning of Qwen3-4B
@@ -120,7 +121,7 @@ So 82–86% of every system's errors happen before a relation type is even chose
 ├── results/              every committed number: training logs, dev reports, test scores
 ├── splits/               the fixed, episode-grouped train / dev split
 ├── reference/            2024 overview paper, annotation and data-format specs, official scorers
-├── decisionlog.md        phase map and every decision (D001–D098), with status
+├── decisionlog.md        phase map and every decision (D001–D101), with status
 ├── PLAN.md               the research plan, written before the experiments
 ├── CLAUDE.md             project brief for the AI agents: task, scoring, data, environment
 ├── requirements.txt      pinned ML environment (Python 3.12, torch 2.14 + CUDA 13.0)

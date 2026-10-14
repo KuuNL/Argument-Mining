@@ -1,0 +1,69 @@
+{
+ "1_gold_round_trip": {
+  "maps": 225,
+  "ilo_general": 98.7,
+  "ilo_focused": 96.28,
+  "claude_round_trip": [
+   98.7,
+   96.28
+  ],
+  "answers_failing_check": [],
+  "passed": true
+ },
+ "2_requests_build": {
+  "runs": {
+   "smoke/k0": {
+    "maps": 3,
+    "requests": 4,
+    "questions": 208,
+    "max_requests_per_map": 2,
+    "chars_max_request": 148828
+   },
+   "pilot-k0/k0": {
+    "maps": 20,
+    "requests": 21,
+    "questions": 1116,
+    "max_requests_per_map": 2,
+    "chars_max_request": 149126
+   },
+   "pilot-k4/k4": {
+    "maps": 20,
+    "requests": 21,
+    "questions": 1116,
+    "max_requests_per_map": 2,
+    "chars_max_request": 149176
+   },
+   "dev/k0": {
+    "maps": 225,
+    "requests": 242,
+    "questions": 13308,
+    "max_requests_per_map": 2,
+    "chars_max_request": 149770
+   },
+   "dev/k4": {
+    "maps": 225,
+    "requests": 247,
+    "questions": 13308,
+    "max_requests_per_map": 2,
+    "chars_max_request": 149988
+   }
+  },
+  "maps_with_node_ids": {},
+  "passed": true
+ },
+ "3_cost_projection": {
+  "a4_usd_per_million_tokens": 0.042,
+  "a4_chars_per_token": 3.04,
+  "projected_usd": {
+   "smoke/k0": 0.0043,
+   "pilot-k0/k0": 0.0211,
+   "pilot-k4/k4": 0.025,
+   "dev/k0": 0.2644,
+   "dev/k4": 0.3093
+  },
+  "plan_usd (smoke + pilot arms + dev at the costlier k)": 0.3597,
+  "cap_usd": 2.0,
+  "passed": true
+ },
+ "all_passed": true
+}

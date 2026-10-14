@@ -1,0 +1,210 @@
+{
+ "run": "pilot-k4",
+ "settings": {
+  "split": "train",
+  "maps": [
+   "nodeset20309",
+   "nodeset20330",
+   "nodeset20338",
+   "nodeset20496",
+   "nodeset20499",
+   "nodeset20505",
+   "nodeset20506",
+   "nodeset20517",
+   "nodeset20518",
+   "nodeset20521",
+   "nodeset23842",
+   "nodeset23844",
+   "nodeset23847",
+   "nodeset23860",
+   "nodeset23866",
+   "nodeset23880",
+   "nodeset23881",
+   "nodeset25390",
+   "nodeset25485",
+   "nodeset25906"
+  ],
+  "k": 4
+ },
+ "refused": [],
+ "requests": 21,
+ "answered": 21,
+ "maps": 20,
+ "maps_complete": 20,
+ "maps_with_problems": {},
+ "usd": 0.023827,
+ "input_tokens": 567318,
+ "models": [
+  "typesafe-ai/jev"
+ ],
+ "per_request": {
+  "seconds_p50": 0.526,
+  "seconds_max": 1.093,
+  "tokens_p50": 25659,
+  "tokens_max": 49533,
+  "retries": 0,
+  "chars_per_token": 3.185
+ },
+ "per_map": [
+  {
+   "map": "nodeset20309",
+   "requests": 1,
+   "questions": 48,
+   "tokens": 21847,
+   "usd": 0.000918,
+   "seconds": 0.629
+  },
+  {
+   "map": "nodeset20330",
+   "requests": 1,
+   "questions": 52,
+   "tokens": 23725,
+   "usd": 0.000996,
+   "seconds": 0.524
+  },
+  {
+   "map": "nodeset20338",
+   "requests": 1,
+   "questions": 36,
+   "tokens": 17109,
+   "usd": 0.000719,
+   "seconds": 0.555
+  },
+  {
+   "map": "nodeset20496",
+   "requests": 1,
+   "questions": 68,
+   "tokens": 34929,
+   "usd": 0.001467,
+   "seconds": 0.637
+  },
+  {
+   "map": "nodeset20499",
+   "requests": 1,
+   "questions": 76,
+   "tokens": 35585,
+   "usd": 0.001495,
+   "seconds": 0.558
+  },
+  {
+   "map": "nodeset20505",
+   "requests": 1,
+   "questions": 56,
+   "tokens": 26083,
+   "usd": 0.001095,
+   "seconds": 0.486
+  },
+  {
+   "map": "nodeset20506",
+   "requests": 1,
+   "questions": 52,
+   "tokens": 25513,
+   "usd": 0.001072,
+   "seconds": 0.463
+  },
+  {
+   "map": "nodeset20517",
+   "requests": 1,
+   "questions": 48,
+   "tokens": 20960,
+   "usd": 0.00088,
+   "seconds": 0.439
+  },
+  {
+   "map": "nodeset20518",
+   "requests": 1,
+   "questions": 52,
+   "tokens": 25659,
+   "usd": 0.001078,
+   "seconds": 0.532
+  },
+  {
+   "map": "nodeset20521",
+   "requests": 1,
+   "questions": 64,
+   "tokens": 30607,
+   "usd": 0.001285,
+   "seconds": 0.557
+  },
+  {
+   "map": "nodeset23842",
+   "requests": 1,
+   "questions": 32,
+   "tokens": 13991,
+   "usd": 0.000588,
+   "seconds": 0.466
+  },
+  {
+   "map": "nodeset23844",
+   "requests": 1,
+   "questions": 40,
+   "tokens": 17931,
+   "usd": 0.000753,
+   "seconds": 0.491
+  },
+  {
+   "map": "nodeset23847",
+   "requests": 1,
+   "questions": 84,
+   "tokens": 42843,
+   "usd": 0.001799,
+   "seconds": 0.715
+  },
+  {
+   "map": "nodeset23860",
+   "requests": 1,
+   "questions": 64,
+   "tokens": 34816,
+   "usd": 0.001462,
+   "seconds": 0.612
+  },
+  {
+   "map": "nodeset23866",
+   "requests": 1,
+   "questions": 68,
+   "tokens": 38237,
+   "usd": 0.001606,
+   "seconds": 0.575
+  },
+  {
+   "map": "nodeset23880",
+   "requests": 1,
+   "questions": 36,
+   "tokens": 17885,
+   "usd": 0.000751,
+   "seconds": 0.463
+  },
+  {
+   "map": "nodeset23881",
+   "requests": 1,
+   "questions": 20,
+   "tokens": 10121,
+   "usd": 0.000425,
+   "seconds": 0.425
+  },
+  {
+   "map": "nodeset25390",
+   "requests": 2,
+   "questions": 104,
+   "tokens": 73484,
+   "usd": 0.003086,
+   "seconds": 1.553
+  },
+  {
+   "map": "nodeset25485",
+   "requests": 1,
+   "questions": 56,
+   "tokens": 26662,
+   "usd": 0.00112,
+   "seconds": 0.526
+  },
+  {
+   "map": "nodeset25906",
+   "requests": 1,
+   "questions": 60,
+   "tokens": 29331,
+   "usd": 0.001232,
+   "seconds": 0.494
+  }
+ ]
+}

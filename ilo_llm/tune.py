@@ -26,15 +26,16 @@ from ilo_llm.parse import rows_probs, votes
 from ilo_llm.runner import OUT, RUNS, arg, evaluate, resolve
 
 
-class ClaudeDev(Dev):
-    def __init__(self, maps: dict, gold_aif: dict):
-        """maps: name -> (Serialised, [answers]); gold_aif: name -> gold map. Maps with no answer predict nothing."""
-        self.names = sorted(maps)
+class ScoredDev(Dev):
+    """ilo.tune.Dev's interface over any system's candidate rows and (n, 11) probabilities (ilo.data.LABELS order)."""
+
+    def __init__(self, per_map: dict, gold_aif: dict):
+        """per_map: name -> (rows, probs); gold_aif: name -> gold map."""
+        self.names = sorted(per_map)
         self.gold_aif = {n: gold_aif[n] for n in self.names}
         self.rows, parts = [], []
         for n in self.names:
-            s, answers = maps[n]
-            rows, probs = rows_probs(s, votes(s, answers)) if answers else ([], np.zeros((0, len(LABELS))))
+            rows, probs = per_map[n]
             self.rows += rows
             parts.append(probs)
         self.raw = np.concatenate(parts)
@@ -48,6 +49,13 @@ class ClaudeDev(Dev):
             self.gold[name] = {k: y for k, y in ilo_labels(g, props | locs).items() if k[0] in locs and k[1] in props}
             self.n_pairs[name] = len(locs) * len(props)
         self.labels = None
+
+
+class ClaudeDev(ScoredDev):
+    def __init__(self, maps: dict, gold_aif: dict):
+        """maps: name -> (Serialised, [answers]); gold_aif: name -> gold map. Maps with no answer predict nothing."""
+        super().__init__({n: rows_probs(s, votes(s, answers)) if answers else ([], np.zeros((0, len(LABELS))))
+                          for n, (s, answers) in maps.items()}, gold_aif)
 
 
 def run_answers(run: str) -> tuple[dict, dict, list[str]]:
@@ -86,39 +94,47 @@ def cross_fit(dev: Dev, probs: np.ndarray, grouping: dict) -> tuple[dict, dict]:
     return held, folds
 
 
-def main():
-    run = arg("run", "dev")
+def tuned_report(dev: ScoredDev, run: str, missing: list) -> dict:
+    """The labeller's decision layer on any ScoredDev: thresholds on all of dev, cross-fitted honest score, argmax."""
     grouping = GROUPINGS["shared"]
-    with timed("ilo_llm", f"tune:{run}") as row:
-        maps, gold, missing = run_answers(run)
-        dev = ClaudeDev(maps, gold)
-        # The fast metric must equal the official scorer: check every map under the argmax decode.
-        for name in dev.names:
-            links = dev.links(dev.raw, name, 0.5, None)
-            official = score_map(dev.gold_aif[name], predicted_map(dev.gold_aif[name], links))["ilo"]
-            fast = ilo_f1(dev.gold[name], {(t, p): y for t, p, y in links}, dev.n_pairs[name])
-            for o, f in zip(official, fast):
-                assert (o is None and f is None) or all(abs(a - b) < 1e-9 for a, b in zip(o, f)), (name, o, f)
-        final = tune(dev, dev.raw, grouping, dev.names)
-        held, folds = cross_fit(dev, dev.raw, grouping)
-        argmax = dev.scores(dev.raw, 0.5, None)
-        report = {
-            "run": run, "groups": "shared", "temperature": None, "maps": len(dev.names), "maps_without_answers": missing,
-            "link_min": final["params"]["link_min"], "type_min": final["type_min"],
-            "dev_ilo_f1": {
-                "argmax_decode": {"general": round(mean_f1(argmax, 0), 2), "focused": round(mean_f1(argmax, 1), 2)},
-                "tuned_on_all_dev (optimistic)": {"general": final["objective"],
-                                                 "focused": round(mean_f1(dev.scores(dev.raw, final["params"]["link_min"], final["type_min"]), 1), 2)},
-                "cross_fitted (honest)": {"general": round(mean_f1(held, 0), 2), "focused": round(mean_f1(held, 1), 2)},
-            },
-            "folds": folds, "fast_metric_matches_official": True,
-            "per_map_cross_fitted": {n: held[n] for n in dev.names},     # [general (P, R, F1), focused or None]
-        }
-        row.update(report["dev_ilo_f1"]["cross_fitted (honest)"])
-    (OUT / run).mkdir(parents=True, exist_ok=True)
-    with open(OUT / run / "thresholds.json", "w", encoding="utf-8", newline="\n") as f:
+    # The fast metric must equal the official scorer: check every map under the argmax decode.
+    for name in dev.names:
+        links = dev.links(dev.raw, name, 0.5, None)
+        official = score_map(dev.gold_aif[name], predicted_map(dev.gold_aif[name], links))["ilo"]
+        fast = ilo_f1(dev.gold[name], {(t, p): y for t, p, y in links}, dev.n_pairs[name])
+        for o, f in zip(official, fast):
+            assert (o is None and f is None) or all(abs(a - b) < 1e-9 for a, b in zip(o, f)), (name, o, f)
+    final = tune(dev, dev.raw, grouping, dev.names)
+    held, folds = cross_fit(dev, dev.raw, grouping)
+    argmax = dev.scores(dev.raw, 0.5, None)
+    return {
+        "run": run, "groups": "shared", "temperature": None, "maps": len(dev.names), "maps_without_answers": missing,
+        "link_min": final["params"]["link_min"], "type_min": final["type_min"],
+        "dev_ilo_f1": {
+            "argmax_decode": {"general": round(mean_f1(argmax, 0), 2), "focused": round(mean_f1(argmax, 1), 2)},
+            "tuned_on_all_dev (optimistic)": {"general": final["objective"],
+                                             "focused": round(mean_f1(dev.scores(dev.raw, final["params"]["link_min"], final["type_min"]), 1), 2)},
+            "cross_fitted (honest)": {"general": round(mean_f1(held, 0), 2), "focused": round(mean_f1(held, 1), 2)},
+        },
+        "folds": folds, "fast_metric_matches_official": True,
+        "per_map_cross_fitted": {n: held[n] for n in dev.names},     # [general (P, R, F1), focused or None]
+    }
+
+
+def write_report(report: dict, out_dir) -> None:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    with open(out_dir / "thresholds.json", "w", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(report, indent=1))
     print(json.dumps({k: v for k, v in report.items() if k != "per_map_cross_fitted"}, indent=1))
+
+
+def main():
+    run = arg("run", "dev")
+    with timed("ilo_llm", f"tune:{run}") as row:
+        maps, gold, missing = run_answers(run)
+        report = tuned_report(ClaudeDev(maps, gold), run, missing)
+        row.update(report["dev_ilo_f1"]["cross_fitted (honest)"])
+    write_report(report, OUT / run)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,354 @@
+{
+ "decode": "argmax (link_min 0.5, no type thresholds)",
+ "runs": {
+  "pilot-k0": {
+   "maps": 20,
+   "maps_without_answers": [],
+   "ilo_argmax": {
+    "general": 68.96,
+    "focused": 57.49
+   },
+   "ilo_argmax_rare_types_off (diagnostic, D100)": {
+    "general": 85.67,
+    "focused": 79.29
+   },
+   "linking": {
+    "recall": 0.9892,
+    "precision": 1.0,
+    "gold": 277,
+    "predicted": 274
+   },
+   "per_type": {
+    "Asserting": {
+     "gold": 252,
+     "predicted": 233,
+     "f1": 0.957
+    },
+    "Pure Questioning": {
+     "gold": 17,
+     "predicted": 16,
+     "f1": 0.909
+    },
+    "Assertive Questioning": {
+     "gold": 3,
+     "predicted": 7,
+     "f1": 0.6
+    },
+    "Rhetorical Questioning": {
+     "gold": 2,
+     "predicted": 3,
+     "f1": 0.0
+    },
+    "Default Illocuting": {
+     "gold": 0,
+     "predicted": 4,
+     "f1": 0.0
+    },
+    "Agreeing": {
+     "gold": 1,
+     "predicted": 6,
+     "f1": 0.0
+    },
+    "Challenging": {
+     "gold": 1,
+     "predicted": 1,
+     "f1": 0.0
+    },
+    "Disagreeing": {
+     "gold": 0,
+     "predicted": 3,
+     "f1": 0.0
+    },
+    "Arguing": {
+     "gold": 0,
+     "predicted": 0,
+     "f1": 0.0
+    },
+    "Restating": {
+     "gold": 1,
+     "predicted": 1,
+     "f1": 0.0
+    }
+   },
+   "rare_label_trap": {
+    "maps": 14,
+    "by_type": {
+     "Agreeing": 6,
+     "Disagreeing": 3,
+     "Default Illocuting": 3,
+     "Rhetorical Questioning": 3,
+     "Assertive Questioning": 2,
+     "Challenging": 1,
+     "Restating": 1
+    }
+   },
+   "usd": 0.020283,
+   "requests": 21,
+   "seconds_per_request_p50": 0.631,
+   "per_map": {
+    "nodeset20309": [
+     65.2,
+     47.8
+    ],
+    "nodeset20330": [
+     100.0,
+     100.0
+    ],
+    "nodeset20338": [
+     100.0,
+     100.0
+    ],
+    "nodeset20496": [
+     52.6,
+     40.8
+    ],
+    "nodeset20499": [
+     60.6,
+     52.7
+    ],
+    "nodeset20505": [
+     64.1,
+     46.2
+    ],
+    "nodeset20506": [
+     50.0,
+     33.3
+    ],
+    "nodeset20517": [
+     56.0,
+     36.0
+    ],
+    "nodeset20518": [
+     100.0,
+     100.0
+    ],
+    "nodeset20521": [
+     100.0,
+     100.0
+    ],
+    "nodeset23842": [
+     100.0,
+     100.0
+    ],
+    "nodeset23844": [
+     64.9,
+     47.4
+    ],
+    "nodeset23847": [
+     48.0,
+     31.4
+    ],
+    "nodeset23860": [
+     58.6,
+     48.2
+    ],
+    "nodeset23866": [
+     74.1,
+     65.5
+    ],
+    "nodeset23880": [
+     46.9,
+     29.2
+    ],
+    "nodeset23881": [
+     61.9,
+     42.9
+    ],
+    "nodeset25390": [
+     52.5,
+     32.5
+    ],
+    "nodeset25485": [
+     65.4,
+     48.1
+    ],
+    "nodeset25906": [
+     58.3,
+     47.9
+    ]
+   }
+  },
+  "pilot-k4": {
+   "maps": 20,
+   "maps_without_answers": [],
+   "ilo_argmax": {
+    "general": 73.59,
+    "focused": 63.04
+   },
+   "ilo_argmax_rare_types_off (diagnostic, D100)": {
+    "general": 85.55,
+    "focused": 78.45
+   },
+   "linking": {
+    "recall": 0.9856,
+    "precision": 1.0,
+    "gold": 277,
+    "predicted": 273
+   },
+   "per_type": {
+    "Asserting": {
+     "gold": 252,
+     "predicted": 239,
+     "f1": 0.969
+    },
+    "Pure Questioning": {
+     "gold": 17,
+     "predicted": 16,
+     "f1": 0.909
+    },
+    "Assertive Questioning": {
+     "gold": 3,
+     "predicted": 5,
+     "f1": 0.5
+    },
+    "Rhetorical Questioning": {
+     "gold": 2,
+     "predicted": 3,
+     "f1": 0.0
+    },
+    "Default Illocuting": {
+     "gold": 0,
+     "predicted": 1,
+     "f1": 0.0
+    },
+    "Agreeing": {
+     "gold": 1,
+     "predicted": 7,
+     "f1": 0.0
+    },
+    "Challenging": {
+     "gold": 1,
+     "predicted": 1,
+     "f1": 0.0
+    },
+    "Disagreeing": {
+     "gold": 0,
+     "predicted": 1,
+     "f1": 0.0
+    },
+    "Arguing": {
+     "gold": 0,
+     "predicted": 0,
+     "f1": 0.0
+    },
+    "Restating": {
+     "gold": 1,
+     "predicted": 0,
+     "f1": 0.0
+    }
+   },
+   "rare_label_trap": {
+    "maps": 11,
+    "by_type": {
+     "Agreeing": 7,
+     "Rhetorical Questioning": 3,
+     "Assertive Questioning": 2,
+     "Challenging": 1,
+     "Disagreeing": 1,
+     "Default Illocuting": 1
+    }
+   },
+   "usd": 0.023827,
+   "requests": 21,
+   "seconds_per_request_p50": 0.526,
+   "per_map": {
+    "nodeset20309": [
+     100.0,
+     100.0
+    ],
+    "nodeset20330": [
+     100.0,
+     100.0
+    ],
+    "nodeset20338": [
+     100.0,
+     100.0
+    ],
+    "nodeset20496": [
+     75.0,
+     50.0
+    ],
+    "nodeset20499": [
+     49.5,
+     32.8
+    ],
+    "nodeset20505": [
+     100.0,
+     100.0
+    ],
+    "nodeset20506": [
+     50.0,
+     33.3
+    ],
+    "nodeset20517": [
+     56.0,
+     36.0
+    ],
+    "nodeset20518": [
+     100.0,
+     100.0
+    ],
+    "nodeset20521": [
+     100.0,
+     100.0
+    ],
+    "nodeset23842": [
+     100.0,
+     100.0
+    ],
+    "nodeset23844": [
+     64.9,
+     47.4
+    ],
+    "nodeset23847": [
+     58.3,
+     38.3
+    ],
+    "nodeset23860": [
+     58.6,
+     48.2
+    ],
+    "nodeset23866": [
+     74.1,
+     65.5
+    ],
+    "nodeset23880": [
+     46.9,
+     29.2
+    ],
+    "nodeset23881": [
+     61.9,
+     42.9
+    ],
+    "nodeset25390": [
+     52.9,
+     41.1
+    ],
+    "nodeset25485": [
+     65.4,
+     48.1
+    ],
+    "nodeset25906": [
+     58.3,
+     47.9
+    ]
+   }
+  }
+ },
+ "k_choice": {
+  "rule": "k = 4 only if it gains >= 1.0 ILO general on the pilot (D099)",
+  "k4_minus_k0_general": 4.63,
+  "chosen_k": 4
+ },
+ "sanity_gate": {
+  "rule": "pilot ILO general >= 80",
+  "passed": {
+   "pilot-k0": false,
+   "pilot-k4": false
+  },
+  "diagnostic (D100): passed with the six rare types off": {
+   "pilot-k0": true,
+   "pilot-k4": true
+  }
+ }
+}

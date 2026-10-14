@@ -45,9 +45,10 @@ def turn_links(links: list) -> dict:
     return {t: (p, y) for t, p, y in links}
 
 
-def disagreements(cdev, claude: dict, labeller: dict) -> dict:
-    """Turn by turn: links only Claude makes, links only the labeller makes, and turns both link differently."""
-    kinds = {"claude_only": [], "labeller_only": [], "different_proposition": []}
+def disagreements(cdev, claude: dict, labeller: dict, name: str = "claude") -> dict:
+    """Turn by turn: links only the system makes (`name`; Claude by default), links only the labeller makes, and
+    turns both link differently."""
+    kinds = {f"{name}_only": [], "labeller_only": [], "different_proposition": []}
     for n in cdev.names:
         v = view(cdev.gold_aif[n], n)
         gold = {}
@@ -66,18 +67,18 @@ def disagreements(cdev, claude: dict, labeller: dict) -> dict:
                 elsewhere = [u for u in gold_turn.get(p, []) if u != t]
                 return {"map": n, "turn": say(t), "proposition": v.props[p], "type": who[t][1],
                         "gold_links_this_proposition_from": say(elsewhere[0]) if elsewhere else None,
-                        "that_turn_linked_by_claude": bool(elsewhere) and elsewhere[0] in c,
+                        f"that_turn_linked_by_{name}": bool(elsewhere) and elsewhere[0] in c,
                         "that_turn_linked_by_labeller": bool(elsewhere) and elsewhere[0] in l}
             g = [v.props[p] for p in sorted(gold.get(t, ()))]
             if t in c and t not in l:
-                kinds["claude_only"].append({**ex(c), "gold": g, "right": c[t][0] in gold.get(t, ())})
+                kinds[f"{name}_only"].append({**ex(c), "gold": g, "right": c[t][0] in gold.get(t, ())})
             elif t in l and t not in c:
                 kinds["labeller_only"].append({**ex(l), "gold": g, "right": l[t][0] in gold.get(t, ())})
             elif t in c and t in l and c[t][0] != l[t][0]:
                 kinds["different_proposition"].append({
-                    "map": n, "turn": f"{v.locs[t].speaker}: {v.locs[t].body}", "claude": v.props[c[t][0]],
+                    "map": n, "turn": f"{v.locs[t].speaker}: {v.locs[t].body}", name: v.props[c[t][0]],
                     "labeller": v.props[l[t][0]], "gold": g,
-                    "right": "claude" if c[t][0] in gold.get(t, ()) else "labeller" if l[t][0] in gold.get(t, ()) else "neither"})
+                    "right": name if c[t][0] in gold.get(t, ()) else "labeller" if l[t][0] in gold.get(t, ()) else "neither"})
     out = {}
     for k, items in kinds.items():
         out[k] = {"turns": len(items), "examples": items[:5]}

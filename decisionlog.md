@@ -44,7 +44,8 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
 | 6 | Short report | `reports/06-short-report.md`, `reports/figures/short-*.png`, `reports/short_report_numbers.py`, `reports/short_report_figures.py` | Every number and figure recomputed from committed files | Final run and write-up | **Done (D087)** |
 | 7 | Final README + relation-plateau analysis | `README.md`; §10 of the final report and §6 of the short report; `reports/figures/short-why-relations.png` | Every claim traced to a committed file; every link resolves | Final run and write-up | **Done (D088)** |
 | 8 | Write-ups reframed as an exploration | `README.md` and every report; `reports/short_report_numbers.py`, `reports/short_report_figures.py` and the figures they draw | No result or method changed; no combination in any write-up or figure; every number traced to a committed file; every link resolves | Final run and write-up | **Done (D089)** |
-| 9 | Claude as ILO labeller (dev test) | `ilo_llm/`, `results/ilo_llm/`, `reports/figures/ilo-claude-vs-labeller.png`; brief in `plans/claude-ilo-dev-test/README.md` | Gold round trip ≥ 98.6 / 94.7; labeller reference 90.08 / 80.64 reproduced; 675/675 valid dev answers; verdict by the D090 stop rule | Final run and write-up | **Done (D090–D098)**: round trip 98.70 / 96.28; reference reproduced; 675 / 675 valid; Claude honest dev ILO 88.03 / 77.48 vs the labeller's 90.08 / 80.64, **not better** |
+| 9 | Claude as ILO labeller (dev test) | `ilo_llm/`, `results/ilo_llm/`, `reports/figures/ilo-llms-vs-labeller.png` (replaced the Claude-only figure, D101); brief in `plans/claude-ilo-dev-test/README.md` | Gold round trip ≥ 98.6 / 94.7; labeller reference 90.08 / 80.64 reproduced; 675/675 valid dev answers; verdict by the D090 stop rule | Final run and write-up | **Done (D090–D098)**: round trip 98.70 / 96.28; reference reproduced; 675 / 675 valid; Claude honest dev ILO 88.03 / 77.48 vs the labeller's 90.08 / 80.64, **not better** |
+| 10 | Jev as ILO labeller (dev test) + labeller discussion | `ilo_jev/`, `results/ilo_jev/`, three-way figure, `reports/03-ilo-discussion.md` | Gold round trip = Claude's (98.70 / 96.28); cost projection ≤ $2; 225 / 225 valid dev maps; verdict by the D099 stop rule | Final run and write-up | **Done (D099–D101)**: Jev honest dev ILO 85.35 / 75.76 vs the labeller's 90.08 / 80.64, **not better**; best linking of the three (98.98% / 99.56%); $0.34 |
 
 ---
 
@@ -1417,3 +1418,65 @@ Each phase follows the same loop: explain it, check it against `PLAN.md`, get ap
   - The analyses (linking, per type, rare-label trap) use each system's *honest* links: every map is decoded with its held-out fold's thresholds. This is asserted to reproduce both honest scores exactly. The labeller's honest linking (98.33% / 99.62%) therefore differs slightly from its reported tuned-on-all-dev figure (98.27% / 99.62%).
   - `dev_report.json` also records Claude's raw type counts and, for each wrong link, the turn gold credits the proposition to.
 - **Write-up:** `reports/03-ilo-labeller.md` §11 (with Figure 3, `reports/figures/ilo-claude-vs-labeller.png`, drawn by `reports/ilo_claude_figure.py`), one sentence in the README's findings, and CLAUDE.md §7.
+
+### D099 — Dev test, part 2: can Jev do Task B better than the trained labeller? Protocol fixed before any call
+- **2026-10-14 · Phase 10 · by user** ("Can you have Jev run this as well, very similar, do this end to end without much input from me") **· Approved; settings by Claude**
+- *Question:* as D090, with Jev (A4's model) in place of Claude. Given dev maps in test format, can Jev link each turn to its proposition and type it better than the labeller (honest dev ILO 90.08 / 80.64)?
+- *Design (`ilo_jev/`):*
+  - **State.** A guide (the task, the 10 types with D091's spec-only definitions, and the annotators' measured habits, as Claude's `system_v0.md`) plus the map serialised with no links.
+  - **Questions.** Two `choice` questions per turn, each asked in both option orders and averaged (A4, D076):
+    - *which proposition does turn T express?* Every proposition is an option, plus `none`;
+    - *how does it put it forward?* The 10 types.
+  - **Probabilities.** P(T → P, type) = P(link P) × P(type), in `ilo.decode`'s 11-label format, so the labeller's decision layer applies unchanged.
+  - **Calls.** One pass, since Jev gives probabilities, not votes.
+- *Pilot:* the same 20 pilot maps, argmax decoding, comparing k = 0 against k = 4 retrieved worked examples (A2's pool minus the pilot episodes).
+  - *Rule, fixed now (as D077):* keep k = 4 only if it gains ≥ 1.0 ILO general; otherwise k = 0.
+  - *Sanity gate:* pilot general ≥ 80.
+  - No wording revision.
+- *Dev:* the 225 maps, the chosen k, the labeller's decision layer (no temperature, as for Claude), cross-fitted over the same 5 episodes.
+- *Stop rule:* as D090. Jev is better only if its honest dev ILO exceeds 90.58 and 81.14. The paired bootstrap against the labeller and against Claude (88.03 / 77.48) is reported either way.
+- *Budget:* paid gateway credit (balance $13.30; A4 has used $1.70 of D077's $10). The cost is projected before any call, and work stops and asks if the projection exceeds **$2**.
+- *Out of scope:* test maps, `data/evaluation/`, and changes to `a4_jev/`, `ilo/`, `a2_llm/` or committed results.
+
+### D100 — Jev pilot: k = 4 by rule; the sanity gate fails at plain argmax, and a diagnostic shows why
+- **2026-10-14 · Phase 10 · by Claude (pre-set rule D099; diagnostic under D097's "use best judgement") · Done** (`results/ilo_jev/pilot.json`; smoke $0.004, pilot $0.044)
+- *Smoke:* 3 / 3 maps complete and valid, model `typesafe-ai/jev`, 1.4 s per request.
+- *Pilot* (20 maps, argmax, ILO general / focused; link recall / precision):
+
+  | Arm | Argmax | Argmax, six rare types off (diagnostic) | Links | Maps with a type absent from gold |
+  |---|---|---|---|---|
+  | k = 0 | 68.96 / 57.49 | 85.67 / 79.29 | 98.92% / 100% | 14 |
+  | k = 4 | 73.59 / 63.04 | 85.55 / 78.45 | 98.56% / 100% | 11 |
+
+- **k = 4**, by D099's rule (+4.63 general ≥ 1.0).
+- **The sanity gate (≥ 80) fails for both arms at plain argmax.**
+- **Diagnostic, added after the gate failed:** score the same argmax with the six rare types switched off (falling back to Asserting), which is what the tuned layer did for both Claude and the labeller. Both arms then clear 80 (85.67 and 85.55), and linking is near perfect.
+- *Reading:*
+  - The pipeline is sound. Jev's weakness is typing: unthresholded, it invents rare types, Agreeing 7 times for 1 gold, which triggers the rare-label trap.
+  - k = 4's gain comes almost entirely from inventing fewer rare types; with them off, the two arms tie.
+  - The dev decision layer handles this as it does for every system. The dev run goes ahead at k = 4, about $0.31 projected.
+
+### D101 — Phase 10 result: Jev doing Task B end to end is not better than the labeller (dev); the labeller gets a discussion report
+- **2026-10-14 · Phase 10 · by Claude (D099 stop rule; write-up structure under the user's "whatever makes most sense structurally") · Done** (`results/ilo_jev/`: `check.json`, `pilot.json`, `smoke/`, `pilot-k0/`, `pilot-k4/`, `dev/` with `summary.json`, `responses.jsonl.gz`, `thresholds.json`, `dev_report.json`)
+- **Gates:**
+  - the gold round trip equals Claude's (98.70 / 96.28);
+  - no node IDs in any request;
+  - the cost was projected at $0.36 before any call, and $0.34 was spent: smoke $0.004, pilot $0.044, dev $0.288. The gateway balance went from $13.30 to $12.97;
+  - the dev run had 247 / 247 requests answered, 225 / 225 maps valid, model `typesafe-ai/jev`, 0.51 s per request, 44 s in all, no retries.
+- **Main result** (225 dev maps, ILO general / focused):
+  - Jev, cross-fitted (honest): **85.35 / 75.76**. Simple decode 74.42 / 61.16; tuned on all of dev (optimistic) 86.10 / 76.74.
+  - Labeller: 90.08 / 80.64. Claude: 88.03 / 77.48.
+  - Jev − labeller, paired bootstrap: general −4.73 [−6.73, −2.77], focused −4.88 [−7.98, −1.83].
+  - Jev − Claude: general −2.68 [−4.62, −0.86], focused −1.72 [−4.62, +1.17].
+- **Verdict by the stop rule:** **not better**. Neither general model replaces the labeller, and the test set is not re-run.
+- **Why:**
+  - **Linking.** Jev links best of the three: 98.98% / 99.56%, against the labeller's 98.33% / 99.62%. 24 of its 32 extra links are right, mostly turns whose proposition was rebuilt from context.
+  - **Typing.** Before thresholds, Jev makes a rare type its first choice on 147 linked turns, against 26 rare gold links. The tuned layer switches all rare types off, as it did for Claude and the labeller. Jev is then left under-calling questions: F1 Pure 0.746, Assertive 0.333, Rhetorical 0.098, against the labeller's 0.870 / 0.400 / 0.500.
+  - **Rare-label trap.** 17 maps get a type absent from their gold (labeller 18, Claude 30).
+- **Write-up:**
+  - **03 report §11** now covers both models (Claude and Jev), with a three-way figure. `reports/figures/ilo-llms-vs-labeller.png`, drawn by `reports/ilo_llm_figure.py`, replaces the Claude-only figure and script, which are deleted.
+  - **New `reports/03-ilo-discussion.md`:** a short companion about the labeller itself (why a small trained model holds Task B, what the two general models showed, where its remaining points are). It follows the discussion companions of A2–A4 and is indexed in `reports/README.md`.
+  - The README's findings sentence and CLAUDE.md §7 now cover both models.
+- **Code changes, outputs unchanged:**
+  - `ilo_llm/tune.py`: `ScoredDev` and `tuned_report` were split out for reuse. Re-running Claude's tuning reproduced every score and threshold; only the 16th digit of one map's float differed, from set-order summation, so the committed file was kept.
+  - `ilo_llm/evaluate.py`: `disagreements` takes the system's name; the default `"claude"` keeps the old output.

@@ -1,0 +1,57 @@
+{
+ "run": "smoke",
+ "settings": {
+  "split": "train",
+  "maps": [
+   "nodeset18266",
+   "nodeset18274",
+   "nodeset23907"
+  ],
+  "k": 0
+ },
+ "refused": [],
+ "requests": 4,
+ "answered": 4,
+ "maps": 3,
+ "maps_complete": 3,
+ "maps_with_problems": {},
+ "usd": 0.004264,
+ "input_tokens": 101533,
+ "models": [
+  "typesafe-ai/jev"
+ ],
+ "per_request": {
+  "seconds_p50": 1.3605,
+  "seconds_max": 1.542,
+  "tokens_p50": 19633.0,
+  "tokens_max": 50564,
+  "retries": 0,
+  "chars_per_token": 3.079
+ },
+ "per_map": [
+  {
+   "map": "nodeset18266",
+   "requests": 1,
+   "questions": 32,
+   "tokens": 11703,
+   "usd": 0.000492,
+   "seconds": 1.312
+  },
+  {
+   "map": "nodeset18274",
+   "requests": 1,
+   "questions": 64,
+   "tokens": 27562,
+   "usd": 0.001158,
+   "seconds": 1.409
+  },
+  {
+   "map": "nodeset23907",
+   "requests": 2,
+   "questions": 112,
+   "tokens": 62268,
+   "usd": 0.002615,
+   "seconds": 2.757
+  }
+ ]
+}

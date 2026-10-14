@@ -1,0 +1,564 @@
+{
+ "run": "dev",
+ "maps": 225,
+ "1_main": {
+  "jev": {
+   "cross_fitted (honest)": {
+    "general": 85.35,
+    "focused": 75.76
+   },
+   "argmax_decode": {
+    "general": 74.42,
+    "focused": 61.16
+   },
+   "tuned_on_all_dev (optimistic)": {
+    "general": 86.1,
+    "focused": 76.74
+   }
+  },
+  "claude": {
+   "argmax_decode": {
+    "general": 87.36,
+    "focused": 77.11
+   },
+   "tuned_on_all_dev (optimistic)": {
+    "general": 88.23,
+    "focused": 77.77
+   },
+   "cross_fitted (honest)": {
+    "general": 88.03,
+    "focused": 77.48
+   }
+  },
+  "labeller": {
+   "cross_fitted (honest)": {
+    "general": 90.08,
+    "focused": 80.64
+   },
+   "argmax_decode": {
+    "general": 89.46,
+    "focused": 78.06
+   },
+   "tuned_on_all_dev (optimistic)": {
+    "general": 90.16,
+    "focused": 80.67
+   }
+  },
+  "jev_thresholds_on_all_dev": {
+   "link_min": 0.01,
+   "type_min": {
+    "Pure Questioning": 0.0,
+    "Assertive Questioning": 0.8,
+    "Rhetorical Questioning": 0.7,
+    "Default Illocuting": 1.01,
+    "Agreeing": 1.01,
+    "Challenging": 1.01,
+    "Disagreeing": 1.01,
+    "Arguing": 1.01,
+    "Restating": 1.01
+   }
+  }
+ },
+ "2_bootstrap": {
+  "jev_minus_labeller": {
+   "general": {
+    "maps": 225,
+    "mean_difference": -4.73,
+    "ci95": [
+     -6.73,
+     -2.77
+    ],
+    "a_better_maps": 31,
+    "b_better_maps": 58
+   },
+   "focused": {
+    "maps": 225,
+    "mean_difference": -4.88,
+    "ci95": [
+     -7.98,
+     -1.83
+    ],
+    "a_better_maps": 32,
+    "b_better_maps": 55
+   }
+  },
+  "jev_minus_claude": {
+   "general": {
+    "maps": 225,
+    "mean_difference": -2.68,
+    "ci95": [
+     -4.62,
+     -0.86
+    ],
+    "a_better_maps": 44,
+    "b_better_maps": 43
+   },
+   "focused": {
+    "maps": 225,
+    "mean_difference": -1.72,
+    "ci95": [
+     -4.62,
+     1.17
+    ],
+    "a_better_maps": 44,
+    "b_better_maps": 41
+   }
+  },
+  "resamples": 10000,
+  "seed": 13
+ },
+ "3_verdict": {
+  "rule": "better only if honest general > 90.58 and focused > 81.14 (D099)",
+  "better": false,
+  "line": "Jev does not beat the labeller on dev: honest ILO 85.35 / 75.76 vs 90.08 / 80.64 (Claude 88.03 / 77.48)."
+ },
+ "4_linking": {
+  "jev": {
+   "recall": 0.9898,
+   "precision": 0.9956,
+   "gold": 3228,
+   "predicted": 3209
+  },
+  "labeller": {
+   "recall": 0.9833,
+   "precision": 0.9962,
+   "gold": 3228,
+   "predicted": 3186
+  },
+  "disagreements_with_labeller": {
+   "jev_only": {
+    "turns": 32,
+    "right": 24,
+    "wrong_with_proposition_gold_linked_elsewhere": 8,
+    "examples_right": [
+     {
+      "map": "nodeset17944",
+      "turn": "Fiona Bruce: What are parents supposed to make of that",
+      "proposition": "parents are supposed to make xxx of a number of schools planning to go ahead with 1st june openings and lots of schools not planning go ahead with 1st June openings",
+      "type": "Rhetorical Questioning",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_jev": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "parents are supposed to make xxx of a number of schools planning to go ahead with 1st june openings and lots of schools not planning go ahead with 1st June openings"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset17945",
+      "turn": "Helle Thorning-Schmidt: So there is these balances to find but I would just again say find a good balance with also the teachers and take the heat out of it.",
+      "proposition": "there are the balances between children's future and the duration  of the lockdown",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_jev": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "there are the balances between children's future and the duration  of the lockdown"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset17959",
+      "turn": "James Graham: that unfortunately is not going to be the case with the perfect forming arts venues",
+      "proposition": "the performing arts venues will not open alongside pubs and restaruants and manufacturers and tailers and that is unfortunate",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_jev": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "the performing arts venues will not open alongside pubs and restaruants and manufacturers and tailers and that is unfortunate"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset17962",
+      "turn": "Helle Thorning-Schmidt: we locked down before, softer lockdown",
+      "proposition": "in Denmark the lockdown was much softer because they started earlier",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_jev": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "in Denmark the lockdown was much softer because they started earlier"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset17962",
+      "turn": "Helle Thorning-Schmidt: Again a little idea from our own country",
+      "proposition": "in Denmark tracking, tracing and quarantining is going to happen as follows",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_jev": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "in Denmark tracking, tracing and quarantining is going to happen as follows"
+      ],
+      "right": true
+     }
+    ],
+    "examples_wrong": [
+     {
+      "map": "nodeset17959",
+      "turn": "James Graham: it is very likely, as Gerald was saying, that might not happen up to a year",
+      "proposition": "people in the theatre industry paying for more hopsital beds in their films, television dramas and theatres might not happen up to a year",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": "Unknown Gerald: that might not happen up to a year",
+      "that_turn_linked_by_jev": false,
+      "that_turn_linked_by_labeller": true,
+      "gold": [],
+      "right": false
+     },
+     {
+      "map": "nodeset19890",
+      "turn": "Unknown Speaker2: Yes",
+      "proposition": "Unknown Speaker2 has their dog behind them in mind",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": "Fiona Bruce: I presume you have your dog behind you in mind",
+      "that_turn_linked_by_jev": false,
+      "that_turn_linked_by_labeller": true,
+      "gold": [],
+      "right": false
+     },
+     {
+      "map": "nodeset19911",
+      "turn": "Fiona Bruce: That’s what Liam is saying",
+      "proposition": "as a consequence of Brexit, a border poll is likely in the future",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": "Liam Unknown: as a consequence of Brexit, a border poll is likely in the future",
+      "that_turn_linked_by_jev": false,
+      "that_turn_linked_by_labeller": true,
+      "gold": [],
+      "right": false
+     },
+     {
+      "map": "nodeset21472",
+      "turn": "Anthony Costello: Naomi Osaka has said she is a shy reserved person",
+      "proposition": "Naomi Osaka is a shy reserved person",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": "Naomi Osaka: I am a shy reserved person",
+      "that_turn_linked_by_jev": false,
+      "that_turn_linked_by_labeller": true,
+      "gold": [],
+      "right": false
+     },
+     {
+      "map": "nodeset21582",
+      "turn": "Mark Harper: The scientific officer said that",
+      "proposition": "COVID is going to be with us forever",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": "Scientific officer: that",
+      "that_turn_linked_by_jev": false,
+      "that_turn_linked_by_labeller": true,
+      "gold": [],
+      "right": false
+     }
+    ]
+   },
+   "labeller_only": {
+    "turns": 9,
+    "right": 7,
+    "wrong_with_proposition_gold_linked_elsewhere": 2,
+    "examples_right": [
+     {
+      "map": "nodeset17959",
+      "turn": "Unknown Gerald: that might not happen up to a year",
+      "proposition": "people in the theatre industry paying for more hopsital beds in their films, television dramas and theatres might not happen up to a year",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_jev": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "people in the theatre industry paying for more hopsital beds in their films, television dramas and theatres might not happen up to a year"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset18799",
+      "turn": "Jess Phillips: in the announcements last week with regard to the tutoring that school children will now get",
+      "proposition": "in the announcements last week with regard to the tutoring that school children will now get",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": "Jess Phillips: very welcome announcement",
+      "that_turn_linked_by_jev": true,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "in the announcements last week with regard to the tutoring that school children will now get"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset19890",
+      "turn": "Fiona Bruce: I presume you have your dog behind you in mind",
+      "proposition": "Unknown Speaker2 has their dog behind them in mind",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_jev": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "Unknown Speaker2 has their dog behind them in mind"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset21472",
+      "turn": "Naomi Osaka: I am a shy reserved person",
+      "proposition": "Naomi Osaka is a shy reserved person",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_jev": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "Naomi Osaka is a shy reserved person"
+      ],
+      "right": true
+     },
+     {
+      "map": "nodeset25556",
+      "turn": "Brighton MP  1: how seaside towns should respond",
+      "proposition": "the Prime minister was asked by a Brighton MP about how seaside towns should respond",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": null,
+      "that_turn_linked_by_jev": false,
+      "that_turn_linked_by_labeller": false,
+      "gold": [
+       "the Prime minister was asked by a Brighton MP about how seaside towns should respond"
+      ],
+      "right": true
+     }
+    ],
+    "examples_wrong": [
+     {
+      "map": "nodeset19911",
+      "turn": "Liam Unknown: as a consequence of Brexit, a border poll is likely in the future",
+      "proposition": "as a consequence of Brexit, a border poll is likely in the future",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": "Fiona Bruce: as a consequence of Brexit, a border poll is likely in the future",
+      "that_turn_linked_by_jev": true,
+      "that_turn_linked_by_labeller": true,
+      "gold": [
+       "as a consequence of Brexit, a border poll is likely in the future"
+      ],
+      "right": false
+     },
+     {
+      "map": "nodeset21582",
+      "turn": "Scientific officer: that",
+      "proposition": "the problem is the COVID is going to be with us forever",
+      "type": "Asserting",
+      "gold_links_this_proposition_from": "Mark Harper: The problem is this problem is going to be with us forever",
+      "that_turn_linked_by_jev": true,
+      "that_turn_linked_by_labeller": true,
+      "gold": [
+       "COVID is going to be with us forever"
+      ],
+      "right": false
+     }
+    ]
+   },
+   "different_proposition": {
+    "turns": 4,
+    "examples": [
+     {
+      "map": "nodeset19911",
+      "turn": "Fiona Bruce: as a consequence of Brexit, a border poll is likely in the future",
+      "jev": "as a consequence of Brexit, a border poll is likely in the future",
+      "labeller": "as a consequence of Brexit, a border poll is likely in the future",
+      "gold": [
+       "as a consequence of Brexit, a border poll is likely in the future"
+      ],
+      "right": "jev"
+     },
+     {
+      "map": "nodeset21582",
+      "turn": "Mark Harper: The problem is this problem is going to be with us forever",
+      "jev": "the problem is the COVID is going to be with us forever",
+      "labeller": "COVID is going to be with us forever",
+      "gold": [
+       "the problem is the COVID is going to be with us forever"
+      ],
+      "right": "jev"
+     },
+     {
+      "map": "nodeset22967",
+      "turn": "Brandon Lewis: That’s what we built on",
+      "jev": "the UK government has built on SPS type checks that have been on products from Great Britain into Northern Ireland since the 19th century",
+      "labeller": "the UK government have built on checks for SPS products",
+      "gold": [
+       "the UK government has built on SPS type checks that have been on products from Great Britain into Northern Ireland since the 19th century"
+      ],
+      "right": "jev"
+     },
+     {
+      "map": "nodeset22967",
+      "turn": "Brandon Lewis: We have built on that for those kind of products",
+      "jev": "the UK government have built on checks for SPS products",
+      "labeller": "the UK government has built on SPS type checks that have been on products from Great Britain into Northern Ireland since the 19th century",
+      "gold": [
+       "the UK government have built on checks for SPS products"
+      ],
+      "right": "jev"
+     }
+    ],
+    "right": {
+     "jev": 4
+    }
+   }
+  }
+ },
+ "5_per_type": {
+  "jev": {
+   "Asserting": {
+    "gold": 2992,
+    "predicted": 3059,
+    "f1": 0.976
+   },
+   "Pure Questioning": {
+    "gold": 162,
+    "predicted": 133,
+    "f1": 0.746
+   },
+   "Assertive Questioning": {
+    "gold": 19,
+    "predicted": 5,
+    "f1": 0.333
+   },
+   "Rhetorical Questioning": {
+    "gold": 29,
+    "predicted": 12,
+    "f1": 0.098
+   },
+   "Default Illocuting": {
+    "gold": 7,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Agreeing": {
+    "gold": 12,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Challenging": {
+    "gold": 2,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Disagreeing": {
+    "gold": 2,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Arguing": {
+    "gold": 2,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Restating": {
+    "gold": 1,
+    "predicted": 0,
+    "f1": 0.0
+   }
+  },
+  "labeller": {
+   "Asserting": {
+    "gold": 2992,
+    "predicted": 2989,
+    "f1": 0.982
+   },
+   "Pure Questioning": {
+    "gold": 162,
+    "predicted": 176,
+    "f1": 0.87
+   },
+   "Assertive Questioning": {
+    "gold": 19,
+    "predicted": 6,
+    "f1": 0.4
+   },
+   "Rhetorical Questioning": {
+    "gold": 29,
+    "predicted": 15,
+    "f1": 0.5
+   },
+   "Default Illocuting": {
+    "gold": 7,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Agreeing": {
+    "gold": 12,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Challenging": {
+    "gold": 2,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Disagreeing": {
+    "gold": 2,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Arguing": {
+    "gold": 2,
+    "predicted": 0,
+    "f1": 0.0
+   },
+   "Restating": {
+    "gold": 1,
+    "predicted": 0,
+    "f1": 0.0
+   }
+  },
+  "rare_types": [
+   "Default Illocuting",
+   "Agreeing",
+   "Challenging",
+   "Disagreeing",
+   "Arguing",
+   "Restating"
+  ],
+  "jev_most_probable_type_on_linked_turns (before thresholds)": {
+   "Asserting": 2915,
+   "Pure Questioning": 135,
+   "Agreeing": 77,
+   "Assertive Questioning": 61,
+   "Default Illocuting": 48,
+   "Rhetorical Questioning": 30,
+   "Disagreeing": 18,
+   "Challenging": 4
+  }
+ },
+ "6_rare_label_trap": {
+  "jev": {
+   "maps": 17,
+   "by_type": {
+    "Pure Questioning": 11,
+    "Rhetorical Questioning": 6,
+    "Assertive Questioning": 1
+   }
+  },
+  "labeller": {
+   "maps": 18,
+   "by_type": {
+    "Pure Questioning": 14,
+    "Rhetorical Questioning": 3,
+    "Assertive Questioning": 1
+   }
+  }
+ },
+ "7_cost": {
+  "requests": 247,
+  "answered": 247,
+  "maps": 225,
+  "usd": 0.288307,
+  "usd_per_map": 0.00128,
+  "input_tokens": 6864453,
+  "seconds_per_request_p50": 0.509,
+  "retries": 0,
+  "seconds_in_runner": 44.0,
+  "models": [
+   "typesafe-ai/jev"
+  ]
+ }
+}
